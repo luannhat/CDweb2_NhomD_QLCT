@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    container_name: php-web
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: user
+      DB_PASSWORD: pass
+      DB_NAME: qlct_db
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - qlct_network
+
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: qlct_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    ports:
+      - "3307:3306" # đổi cổng ngoài tránh trùng với MySQL cài trên máy
+    volumes:
+      - ./data:/var/lib/mysql
+    networks:
+      - qlct_network
+
+networks:
+  qlct_network:
+    driver: bridge
