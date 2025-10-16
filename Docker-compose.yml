@@ -1,5 +1,3 @@
-
-
 services:
   web:
     build: .
@@ -28,9 +26,24 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: pass
     ports:
-      - "3307:3306" # đổi cổng ngoài tránh trùng với MySQL cài trên máy
+      - "3307:3306" # tránh trùng với MySQL máy
     volumes:
       - ./data:/var/lib/mysql
+    networks:
+      - qlct_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: always
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8081:80"
     networks:
       - qlct_network
 
