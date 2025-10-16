@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+version: "3.8"
+
+>>>>>>> master
 services:
   web:
     build: .
     container_name: php-web
     ports:
-      - "8080:80"
+      - "8080:80" # truy cập web app tại localhost:8080
     depends_on:
       - db
     environment:
@@ -26,24 +31,40 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: pass
     ports:
+<<<<<<< HEAD
       - "3307:3306" # tránh trùng với MySQL máy
+=======
+      - "3307:3306" # cổng ngoài tránh trùng với MySQL cục bộ
+>>>>>>> master
     volumes:
       - ./data:/var/lib/mysql
     networks:
       - qlct_network
 
   phpmyadmin:
+<<<<<<< HEAD
     image: phpmyadmin/phpmyadmin:latest
+=======
+    image: phpmyadmin/phpmyadmin
+>>>>>>> master
     container_name: phpmyadmin
     restart: always
     depends_on:
       - db
     environment:
+<<<<<<< HEAD
       PMA_HOST: db
       PMA_USER: root
       PMA_PASSWORD: root
     ports:
       - "8081:80"
+=======
+      PMA_HOST: db # trỏ đến tên service MySQL
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8081:80" # truy cập phpMyAdmin tại localhost:8081
+>>>>>>> master
     networks:
       - qlct_network
 
