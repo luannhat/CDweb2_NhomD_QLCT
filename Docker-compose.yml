@@ -14,7 +14,7 @@ services:
       DB_PASSWORD: pass
       DB_NAME: qlct_db
     volumes:
-      - ./src:/var/www/html
+      - ./sources/qlct:/var/www/html
     networks:
       - qlct_network
 
