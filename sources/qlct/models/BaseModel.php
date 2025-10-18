@@ -1,5 +1,5 @@
 <?php
-require_once 'configs/database.php';
+require_once __DIR__ . '/../configs/database.php';
 
 abstract class BaseModel
 {
@@ -7,16 +7,20 @@ abstract class BaseModel
 
     public function __construct() {
         if (self::$_connection === null) {
-            $host = getenv('DB_HOST') ?: 'db';
-            $user = getenv('DB_USER') ?: 'user';
-            $pass = getenv('DB_PASSWORD') ?: 'pass';
-            $db   = getenv('DB_NAME') ?: 'qlct_db';
+            $host = DB_HOST;
+            $user = DB_USER;
+            $pass = DB_PASSWORD;
+            $db   = DB_NAME;
+            $port = DB_PORT;
 
-            self::$_connection = new mysqli($host, $user, $pass, $db);
+            self::$_connection = new mysqli($host, $user, $pass, $db, $port);
 
             if (self::$_connection->connect_errno) {
                 die("❌ Failed to connect to MySQL: " . self::$_connection->connect_error);
             }
+            
+            // Set charset để hỗ trợ tiếng Việt
+            self::$_connection->set_charset("utf8mb4");
         }
     }
 
@@ -61,6 +65,7 @@ abstract class BaseModel
 
     protected function delete($sql)
     {
-        return $this->query($sql);
+        $result = $this->query($sql);
+        return self::$_connection->affected_rows;
     }
 }
