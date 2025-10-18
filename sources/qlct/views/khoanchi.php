@@ -68,33 +68,64 @@
                         </thead>
 
                         <tbody id="tbody">
-                            <?php
-                            // --- Dữ liệu demo, bạn có thể thay bằng dữ liệu lấy từ DB ---
-                            $data = [
-                                ["10/10/2025", "Mua đồ ăn", "Ăn uống", "100.000"],
-                                ["09/10/2025", "Thanh toán điện nước", "Hóa đơn", "500.000"],
-                                ["08/10/2025", "Đi taxi", "Đi lại", "150.000"],
-                                ["07/10/2025", "Mua sắm", "Mua sắm", "800.000"],
-                                ["06/10/2025", "Tiền nhà", "Hóa đơn", "2.000.000"],
-                            ];
+<?php
+// Xử lý AJAX requests
+if (isset($_GET['ajax'])) {
+    require_once __DIR__ . '/../controllers/KhoanchiController.php';
+    $controller = new KhoanchiController();
+    header('Content-Type: application/json');
+    echo json_encode($controller->handleAjax());
+    exit;
+}
 
-                            foreach ($data as $row) {
-                                echo "<tr>
-                                    <td><input type='checkbox' /></td>
-                                    <td>{$row[0]}</td>
-                                    <td>{$row[1]}</td>
-                                    <td>{$row[2]}</td>
-                                    <td>{$row[3]}</td>
-                                </tr>";
-                            }
+// Lấy dữ liệu từ controller
+require_once __DIR__ . '/../controllers/KhoanchiController.php';
+$controller = new KhoanchiController();
+$data = $controller->index();
+
+$expenses = $data['expenses'];
+$totalPages = $data['totalPages'];
+$currentPage = $data['currentPage'];
+$search = $data['search'];
+
+// Hiển thị dữ liệu từ database
+if (!empty($expenses)) {
+    foreach ($expenses as $expense) {
+        $ngay = date('d/m/Y', strtotime($expense['ngaygiaodich']));
+        $sotien = number_format($expense['sotien'], 0, ',', '.') . ' VNĐ';
+        echo "<tr data-magd='{$expense['magd']}'>
+            <td><input type='checkbox' class='expense-checkbox' value='{$expense['magd']}' /></td>
+            <td>{$ngay}</td>
+            <td>{$expense['noidung']}</td>
+            <td>{$expense['loai']}</td>
+            <td>{$sotien}</td>
+        </tr>";
+    }
+} else {
+    echo "<tr>
+        <td colspan='5' style='text-align: center; padding: 20px; color: #666;'>
+            " . (empty($search) ? 'Chưa có khoản chi nào' : 'Không tìm thấy kết quả phù hợp') . "
+        </td>
+    </tr>";
+}
                             ?>
                         </tbody>
                     </table>
 
                     <div class="pagination" style="margin-top:12px;">
-                        <div class="circle" id="prevBtn">&lt;</div>
-                        <div class="page-num" id="pageInfo">1/2</div>
-                        <div class="circle" id="nextBtn">&gt;</div>
+                        <?php if ($currentPage > 1): ?>
+                            <a href="?page=<?php echo $currentPage - 1; ?><?php echo !empty($search) ? '&q=' . urlencode($search) : ''; ?>" class="circle" id="prevBtn">&lt;</a>
+                        <?php else: ?>
+                            <span class="circle disabled">&lt;</span>
+                        <?php endif; ?>
+                        
+                        <div class="page-num" id="pageInfo"><?php echo $currentPage; ?>/<?php echo $totalPages; ?></div>
+                        
+                        <?php if ($currentPage < $totalPages): ?>
+                            <a href="?page=<?php echo $currentPage + 1; ?><?php echo !empty($search) ? '&q=' . urlencode($search) : ''; ?>" class="circle" id="nextBtn">&gt;</a>
+                        <?php else: ?>
+                            <span class="circle disabled">&gt;</span>
+                        <?php endif; ?>
                     </div>
                 </section>
             </main>
