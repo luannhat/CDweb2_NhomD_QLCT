@@ -65,6 +65,7 @@ abstract class BaseModel
 
     protected function delete($sql)
     {
-        return $this->query($sql);
+        $result = $this->query($sql);
+        return self::$_connection->affected_rows;
     }
 }

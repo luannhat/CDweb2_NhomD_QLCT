@@ -126,13 +126,29 @@ class KhoanchiModel extends BaseModel
             return false;
         }
 
-        $magdList = implode(',', array_map('intval', $magdList));
+        // Validate và escape IDs
+        $validIds = [];
+        foreach ($magdList as $id) {
+            $id = intval($id);
+            if ($id > 0) {
+                $validIds[] = $id;
+            }
+        }
+
+        if (empty($validIds)) {
+            return false;
+        }
+
+        $magdList = implode(',', $validIds);
         $sql = "DELETE FROM GIAODICH 
                 WHERE magd IN ({$magdList}) 
-                AND makh = {$makh}
+                AND makh = " . intval($makh) . "
                 AND loai = 'expense'";
 
-        return $this->delete($sql);
+        $affectedRows = $this->delete($sql);
+        
+        // Trả về true nếu có ít nhất 1 hàng bị xóa
+        return $affectedRows > 0;
     }
 
     // Lấy danh sách danh mục chi tiêu
