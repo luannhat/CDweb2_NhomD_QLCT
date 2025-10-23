@@ -91,7 +91,7 @@
                                         echo "<option value='{$category['machitieu']}' {$selected}>{$category['tendanhmuc']}</option>";
                                     }
                                 } catch (Exception $e) {
-                                    echo '<option value="">Không thể tải danh mục</option>';
+                                    echo '';
                                 }
                                 ?>
                             </select>
