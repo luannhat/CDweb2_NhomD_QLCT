@@ -77,16 +77,29 @@ deleteBtn.addEventListener('click', async () => {
         return;
     }
 
-    const magdList = Array.from(checkedBoxes).map(cb => cb.value);
+    const ids = Array.from(checkedBoxes).map(cb => cb.value);
     
-    const result = await makeAjaxRequest('delete_multiple', { magd_list: magdList });
-    
-    if (result.success) {
-        showMessage(result.message, 'success');
-        // Reload trang để cập nhật dữ liệu
-        window.location.reload();
-    } else {
-        showMessage(result.message, 'error');
+    try {
+        const response = await fetch('?ajax=delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ids: ids })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            showMessage(result.message, 'success');
+            // Reload trang để cập nhật dữ liệu
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showMessage(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Delete Error:', error);
+        showMessage('Có lỗi xảy ra khi xóa', 'error');
     }
 });
 

@@ -58,13 +58,21 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'delete') {
     exit;
 }
 ?>
-
-<!-- Font Awesome 6 -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-<!-- CSS riêng của trang Khoản chi -->
-<?php $cssVersion = @filemtime(__DIR__ . '/../public/css/khoanchi.css') ?: time(); ?>
-<link rel="stylesheet" href="../public/css/khoanchi.css?v=<?php echo $cssVersion; ?>" />
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khoản chi - Quản lý chi tiêu</title>
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- CSS riêng của trang Khoản chi -->
+    <?php $cssVersion = @filemtime(__DIR__ . '/../public/css/khoanchi.css') ?: time(); ?>
+    <link rel="stylesheet" href="../public/css/khoanchi.css?v=<?php echo $cssVersion; ?>" />
+</head>
+<body>
 
 <div class="app">
     <!-- Sidebar -->
@@ -133,6 +141,9 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'delete') {
                 <table id="expenseTable" aria-describedby="tableTitle">
                     <thead>
                         <tr>
+                            <th class="col-select">
+                                <input type="checkbox" id="selectAll" title="Chọn tất cả" />
+                            </th>
                             <th class="col-date">Ngày</th>
                             <th class="col-content">Nội dung</th>
                             <th class="col-type">Loại</th>
@@ -155,6 +166,9 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'delete') {
                                 $ngay = date('d/m/Y', strtotime($expense['ngaygiaodich']));
                                 $sotien = number_format($expense['sotien'], 0, ',', '.') . ' VNĐ';
                                 echo "<tr data-magd='{$expense['magd']}'>
+                                        <td class='col-select'>
+                                            <input type='checkbox' class='expense-checkbox' value='{$expense['magd']}' />
+                                        </td>
                                         <td>{$ngay}</td>
                                         <td>{$expense['noidung']}</td>
                                         <td>{$expense['loai']}</td>
@@ -163,7 +177,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'delete') {
                             }
                         } else {
                             echo "<tr>
-                                    <td colspan='4' style='text-align:center; padding:20px; color:#666;'>
+                                    <td colspan='5' style='text-align:center; padding:20px; color:#666;'>
                                         " . (empty($search) ? 'Chưa có khoản chi nào' : 'Không tìm thấy kết quả phù hợp') . "
                                     </td>
                                   </tr>";
@@ -251,3 +265,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+</body>
+</html>

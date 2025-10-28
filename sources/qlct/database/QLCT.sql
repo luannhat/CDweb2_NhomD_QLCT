@@ -1,267 +1,648 @@
-﻿USE master;
-GO
-ALTER DATABASE QLCT SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-GO
-DROP DATABASE QLCT;
-GO
+-- phpMyAdmin SQL Dump
+-- version 5.2.2
+-- https://www.phpmyadmin.net/
+--
+-- Host: db
+-- Generation Time: Oct 25, 2025 at 07:35 AM
+-- Server version: 8.0.43
+-- PHP Version: 8.2.27
 
-create database QLCT
-go
-use QLCT
-go
-set dateformat dmy
-go
-
--- Bảng KHACHHANG
-CREATE TABLE KHACHHANG (
-    makh INT IDENTITY(1,1) PRIMARY KEY,
-    tenkh NVARCHAR(100) NOT NULL,
-    email NVARCHAR(150) NOT NULL UNIQUE,
-    matkhau NVARCHAR(255) NOT NULL,
-    hinhanh NVARCHAR(255) NULL,
-    quyen NVARCHAR(20) NOT NULL DEFAULT 'user',
-    created_at DATETIME2 DEFAULT GETDATE(),
-    updated_at DATETIME2 DEFAULT GETDATE()
-);
-GO
-
--- Bảng DMCHITIEU
-CREATE TABLE DMCHITIEU (
-    machitieu INT IDENTITY(1,1) PRIMARY KEY,
-    makh INT NOT NULL,
-    tendanhmuc NVARCHAR(100) NOT NULL,
-    loai NVARCHAR(10) NOT NULL CHECK (loai IN ('income','expense')),
-    created_at DATETIME2 DEFAULT GETDATE(),
-    updated_at DATETIME2 DEFAULT GETDATE(),
-    CONSTRAINT FK_DMCHITIEU_KHACHHANG FOREIGN KEY (makh)
-        REFERENCES KHACHHANG(makh) ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-GO
-
--- Bảng DSCHITIEU
-CREATE TABLE DSCHITIEU (
-    maloaichitieu INT IDENTITY(1,1) PRIMARY KEY,
-    makh INT NOT NULL,
-    machitieu INT NOT NULL,
-    ngaychitieu DATE NOT NULL,
-    noidung NVARCHAR(255) NOT NULL,
-    loai NVARCHAR(10) NOT NULL CHECK (loai IN ('income','expense')),
-    sotien DECIMAL(18,2) NOT NULL,
-    created_at DATETIME2 DEFAULT GETDATE(),
-    updated_at DATETIME2 DEFAULT GETDATE(),
-    CONSTRAINT FK_DSCHITIEU_KHACHHANG FOREIGN KEY (makh)
-        REFERENCES KHACHHANG(makh) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT FK_DSCHITIEU_DMCHITIEU FOREIGN KEY (machitieu)
-        REFERENCES DMCHITIEU(machitieu) ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-GO
-
--- Bảng DSTHUNHAP
-CREATE TABLE DSTHUNHAP (
-    mathunhap INT IDENTITY(1,1) PRIMARY KEY,
-    makh INT NOT NULL,
-    machitieu INT NOT NULL,
-    ngaythunhap DATE NOT NULL,
-    noidung NVARCHAR(255) NOT NULL,
-    loai NVARCHAR(10) NOT NULL DEFAULT 'income' CHECK (loai IN ('income','expense')),
-    sotien DECIMAL(18,2) NOT NULL,
-    created_at DATETIME2 DEFAULT GETDATE(),
-    updated_at DATETIME2 DEFAULT GETDATE(),
-    CONSTRAINT FK_DSTHUNHAP_KHACHHANG FOREIGN KEY (makh)
-        REFERENCES KHACHHANG(makh) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT FK_DSTHUNHAP_DMCHITIEU FOREIGN KEY (machitieu)
-        REFERENCES DMCHITIEU(machitieu) ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-GO
-
--- Bảng GIAODICH
-CREATE TABLE GIAODICH (
-    magd INT IDENTITY(1,1) PRIMARY KEY,
-    makh INT NOT NULL,
-    machitieu INT NOT NULL,
-    sotien DECIMAL(18,2) NOT NULL,
-    loai NVARCHAR(10) NOT NULL CHECK (loai IN ('income','expense')),
-    ngaygiaodich DATE NOT NULL,
-    ghichu NVARCHAR(255) NULL,
-    anhhoadon NVARCHAR(255) NULL,
-    created_at DATETIME2 DEFAULT GETDATE(),
-    updated_at DATETIME2 DEFAULT GETDATE(),
-    CONSTRAINT FK_GIAODICH_KHACHHANG FOREIGN KEY (makh)
-        REFERENCES KHACHHANG(makh) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT FK_GIAODICH_DMCHITIEU FOREIGN KEY (machitieu)
-        REFERENCES DMCHITIEU(machitieu) ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-GO
-
--- Bảng NGANSACH
-CREATE TABLE NGANSACH (
-    mangansach INT IDENTITY(1,1) PRIMARY KEY,
-    makh INT NOT NULL,
-    machitieu INT NOT NULL,
-    ngay DATE NOT NULL,
-    ngansach DECIMAL(18,2) NOT NULL,
-    dachi DECIMAL(18,2) NOT NULL DEFAULT 0,
-    chenhlech AS (ngansach - dachi) PERSISTED,
-    trangthai NVARCHAR(20) NOT NULL DEFAULT 'on_budget'
-        CHECK (trangthai IN ('under_budget','on_budget','over_budget')),
-    created_at DATETIME2 DEFAULT GETDATE(),
-    updated_at DATETIME2 DEFAULT GETDATE(),
-    CONSTRAINT FK_NGANSACH_KHACHHANG FOREIGN KEY (makh)
-        REFERENCES KHACHHANG(makh) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT FK_NGANSACH_DMCHITIEU FOREIGN KEY (machitieu)
-        REFERENCES DMCHITIEU(machitieu) ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-GO
-
--- Bảng BANGNO
-CREATE TABLE BANGNO (
-    mabangno INT IDENTITY(1,1) PRIMARY KEY,
-    makh INT NOT NULL,
-    sotienno DECIMAL(18,2) NOT NULL,
-    loai NVARCHAR(10) NOT NULL CHECK (loai IN ('lend','borrow')),
-    nguoilienquan NVARCHAR(100) NOT NULL,
-    ngaydaohan DATE NOT NULL,
-    trangthai NVARCHAR(10) NOT NULL CHECK (trangthai IN ('pending','paid')),
-    created_at DATETIME2 DEFAULT GETDATE(),
-    updated_at DATETIME2 DEFAULT GETDATE(),
-    CONSTRAINT FK_BANGNO_KHACHHANG FOREIGN KEY (makh)
-        REFERENCES KHACHHANG(makh) ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-GO
-
--- Bảng TIETKIEM
-CREATE TABLE TIETKIEM (
-    matk INT IDENTITY(1,1) PRIMARY KEY,
-    makh INT NOT NULL,
-    muctieu NVARCHAR(150) NOT NULL,
-    sotiencandat DECIMAL(18,2) NOT NULL,
-    sotiendatietkiem DECIMAL(18,2) NOT NULL DEFAULT 0,
-    hanmuctieu DATE NOT NULL,
-    created_at DATETIME2 DEFAULT GETDATE(),
-    updated_at DATETIME2 DEFAULT GETDATE(),
-    CONSTRAINT FK_TIETKIEM_KHACHHANG FOREIGN KEY (makh)
-        REFERENCES KHACHHANG(makh) ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-GO
-
--- Bảng THONGBAO
-CREATE TABLE THONGBAO (
-    matb INT IDENTITY(1,1) PRIMARY KEY,
-    makh INT NOT NULL,
-    noidung NVARCHAR(255) NOT NULL,
-    loai NVARCHAR(10) NOT NULL CHECK (loai IN ('warning','reminder','info')),
-    trangthai BIT NOT NULL DEFAULT 0,
-    created_at DATETIME2 DEFAULT GETDATE(),
-    CONSTRAINT FK_THONGBAO_KHACHHANG FOREIGN KEY (makh)
-        REFERENCES KHACHHANG(makh) ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-GO
-
--- Bảng BAOCAO
-CREATE TABLE BAOCAO (
-    mabaocao INT IDENTITY(1,1) PRIMARY KEY,
-    makh INT NOT NULL,
-    thang INT NOT NULL CHECK (thang BETWEEN 1 AND 12),
-    nam INT NOT NULL,
-    tongthunhap DECIMAL(18,2) NOT NULL DEFAULT 0,
-    tongchitieu DECIMAL(18,2) NOT NULL DEFAULT 0,
-    sodu AS (tongthunhap - tongchitieu) PERSISTED,
-    created_at DATETIME2 DEFAULT GETDATE(),
-    updated_at DATETIME2 DEFAULT GETDATE(),
-    CONSTRAINT FK_BAOCAO_KHACHHANG FOREIGN KEY (makh)
-        REFERENCES KHACHHANG(makh) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT UQ_BAOCAO UNIQUE (makh, thang, nam)
-);
-GO
--- BẢNG TIMKIEM
-CREATE TABLE TIMKIEM (
-  matimkiem INT IDENTITY(1,1) PRIMARY KEY,
-  magd int,
-  makh int,
-  tenkhoanchi NVARCHAR(255) NOT NULL,
-  mota NVARCHAR(MAX) NOT NULL,
-  sotien DECIMAL(18,2) NOT NULL,
-  danhmuc NVARCHAR(255) NOT NULL,
-  tukhoa NVARCHAR(255) NOT NULL,
-  ngaychi DATETIME2 NOT NULL,
-  taoluc DATETIME2 NOT NULL,
-  capnhatluc DATETIME2 NOT NULL,
-   CONSTRAINT FK_TIMKIEM_GIAODICH FOREIGN KEY (magd) REFERENCES GIAODICH (magd) ON DELETE CASCADE ON UPDATE CASCADE,
-   CONSTRAINT FK_TIMKIEM_KHACHHANG FOREIGN KEY (makh) REFERENCES KHACHHANG (makh) ON DELETE CASCADE ON UPDATE CASCADE
-);
-GO
-
-CREATE TABLE DANHMUC (
-  madanhmuc INT PRIMARY KEY, -- KHÔNG có IDENTITY
-  tendanhmuc NVARCHAR(100) NOT NULL,
-  matk INT,
-  CONSTRAINT FK_DANHMUC_TIMKIEM FOREIGN KEY (matk)
-    REFERENCES TIMKIEM (matimkiem)
-    ON DELETE CASCADE ON UPDATE CASCADE
-);
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
 
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
--- BẢNG KHOANCHI
-CREATE TABLE KHOANCHI (
-  machi INT IDENTITY(1,1) PRIMARY KEY,
-  tenkhoanchi NVARCHAR(255) NOT NULL,
-  sotien DECIMAL(12,2) NOT NULL,
-  madanhmuc int,
-  ngaybatdau DATETIME2 NOT NULL,
-  lapphieu NVARCHAR(20) NOT NULL DEFAULT 'Không lặp lại'
-    CHECK (lapphieu IN (N'Hàng ngày', N'Hàng tháng', N'Hàng năm', N'Không lặp lại')),
-	CONSTRAINT FK_KHOANCHI_DANHMUC FOREIGN KEY (madanhmuc) REFERENCES DANHMUC (madanhmuc) ON DELETE CASCADE ON UPDATE CASCADE
-);
-GO
+--
+-- Database: `QLCT`
+--
 
--- BẢNG LAPNGANSACHTHEOTHANG
-CREATE TABLE LAPNGANSACHTHEOTHANG (
-  mangansach INT IDENTITY(1,1) PRIMARY KEY,
-  makh INT,
-  thang DATETIME2 NOT NULL,
-  nam DATETIME2 NOT NULL,
-  tongngansach DECIMAL(18,2) NOT NULL,
-  CONSTRAINT FK_NS_THANG_KHACHHANG FOREIGN KEY (makh) REFERENCES KHACHHANG (makh) ON DELETE CASCADE ON UPDATE CASCADE
-);
-GO
--- BẢNG CHITIETNGANSACH
-CREATE TABLE CHITIETNGANSACH (
-  machitiet INT IDENTITY(1,1) PRIMARY KEY,
-  mangansach INT,
-  machitieu INT NOT NULL,
-  sotienphanbo DECIMAL(18,2) NOT NULL,
-  CONSTRAINT FK_CTNS_DMCHITIEU FOREIGN KEY (machitieu) REFERENCES DMCHITIEU (machitieu) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT FK_CTNS_NGANSACH FOREIGN KEY (mangansach) REFERENCES LAPNGANSACHTHEOTHANG (mangansach) ON DELETE CASCADE ON UPDATE CASCADE
-);
-GO
+-- --------------------------------------------------------
 
--- BẢNG LICHTHUCHI
-CREATE TABLE LICHTHUCHI (
-  mathuchi INT IDENTITY(1,1) PRIMARY KEY,
-  ngay DATETIME2 NOT NULL,
-  loai NVARCHAR(10) NOT NULL CHECK (loai IN ('thu','chi')),
-  sotien DECIMAL(18,2) NOT NULL,
-  ghichu varchar(255) DEFAULT NULL,
-  makh int NOT NULL,
-  CONSTRAINT FK_LICHTHUCHI_KHACHHANG FOREIGN KEY (makh) REFERENCES KHACHHANG (makh) ON DELETE CASCADE ON UPDATE CASCADE
-);
-GO
+--
+-- Table structure for table `BANGNO`
+--
 
--- BẢNG SUAKHOANTHUNHAP
-CREATE TABLE SUAKHOANTHUNHAP (
-  mathuanhap INT IDENTITY(1,1) PRIMARY KEY,
-  makh int,
-  tenkhoanthu NVARCHAR(255) NOT NULL,
-  sotien DECIMAL(18,2) NOT NULL,
-  ngaynhan DATETIME2 NOT NULL,
-  danhmuc NVARCHAR(255) NOT NULL,
-  mota NVARCHAR(MAX) NOT NULL,
-  CONSTRAINT FK_SUAKHOANTHUNHAP_KHACHHANG FOREIGN KEY (makh) REFERENCES KHACHHANG (makh) ON DELETE CASCADE ON UPDATE CASCADE
-);
-GO
+CREATE TABLE `BANGNO` (
+  `mabangno` int NOT NULL,
+  `makh` int NOT NULL,
+  `sotienno` decimal(18,2) NOT NULL,
+  `loai` enum('lend','borrow') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nguoilienquan` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ngaydaohan` date NOT NULL,
+  `trangthai` enum('pending','paid') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- --------------------------------------------------------
 
+--
+-- Table structure for table `BAOCAO`
+--
 
+CREATE TABLE `BAOCAO` (
+  `mabaocao` int NOT NULL,
+  `makh` int NOT NULL,
+  `thang` int NOT NULL,
+  `nam` int NOT NULL,
+  `tongthunhap` decimal(18,2) NOT NULL DEFAULT '0.00',
+  `tongchitieu` decimal(18,2) NOT NULL DEFAULT '0.00',
+  `sodu` decimal(18,2) GENERATED ALWAYS AS ((`tongthunhap` - `tongchitieu`)) STORED,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ;
 
+-- --------------------------------------------------------
 
+--
+-- Table structure for table `CHITIETNGANSACH`
+--
+
+CREATE TABLE `CHITIETNGANSACH` (
+  `machitiet` int NOT NULL,
+  `mangansach` int DEFAULT NULL,
+  `machitieu` int NOT NULL,
+  `sotienphanbo` decimal(18,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `DANHMUC`
+--
+
+CREATE TABLE `DANHMUC` (
+  `madanhmuc` int NOT NULL,
+  `tendanhmuc` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `matk` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `DMCHITIEU`
+--
+
+CREATE TABLE `DMCHITIEU` (
+  `machitieu` int NOT NULL,
+  `makh` int NOT NULL,
+  `tendanhmuc` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `loai` enum('income','expense') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `DSCHITIEU`
+--
+
+CREATE TABLE `DSCHITIEU` (
+  `maloaichitieu` int NOT NULL,
+  `makh` int NOT NULL,
+  `machitieu` int NOT NULL,
+  `ngaychitieu` date NOT NULL,
+  `noidung` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `loai` enum('income','expense') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sotien` decimal(18,2) NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `DSTHUNHAP`
+--
+
+CREATE TABLE `DSTHUNHAP` (
+  `mathunhap` int NOT NULL,
+  `makh` int NOT NULL,
+  `machitieu` int NOT NULL,
+  `ngaythunhap` date NOT NULL,
+  `noidung` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `loai` enum('income','expense') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'income',
+  `sotien` decimal(18,2) NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `GIAODICH`
+--
+
+CREATE TABLE `GIAODICH` (
+  `magd` int NOT NULL,
+  `makh` int NOT NULL,
+  `machitieu` int NOT NULL,
+  `noidung` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sotien` decimal(18,2) NOT NULL,
+  `loai` enum('income','expense') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ngaygiaodich` date NOT NULL,
+  `ghichu` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `anhhoadon` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `KHACHHANG`
+--
+
+CREATE TABLE `KHACHHANG` (
+  `makh` int NOT NULL,
+  `tenkh` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `matkhau` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `hinhanh` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `quyen` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'user',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `KHOANCHI`
+--
+
+CREATE TABLE `KHOANCHI` (
+  `machi` int NOT NULL,
+  `tenkhoanchi` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sotien` decimal(12,2) NOT NULL,
+  `madanhmuc` int DEFAULT NULL,
+  `ngaybatdau` datetime NOT NULL,
+  `lapphieu` enum('Hàng ngày','Hàng tháng','Hàng năm','Không lặp lại') COLLATE utf8mb4_unicode_ci DEFAULT 'Không lặp lại'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `LAPNGANSACHTHEOTHANG`
+--
+
+CREATE TABLE `LAPNGANSACHTHEOTHANG` (
+  `mangansach` int NOT NULL,
+  `makh` int DEFAULT NULL,
+  `thang` int NOT NULL,
+  `nam` int NOT NULL,
+  `tongngansach` decimal(18,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `LICHTHUCHI`
+--
+
+CREATE TABLE `LICHTHUCHI` (
+  `mathuchi` int NOT NULL,
+  `ngay` datetime NOT NULL,
+  `loai` enum('thu','chi') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sotien` decimal(18,2) NOT NULL,
+  `ghichu` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `makh` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `NGANSACH`
+--
+
+CREATE TABLE `NGANSACH` (
+  `mangansach` int NOT NULL,
+  `makh` int NOT NULL,
+  `machitieu` int NOT NULL,
+  `ngay` date NOT NULL,
+  `ngansach` decimal(18,2) NOT NULL,
+  `dachi` decimal(18,2) NOT NULL DEFAULT '0.00',
+  `chenhlech` decimal(18,2) GENERATED ALWAYS AS ((`ngansach` - `dachi`)) STORED,
+  `trangthai` enum('under_budget','on_budget','over_budget') COLLATE utf8mb4_unicode_ci DEFAULT 'on_budget',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `SUAKHOANTHUNHAP`
+--
+
+CREATE TABLE `SUAKHOANTHUNHAP` (
+  `mathuanhap` int NOT NULL,
+  `makh` int DEFAULT NULL,
+  `tenkhoanthu` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sotien` decimal(18,2) NOT NULL,
+  `ngaynhan` datetime NOT NULL,
+  `danhmuc` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mota` text COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `THONGBAO`
+--
+
+CREATE TABLE `THONGBAO` (
+  `matb` int NOT NULL,
+  `makh` int NOT NULL,
+  `noidung` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `loai` enum('warning','reminder','info') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `trangthai` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `TIETKIEM`
+--
+
+CREATE TABLE `TIETKIEM` (
+  `matk` int NOT NULL,
+  `makh` int NOT NULL,
+  `muctieu` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sotiencandat` decimal(18,2) NOT NULL,
+  `sotiendatietkiem` decimal(18,2) NOT NULL DEFAULT '0.00',
+  `hanmuctieu` date NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `TIMKIEM`
+--
+
+CREATE TABLE `TIMKIEM` (
+  `matimkiem` int NOT NULL,
+  `magd` int DEFAULT NULL,
+  `makh` int DEFAULT NULL,
+  `tenkhoanchi` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mota` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sotien` decimal(18,2) NOT NULL,
+  `danhmuc` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tukhoa` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ngaychi` datetime NOT NULL,
+  `taoluc` datetime DEFAULT CURRENT_TIMESTAMP,
+  `capnhatluc` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `BANGNO`
+--
+ALTER TABLE `BANGNO`
+  ADD PRIMARY KEY (`mabangno`),
+  ADD KEY `makh` (`makh`);
+
+--
+-- Indexes for table `BAOCAO`
+--
+ALTER TABLE `BAOCAO`
+  ADD PRIMARY KEY (`mabaocao`),
+  ADD UNIQUE KEY `makh` (`makh`,`thang`,`nam`);
+
+--
+-- Indexes for table `CHITIETNGANSACH`
+--
+ALTER TABLE `CHITIETNGANSACH`
+  ADD PRIMARY KEY (`machitiet`),
+  ADD KEY `machitieu` (`machitieu`),
+  ADD KEY `mangansach` (`mangansach`);
+
+--
+-- Indexes for table `DANHMUC`
+--
+ALTER TABLE `DANHMUC`
+  ADD PRIMARY KEY (`madanhmuc`),
+  ADD KEY `matk` (`matk`);
+
+--
+-- Indexes for table `DMCHITIEU`
+--
+ALTER TABLE `DMCHITIEU`
+  ADD PRIMARY KEY (`machitieu`),
+  ADD KEY `FK_DMCHITIEU_KHACHHANG` (`makh`);
+
+--
+-- Indexes for table `DSCHITIEU`
+--
+ALTER TABLE `DSCHITIEU`
+  ADD PRIMARY KEY (`maloaichitieu`),
+  ADD KEY `makh` (`makh`),
+  ADD KEY `machitieu` (`machitieu`);
+
+--
+-- Indexes for table `DSTHUNHAP`
+--
+ALTER TABLE `DSTHUNHAP`
+  ADD PRIMARY KEY (`mathunhap`),
+  ADD KEY `makh` (`makh`),
+  ADD KEY `machitieu` (`machitieu`);
+
+--
+-- Indexes for table `GIAODICH`
+--
+ALTER TABLE `GIAODICH`
+  ADD PRIMARY KEY (`magd`),
+  ADD KEY `makh` (`makh`),
+  ADD KEY `machitieu` (`machitieu`);
+
+--
+-- Indexes for table `KHACHHANG`
+--
+ALTER TABLE `KHACHHANG`
+  ADD PRIMARY KEY (`makh`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `KHOANCHI`
+--
+ALTER TABLE `KHOANCHI`
+  ADD PRIMARY KEY (`machi`),
+  ADD KEY `madanhmuc` (`madanhmuc`);
+
+--
+-- Indexes for table `LAPNGANSACHTHEOTHANG`
+--
+ALTER TABLE `LAPNGANSACHTHEOTHANG`
+  ADD PRIMARY KEY (`mangansach`),
+  ADD KEY `makh` (`makh`);
+
+--
+-- Indexes for table `LICHTHUCHI`
+--
+ALTER TABLE `LICHTHUCHI`
+  ADD PRIMARY KEY (`mathuchi`),
+  ADD KEY `makh` (`makh`);
+
+--
+-- Indexes for table `NGANSACH`
+--
+ALTER TABLE `NGANSACH`
+  ADD PRIMARY KEY (`mangansach`),
+  ADD KEY `makh` (`makh`),
+  ADD KEY `machitieu` (`machitieu`);
+
+--
+-- Indexes for table `SUAKHOANTHUNHAP`
+--
+ALTER TABLE `SUAKHOANTHUNHAP`
+  ADD PRIMARY KEY (`mathuanhap`),
+  ADD KEY `makh` (`makh`);
+
+--
+-- Indexes for table `THONGBAO`
+--
+ALTER TABLE `THONGBAO`
+  ADD PRIMARY KEY (`matb`),
+  ADD KEY `makh` (`makh`);
+
+--
+-- Indexes for table `TIETKIEM`
+--
+ALTER TABLE `TIETKIEM`
+  ADD PRIMARY KEY (`matk`),
+  ADD KEY `makh` (`makh`);
+
+--
+-- Indexes for table `TIMKIEM`
+--
+ALTER TABLE `TIMKIEM`
+  ADD PRIMARY KEY (`matimkiem`),
+  ADD KEY `magd` (`magd`),
+  ADD KEY `makh` (`makh`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `BANGNO`
+--
+ALTER TABLE `BANGNO`
+  MODIFY `mabangno` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `BAOCAO`
+--
+ALTER TABLE `BAOCAO`
+  MODIFY `mabaocao` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `CHITIETNGANSACH`
+--
+ALTER TABLE `CHITIETNGANSACH`
+  MODIFY `machitiet` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `DANHMUC`
+--
+ALTER TABLE `DANHMUC`
+  MODIFY `madanhmuc` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `DMCHITIEU`
+--
+ALTER TABLE `DMCHITIEU`
+  MODIFY `machitieu` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `DSCHITIEU`
+--
+ALTER TABLE `DSCHITIEU`
+  MODIFY `maloaichitieu` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `DSTHUNHAP`
+--
+ALTER TABLE `DSTHUNHAP`
+  MODIFY `mathunhap` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `GIAODICH`
+--
+ALTER TABLE `GIAODICH`
+  MODIFY `magd` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `KHACHHANG`
+--
+ALTER TABLE `KHACHHANG`
+  MODIFY `makh` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `KHOANCHI`
+--
+ALTER TABLE `KHOANCHI`
+  MODIFY `machi` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `LAPNGANSACHTHEOTHANG`
+--
+ALTER TABLE `LAPNGANSACHTHEOTHANG`
+  MODIFY `mangansach` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `LICHTHUCHI`
+--
+ALTER TABLE `LICHTHUCHI`
+  MODIFY `mathuchi` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `NGANSACH`
+--
+ALTER TABLE `NGANSACH`
+  MODIFY `mangansach` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `SUAKHOANTHUNHAP`
+--
+ALTER TABLE `SUAKHOANTHUNHAP`
+  MODIFY `mathuanhap` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `THONGBAO`
+--
+ALTER TABLE `THONGBAO`
+  MODIFY `matb` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `TIETKIEM`
+--
+ALTER TABLE `TIETKIEM`
+  MODIFY `matk` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `TIMKIEM`
+--
+ALTER TABLE `TIMKIEM`
+  MODIFY `matimkiem` int NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `BANGNO`
+--
+ALTER TABLE `BANGNO`
+  ADD CONSTRAINT `bangno_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`);
+
+--
+-- Constraints for table `BAOCAO`
+--
+ALTER TABLE `BAOCAO`
+  ADD CONSTRAINT `baocao_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`);
+
+--
+-- Constraints for table `CHITIETNGANSACH`
+--
+ALTER TABLE `CHITIETNGANSACH`
+  ADD CONSTRAINT `chitietngansach_ibfk_1` FOREIGN KEY (`machitieu`) REFERENCES `DMCHITIEU` (`machitieu`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `chitietngansach_ibfk_2` FOREIGN KEY (`mangansach`) REFERENCES `LAPNGANSACHTHEOTHANG` (`mangansach`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `DANHMUC`
+--
+ALTER TABLE `DANHMUC`
+  ADD CONSTRAINT `danhmuc_ibfk_1` FOREIGN KEY (`matk`) REFERENCES `TIMKIEM` (`matimkiem`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `DMCHITIEU`
+--
+ALTER TABLE `DMCHITIEU`
+  ADD CONSTRAINT `FK_DMCHITIEU_KHACHHANG` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`);
+
+--
+-- Constraints for table `DSCHITIEU`
+--
+ALTER TABLE `DSCHITIEU`
+  ADD CONSTRAINT `dschitieu_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`),
+  ADD CONSTRAINT `dschitieu_ibfk_2` FOREIGN KEY (`machitieu`) REFERENCES `DMCHITIEU` (`machitieu`);
+
+--
+-- Constraints for table `DSTHUNHAP`
+--
+ALTER TABLE `DSTHUNHAP`
+  ADD CONSTRAINT `dsthunhap_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`),
+  ADD CONSTRAINT `dsthunhap_ibfk_2` FOREIGN KEY (`machitieu`) REFERENCES `DMCHITIEU` (`machitieu`);
+
+--
+-- Constraints for table `GIAODICH`
+--
+ALTER TABLE `GIAODICH`
+  ADD CONSTRAINT `giaodich_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`),
+  ADD CONSTRAINT `giaodich_ibfk_2` FOREIGN KEY (`machitieu`) REFERENCES `DMCHITIEU` (`machitieu`);
+
+--
+-- Constraints for table `KHOANCHI`
+--
+ALTER TABLE `KHOANCHI`
+  ADD CONSTRAINT `khoanchi_ibfk_1` FOREIGN KEY (`madanhmuc`) REFERENCES `DANHMUC` (`madanhmuc`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `LAPNGANSACHTHEOTHANG`
+--
+ALTER TABLE `LAPNGANSACHTHEOTHANG`
+  ADD CONSTRAINT `lapngansachtheothang_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `LICHTHUCHI`
+--
+ALTER TABLE `LICHTHUCHI`
+  ADD CONSTRAINT `lichthuchi_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `NGANSACH`
+--
+ALTER TABLE `NGANSACH`
+  ADD CONSTRAINT `ngansach_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`),
+  ADD CONSTRAINT `ngansach_ibfk_2` FOREIGN KEY (`machitieu`) REFERENCES `DMCHITIEU` (`machitieu`);
+
+--
+-- Constraints for table `SUAKHOANTHUNHAP`
+--
+ALTER TABLE `SUAKHOANTHUNHAP`
+  ADD CONSTRAINT `suakhoanthunhap_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `THONGBAO`
+--
+ALTER TABLE `THONGBAO`
+  ADD CONSTRAINT `thongbao_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`);
+
+--
+-- Constraints for table `TIETKIEM`
+--
+ALTER TABLE `TIETKIEM`
+  ADD CONSTRAINT `tietkiem_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`);
+
+--
+-- Constraints for table `TIMKIEM`
+--
+ALTER TABLE `TIMKIEM`
+  ADD CONSTRAINT `timkiem_ibfk_1` FOREIGN KEY (`magd`) REFERENCES `GIAODICH` (`magd`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `timkiem_ibfk_2` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`) ON DELETE CASCADE ON UPDATE CASCADE;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
