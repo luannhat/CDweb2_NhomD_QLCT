@@ -30,3 +30,5 @@ sources/tmp/
 
 # Bỏ các thư mục Docker
 db_data/
+data/
+.vscode/

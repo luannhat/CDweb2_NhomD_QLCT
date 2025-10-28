@@ -1,6 +1,6 @@
 -- Thêm dữ liệu mẫu cho hệ thống quản lý chi tiêu
 
-USE qlct;
+USE QLCT;
 
 -- Thêm khách hàng mẫu
 INSERT INTO KHACHHANG (tenkh, email, matkhau, quyen) VALUES 
@@ -66,7 +66,7 @@ INSERT INTO THONGBAO (makh, noidung, loai, trangthai) VALUES
 (1, 'Chúc mừng! Bạn đã tiết kiệm được 500K tháng này', 'info', 1);
 
 -- Thêm báo cáo mẫu cho tháng 1/2024
-INSERT INTO BAOCAO (makh, thang, nam, tong_thunhap, tong_chitieu) VALUES 
+INSERT INTO BAOCAO (makh, thang, nam, tongthunhap, tongchitieu) VALUES 
 (1, 1, 2024, 20700000, 6200000);
 
 -- Thêm tiết kiệm mẫu
