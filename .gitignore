@@ -40,3 +40,8 @@ db_data/
 
 # VSCode launch configuration
 .vscode/launch.json
+
+# InnoDB redo logs
+data/#innodb_redo/
+# hoặc cụ thể hơn
+data/#ib_redo*
