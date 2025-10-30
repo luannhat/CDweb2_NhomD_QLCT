@@ -3,7 +3,7 @@ require_once __DIR__ . '/../configs/database.php';
 
 abstract class BaseModel
 {
-    protected static $_connection = null;
+    public static $_connection = null;
 
     public function __construct() {
         if (self::$_connection === null) {
