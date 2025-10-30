@@ -37,3 +37,6 @@ binlog.*
 
 # Bỏ các thư mục Docker
 db_data/
+
+# VSCode launch configuration
+.vscode/launch.json
