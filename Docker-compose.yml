@@ -31,7 +31,7 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: pass
     ports:
-      - "3307:3306" # tránh trùng với MySQL máy
+      - "3307:3306" # cổng ngoài tránh trùng với MySQL cục bộ
     volumes:
       - ./data:/var/lib/mysql
       - ./sources/qlct/database/init-permissions.sql:/docker-entrypoint-initdb.d/init-permissions.sql
@@ -39,13 +39,13 @@ services:
       - qlct_network
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
+    image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
     restart: always
     depends_on:
       - db
     environment:
-      PMA_HOST: db
+      PMA_HOST: db # trỏ đến tên service MySQL
       PMA_USER: root
       PMA_PASSWORD: root
     ports:

@@ -22,6 +22,13 @@ sources/data/
 sources/logs/
 sources/tmp/
 
+# MySQL database files
+*.ibd
+# InnoDB redo logs
+#ib_redo*
+# Binary logs
+binlog.*
+
 # Bỏ file socket và cache
 *.sock
 *.pid
@@ -30,5 +37,15 @@ sources/tmp/
 
 # Bỏ các thư mục Docker
 db_data/
-data/
-.vscode/
+
+# VSCode launch configuration
+.vscode/launch.json
+
+# InnoDB redo logs
+data/#innodb_redo/
+# hoặc cụ thể hơn
+
+data/#*.dblwr
+data/*.ibd
+data/*.ibt
+data/#*
