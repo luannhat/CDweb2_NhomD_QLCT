@@ -4,16 +4,15 @@ require_once __DIR__ . '/BaseModel.php';
 class KhoanthuModel extends BaseModel
 {
 	// Lấy tất cả khoản thu từ bảng tổng hợp DSTHUNHAP (không phân trang)
-	public function getAllFromDSTHUNHAP($makh)
+	public function getAllFromDSTHUNHAP()
 	{
 		$conn = self::$_connection;
-		$makh = intval($makh);
-		$sql = "SELECT * FROM DSTHUNHAP WHERE makh = {$makh} ORDER BY created_at DESC";
+		$sql = "SELECT * FROM DSTHUNHAP";
 		$result = $conn->query($sql);
 		$rows = [];
 		if ($result && $result ->num_rows > 0) {
 			while ($row = $result->fetch_assoc()) {
-				$row[]= $row;
+				$rows[]= $row;
 			}
 		}
 		return $rows;
@@ -101,14 +100,19 @@ class KhoanthuModel extends BaseModel
 	}
 
 	// Thêm khoản thu mới
-	public function addIncome($makh, $machitieu, $noidung, $sotien, $ngaythunhap)
+	public function addIncome($makh, $machitieu, $noidung, $sotien, $loai, $ngaythunhap)
 	{
 		$noidung = $this->escape($noidung);
 
 		$sql = "INSERT INTO DSTHUNHAP (makh, machitieu, noidung, sotien, loai, ngaythunhap)
-				VALUES ({$makh}, {$machitieu}, '{$noidung}', {$sotien}, 'income', '{$ngaythunhap}')";
-
+        VALUES ({$makh}, {$machitieu}, '{$noidung}', {$sotien}, 'Nguồn thu', '{$ngaythunhap}')";
 		return $this->insert($sql);
+
+		if ($conn->query($sql)) {
+            return ['success' => true];
+        } else {
+            return ['success' => false, 'message' => $conn->error];
+        }
 	}
 
 	// Cập nhật khoản thu

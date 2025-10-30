@@ -25,12 +25,10 @@ class KhoanthuController
 			return ['success' => false, 'message' => 'Phương thức không hợp lệ'];
 		}
 
-		$machitieu = intval($_POST['machitieu'] ?? 0);
+		$machitieu = trim($_POST['loai'] ?? '');
 		$noidung = trim($_POST['noidung'] ?? '');
 		$sotien = floatval($_POST['sotien'] ?? 0);
 		$ngaygiaodich = $_POST['ngaygiaodich'] ?? '';
-		$ghichu = trim($_POST['ghichu'] ?? '');
-		$anhhoadon = $_POST['anhhoadon'] ?? '';
 
 		if (empty($noidung)) {
 			return ['success' => false, 'message' => 'Nội dung không được để trống'];
@@ -40,20 +38,18 @@ class KhoanthuController
 		}
 		if (empty($ngaygiaodich)) {
 			return ['success' => false, 'message' => 'Ngày giao dịch không được để trống'];
-		}
-		if ($machitieu <= 0) {
+		}	
+		if (empty($machitieu)) {
 			return ['success' => false, 'message' => 'Vui lòng chọn danh mục khoản thu'];
 		}
 
 		try {
 			$result = $this->khoanthuModel->addIncome(
 				$this->makh,
-				$machitieu,
+				$machitieu,  //chính là loại
 				$noidung,
 				$sotien,
-				$ngaygiaodich,
-				$ghichu,
-				$anhhoadon
+				$ngaygiaodich
 			);
 
 			if ($result) {

@@ -90,7 +90,7 @@ session_start();
 							</th>
 							<th class="col-date">Ngày</th>
 							<th class="col-content">Nội dung</th>
-							<th class="col-type">Nguồn thu</th>
+							<th class="col-type">Loại</th>
 							<th class="col-money">Số tiền</th>
 						</tr>
 					</thead>
@@ -105,6 +105,7 @@ session_start();
 						if (!empty($khoanthus)) {
     foreach ($khoanthus as $row) {
         echo "<tr data-mathunhap='{$row['mathunhap']}'>";
+		echo "<td><input type='checkbox' class='row-select' /></td>";
         echo "<td>" . htmlspecialchars($row['ngaythunhap'] ?? '') . "</td>";
         echo "<td>" . htmlspecialchars($row['noidung'] ?? '') . "</td>";
 		echo "<td>" . htmlspecialchars($row['loai'] ?? '') . "</td>";

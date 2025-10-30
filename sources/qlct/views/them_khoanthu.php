@@ -56,7 +56,7 @@
 
 					<form method="POST" action="">
 						<div class="form-row">
-							<label for="noidung">Tên khoản thu: <span class="required">*</span></label>
+							<label for="noidung">Nội dung: <span class="required">*</span></label>
 							<input type="text" id="noidung" name="noidung" required 
 							       value="<?php echo htmlspecialchars($_POST['noidung'] ?? ''); ?>"
 							       placeholder="Nhập tên khoản thu">
@@ -76,7 +76,7 @@
 						</div>
 
 						<div class="form-row">
-							<label for="loai">Nguồn thu: <span class="required">*</span></label>
+							<label for="loai">Loại: <span class="required">*</span></label>
 							<select id="loai" name="loai" required>
 								<option value="">-- Chọn nguồn thu --</option>
 								<?php
