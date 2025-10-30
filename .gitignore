@@ -49,3 +49,6 @@ data/#*.dblwr
 data/*.ibd
 data/*.ibt
 data/#*
+data/ibdata1
+data/ibtmp1
+data/undo_*
