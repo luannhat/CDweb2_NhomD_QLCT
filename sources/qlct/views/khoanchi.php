@@ -256,6 +256,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'delete') {
             <main class="content">
                 <div class="controls">
                     <button class="btn primary" id="addBtn" onclick="window.location.href='them_khoanchi.php'">Thêm khoản chi tiêu</button>
+                    <button class="btn primary" id="editBtn" onclick="window.location.href='edit_expense.php'">Sửa khoản chi tiêu</button>
                     <button class="btn danger" id="deleteBtn">Xóa</button>
                 </div>
 
