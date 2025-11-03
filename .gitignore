@@ -45,3 +45,24 @@ db_data/
 data/#innodb_redo/
 # hoặc cụ thể hơn
 data/#ib_redo*
+
+data/#*.dblwr
+data/*.ibd
+data/*.ibt
+data/#*
+
+data/ibdata1
+data/ibtmp1
+data/undo_*
+
+# MySQL data files
+data/
+*.ibd
+*.sdi
+*.pem
+*.CSM
+*.CSV
+*.log
+
+# IDE / OS
+*.DS_Store

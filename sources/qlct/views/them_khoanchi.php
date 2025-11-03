@@ -64,7 +64,7 @@
 
                         <div class="form-row">
                             <label for="sotien">Số tiền: <span class="required">*</span></label>
-                            <input type="number" id="sotien" name="sotien" required min="1" step="1000"
+                            <input type="number" id="sotien" name="sotien" required min="1" step="1"
                                    value="<?php echo htmlspecialchars($_POST['sotien'] ?? ''); ?>"
                                    placeholder="Nhập số tiền">
                         </div>
@@ -91,7 +91,7 @@
                                         echo "<option value='{$category['machitieu']}' {$selected}>{$category['tendanhmuc']}</option>";
                                     }
                                 } catch (Exception $e) {
-                                    echo '<option value="">Không thể tải danh mục</option>';
+                                    echo '';
                                 }
                                 ?>
                             </select>

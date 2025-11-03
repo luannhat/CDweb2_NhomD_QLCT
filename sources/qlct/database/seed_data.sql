@@ -1,82 +1,68 @@
 -- Thêm dữ liệu mẫu cho hệ thống quản lý chi tiêu
 
-USE qlct;
+USE qlct_db;
 
--- Thêm khách hàng mẫu
-INSERT INTO KHACHHANG (tenkh, email, matkhau, quyen) VALUES 
-('Văn A', 'vana@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user'),
-('Nguyễn B', 'nguyenb@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user'),
-('Trần C', 'tranc@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+--
+-- Dumping data for table `DMCHITIEU`
+--
 
--- Thêm danh mục chi tiêu cho khách hàng 1 (Văn A)
-INSERT INTO DMCHITIEU (makh, tendanhmuc, loai) VALUES 
-(1, 'Ăn uống', 'expense'),
-(1, 'Hóa đơn', 'expense'),
-(1, 'Đi lại', 'expense'),
-(1, 'Mua sắm', 'expense'),
-(1, 'Giáo dục', 'expense'),
-(1, 'Y tế', 'expense'),
-(1, 'Giải trí', 'expense'),
-(1, 'Khác', 'expense');
+INSERT INTO `DMCHITIEU` (`machitieu`, `makh`, `tendanhmuc`, `loai`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Lương hàng tháng', 'income', '2025-11-01 07:48:54', '2025-11-01 07:48:54'),
+(2, 1, 'Thưởng dự án', 'income', '2025-11-01 07:48:54', '2025-11-01 07:48:54'),
+(3, 2, 'Bán hàng online', 'income', '2025-11-01 07:48:54', '2025-11-01 07:48:54'),
+(4, 2, 'Đầu tư chứng khoán', 'income', '2025-11-01 07:48:54', '2025-11-01 07:48:54'),
+(5, 3, 'Mua sắm cá nhân', 'expense', '2025-11-01 07:48:54', '2025-11-01 07:48:54'),
+(6, 3, 'Tiền điện nước', 'expense', '2025-11-01 07:48:54', '2025-11-01 07:48:54'),
+(7, 1, 'Ăn uống', 'expense', '2025-11-01 07:48:54', '2025-11-01 07:48:54'),
+(8, 2, 'Giải trí', 'expense', '2025-11-01 07:48:54', '2025-11-01 07:48:54'),
+(9, 3, 'Tiền thuê nhà', 'expense', '2025-11-01 07:48:54', '2025-11-01 07:48:54'),
+(10, 1, 'Học thêm kỹ năng', 'expense', '2025-11-01 07:48:54', '2025-11-01 07:48:54'),
+(11, 1, 'Học thêm kỹ năng', 'income', '2025-11-01 07:48:54', '2025-11-01 07:48:54');
 
--- Thêm danh mục thu nhập cho khách hàng 1
-INSERT INTO DMCHITIEU (makh, tendanhmuc, loai) VALUES 
-(1, 'Lương', 'income'),
-(1, 'Thưởng', 'income'),
-(1, 'Đầu tư', 'income'),
-(1, 'Khác', 'income');
+--
+-- Dumping data for table `DMTHUNHAP`
+--
 
--- Thêm một số khoản chi mẫu cho khách hàng 1
-INSERT INTO GIAODICH (makh, machitieu, noidung, sotien, loai, ngaygiaodich, ghichu) VALUES 
-(1, 1, 'Mua đồ ăn trưa', 50000, 'expense', '2024-01-15', 'Ăn trưa tại quán cơm'),
-(1, 1, 'Cà phê với bạn', 30000, 'expense', '2024-01-14', 'Hẹn bạn uống cà phê'),
-(1, 2, 'Thanh toán điện nước', 450000, 'expense', '2024-01-13', 'Hóa đơn tháng 1'),
-(1, 2, 'Tiền nhà', 2000000, 'expense', '2024-01-01', 'Tiền thuê nhà tháng 1'),
-(1, 3, 'Đi taxi', 150000, 'expense', '2024-01-12', 'Đi taxi từ sân bay về nhà'),
-(1, 3, 'Xăng xe', 200000, 'expense', '2024-01-11', 'Đổ xăng cho xe máy'),
-(1, 4, 'Mua quần áo', 800000, 'expense', '2024-01-10', 'Mua quần áo mùa đông'),
-(1, 4, 'Mua sắm online', 300000, 'expense', '2024-01-09', 'Mua đồ trên Shopee'),
-(1, 5, 'Mua sách', 250000, 'expense', '2024-01-08', 'Mua sách lập trình'),
-(1, 5, 'Học phí khóa học', 1500000, 'expense', '2024-01-07', 'Đóng học phí khóa học online'),
-(1, 6, 'Khám bệnh', 300000, 'expense', '2024-01-06', 'Khám bệnh định kỳ'),
-(1, 6, 'Mua thuốc', 150000, 'expense', '2024-01-05', 'Mua thuốc cảm cúm'),
-(1, 7, 'Xem phim', 200000, 'expense', '2024-01-04', 'Xem phim tại rạp'),
-(1, 7, 'Chơi game', 100000, 'expense', '2024-01-03', 'Mua game trên Steam'),
-(1, 8, 'Chi phí khác', 50000, 'expense', '2024-01-02', 'Chi phí không xác định');
+INSERT INTO `DMTHUNHAP` (`mathunhap`, `makh`, `tendanhmuc`, `loai`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Lương chính', 'income', '2025-11-03 08:28:18', '2025-11-03 08:28:18'),
+(2, 2, 'Lương phụ', 'income', '2025-11-03 08:28:18', '2025-11-03 08:28:18'),
+(3, 3, 'Tiền thưởng', 'income', '2025-11-03 08:28:18', '2025-11-03 08:28:18'),
+(4, 4, 'Lương chính', 'income', '2025-11-03 08:28:18', '2025-11-03 08:28:18'),
+(5, 5, 'Đầu tư chứng khoán', 'income', '2025-11-03 08:28:18', '2025-11-03 08:28:18'),
+(6, 6, 'Quà tặng', 'income', '2025-11-03 08:28:18', '2025-11-03 08:28:18'),
+(7, 7, 'Lương chính', 'income', '2025-11-03 08:28:18', '2025-11-03 08:28:18'),
+(8, 8, 'Kinh doanh online', 'income', '2025-11-03 08:28:18', '2025-11-03 08:28:18'),
+(9, 9, 'Lãi ngân hàng', 'income', '2025-11-03 08:28:18', '2025-11-03 08:28:18'),
+(10, 10, 'Khác', 'income', '2025-11-03 08:28:18', '2025-11-03 08:28:18');
 
--- Thêm một số khoản thu mẫu cho khách hàng 1
-INSERT INTO GIAODICH (makh, machitieu, noidung, sotien, loai, ngaygiaodich, ghichu) VALUES 
-(1, 9, 'Lương tháng 1', 15000000, 'income', '2024-01-01', 'Lương cơ bản'),
-(1, 10, 'Thưởng cuối năm', 5000000, 'income', '2024-01-15', 'Thưởng Tết'),
-(1, 11, 'Lãi đầu tư', 500000, 'income', '2024-01-10', 'Lãi từ chứng khoán'),
-(1, 12, 'Thu nhập khác', 200000, 'income', '2024-01-05', 'Bán đồ cũ');
+--
+-- Dumping data for table `DSTHUNHAP`
+--
 
--- Thêm ngân sách mẫu cho khách hàng 1
-INSERT INTO NGANSACH (makh, machitieu, ngay, ngansach, dachi) VALUES 
-(1, 1, '2024-01-01', 1000000, 80000),  -- Ngân sách ăn uống: 1M, đã chi 80K
-(1, 2, '2024-01-01', 3000000, 2450000), -- Ngân sách hóa đơn: 3M, đã chi 2.45M
-(1, 3, '2024-01-01', 500000, 350000),  -- Ngân sách đi lại: 500K, đã chi 350K
-(1, 4, '2024-01-01', 2000000, 1100000), -- Ngân sách mua sắm: 2M, đã chi 1.1M
-(1, 5, '2024-01-01', 1000000, 1750000); -- Ngân sách giáo dục: 1M, đã chi 1.75M (vượt ngân sách)
+INSERT INTO `DSTHUNHAP` (`mathunhap`, `makh`, `maloaithunhap`, `ngaythunhap`, `noidung`, `loai`, `sotien`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, '2025-11-01', 'Lương tháng 11', 'income', 10000000.00, '2025-11-03 10:16:18', '2025-11-03 10:16:18'),
+(2, 2, 2, '2025-11-05', 'Thưởng dự án', 'income', 2000000.00, '2025-11-03 10:16:18', '2025-11-03 10:16:18'),
+(3, 3, 3, '2025-11-01', 'Lương tháng 11', 'income', 12000000.00, '2025-11-03 10:16:18', '2025-11-03 10:16:18'),
+(4, 4, 4, '2025-11-10', 'Tiền thưởng', 'income', 1500000.00, '2025-11-03 10:16:18', '2025-11-03 10:16:18'),
+(5, 5, 5, '2025-11-01', 'Lương tháng 11', 'income', 9000000.00, '2025-11-03 10:16:18', '2025-11-03 10:16:18'),
+(6, 6, 6, '2025-11-12', 'Bán đồ cũ', 'income', 500000.00, '2025-11-03 10:16:18', '2025-11-03 10:16:18'),
+(7, 7, 7, '2025-11-01', 'Lương tháng 11', 'income', 11000000.00, '2025-11-03 10:16:18', '2025-11-03 10:16:18'),
+(8, 8, 8, '2025-11-15', 'Hoa hồng', 'income', 1000000.00, '2025-11-03 10:16:18', '2025-11-03 10:16:18'),
+(9, 9, 9, '2025-11-01', 'Lương tháng 11', 'income', 9500000.00, '2025-11-03 10:16:18', '2025-11-03 10:16:18'),
+(10, 10, 10, '2025-11-20', 'Trợ cấp', 'income', 750000.00, '2025-11-03 10:16:18', '2025-11-03 10:16:18');
 
--- Thêm thông báo mẫu
-INSERT INTO THONGBAO (makh, noidung, loai, trangthai) VALUES 
-(1, 'Bạn đã vượt ngân sách giáo dục tháng này', 'warning', 0),
-(1, 'Nhắc nhở thanh toán hóa đơn điện nước', 'reminder', 0),
-(1, 'Chúc mừng! Bạn đã tiết kiệm được 500K tháng này', 'info', 1);
+--
+-- Dumping data for table `KHACHHANG`
+--
 
--- Thêm báo cáo mẫu cho tháng 1/2024
-INSERT INTO BAOCAO (makh, thang, nam, tong_thunhap, tong_chitieu) VALUES 
-(1, 1, 2024, 20700000, 6200000);
-
--- Thêm tiết kiệm mẫu
-INSERT INTO TIETKIEM (makh, muctieu, sotiencandat, sotiendatietkiem, hanmuctieu) VALUES 
-(1, 'Mua xe máy mới', 25000000, 5000000, '2024-12-31'),
-(1, 'Du lịch Hàn Quốc', 15000000, 2000000, '2024-06-30'),
-(1, 'Mua nhà', 2000000000, 100000000, '2030-12-31');
-
--- Thêm bảng nợ mẫu
-INSERT INTO BANGNO (makh, sotienno, loai, nguoilienquan, ngaydaohan, trangthai) VALUES 
-(1, 5000000, 'borrow', 'Ngân hàng ABC', '2024-06-30', 'pending'),
-(1, 2000000, 'lend', 'Bạn A', '2024-03-31', 'pending'),
-(1, 1000000, 'borrow', 'Bạn B', '2024-02-28', 'paid');
+INSERT INTO `KHACHHANG` (`makh`, `tenkh`, `email`, `matkhau`, `hinhanh`, `quyen`, `created_at`, `updated_at`) VALUES
+(1, 'Nguyễn Văn A', 'vana@example.com', '123456', 'avatar1.jpg', 'user', '2025-11-01 07:47:25', '2025-11-01 07:47:25'),
+(2, 'Trần Thị B', 'thib@example.com', '123456', 'avatar2.jpg', 'user', '2025-11-01 07:47:25', '2025-11-01 07:47:25'),
+(3, 'Lê Văn C', 'vanc@example.com', '123456', 'avatar3.jpg', 'user', '2025-11-01 07:47:25', '2025-11-01 07:47:25'),
+(4, 'Phạm Thị D', 'thid@example.com', '123456', 'avatar4.jpg', 'user', '2025-11-01 07:47:25', '2025-11-01 07:47:25'),
+(5, 'Hoàng Văn E', 'vane@example.com', '123456', 'avatar5.jpg', 'user', '2025-11-01 07:47:25', '2025-11-01 07:47:25'),
+(6, 'Đỗ Thị F', 'thif@example.com', '123456', 'avatar6.jpg', 'user', '2025-11-01 07:47:25', '2025-11-01 07:47:25'),
+(7, 'Vũ Văn G', 'vang@example.com', '123456', 'avatar7.jpg', 'admin', '2025-11-01 07:47:25', '2025-11-01 07:47:25'),
+(8, 'Ngô Thị H', 'thih@example.com', '123456', 'avatar8.jpg', 'user', '2025-11-01 07:47:25', '2025-11-01 07:47:25'),
+(9, 'Bùi Văn I', 'vani@example.com', '123456', 'avatar9.jpg', 'user', '2025-11-01 07:47:25', '2025-11-01 07:47:25'),
+(10, 'Phan Thị K', 'thik@example.com', '123456', 'avatar10.jpg', 'user', '2025-11-01 07:47:25', '2025-11-01 07:47:25');
