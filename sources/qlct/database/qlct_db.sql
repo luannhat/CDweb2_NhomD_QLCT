@@ -676,3 +676,112 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+/* Nối mã liên tiếp*/
+/*Bảng nợ*/
+SET @max_id = (SELECT IFNULL(MAX(mabangno), 0) + 1 FROM BANGNO);
+SET @sql = CONCAT('ALTER TABLE BANGNO AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+--Báo cáo
+SET @max_id = (SELECT IFNULL(MAX(mabaocao), 0) + 1 FROM BAOCAO);
+SET @sql = CONCAT('ALTER TABLE BAOCAO AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- chi tiết ngân sách
+SET @max_id = (SELECT IFNULL(MAX(machitiet), 0) + 1 FROM CHITIETNGANSACH);
+SET @sql = CONCAT('ALTER TABLE CHITIETNGANSACH AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+--danh mục
+SET @max_id = (SELECT IFNULL(MAX(madanhmuc), 0) + 1 FROM DANHMUC);
+SET @sql = CONCAT('ALTER TABLE DANHMUC AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+--danh mục chi tiêu
+SET @max_id = (SELECT IFNULL(MAX(machitieu), 0) + 1 FROM DMCHITIEU);
+SET @sql = CONCAT('ALTER TABLE DMCHITIEU AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--danh sách chi tiêu
+SET @max_id = (SELECT IFNULL(MAX(maloaichitieu), 0) + 1 FROM DSCHITIEU);
+SET @sql = CONCAT('ALTER TABLE DSCHITIEU AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--ds thu nhập
+SET @max_id = (SELECT IFNULL(MAX(mathunhap), 0) + 1 FROM DSTHUNHAP);
+SET @sql = CONCAT('ALTER TABLE DSTHUNHAP AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--giao dịch
+SET @max_id = (SELECT IFNULL(MAX(magd), 0) + 1 FROM GIAODICH);
+SET @sql = CONCAT('ALTER TABLE GIAODICH AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--khách hàng
+SET @max_id = (SELECT IFNULL(MAX(makh), 0) + 1 FROM KHACHHANG);
+SET @sql = CONCAT('ALTER TABLE KHACHHANG AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--khoản chi
+SET @max_id = (SELECT IFNULL(MAX(machi), 0) + 1 FROM KHOANCHI);
+SET @sql = CONCAT('ALTER TABLE KHOANCHI AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--lập ngân sách theo tháng
+SET @max_id = (SELECT IFNULL(MAX(mangansach), 0) + 1 FROM LAPNGANSACHTHEOTHANG);
+SET @sql = CONCAT('ALTER TABLE LAPNGANSACHTHEOTHANG AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--lịch thu chi
+SET @max_id = (SELECT IFNULL(MAX(mathuchi), 0) + 1 FROM LICHTHUCHI);
+SET @sql = CONCAT('ALTER TABLE LICHTHUCHI AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--ngân sách
+SET @max_id = (SELECT IFNULL(MAX(mangansach), 0) + 1 FROM NGANSACH);
+SET @sql = CONCAT('ALTER TABLE NGANSACH AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--sửa khoản thu nhập
+SET @max_id = (SELECT IFNULL(MAX(mathuanhap), 0) + 1 FROM SUAKHOANTHUNHAP);
+SET @sql = CONCAT('ALTER TABLE SUAKHOANTHUNHAP AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--thông báo
+SET @max_id = (SELECT IFNULL(MAX(matb), 0) + 1 FROM THONGBAO);
+SET @sql = CONCAT('ALTER TABLE THONGBAO AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--tiết kiệm
+SET @max_id = (SELECT IFNULL(MAX(matk), 0) + 1 FROM TIETKIEM);
+SET @sql = CONCAT('ALTER TABLE TIETKIEM AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--tìm kiếm
+SET @max_id = (SELECT IFNULL(MAX(matimkiem), 0) + 1 FROM TIMKIEM);
+SET @sql = CONCAT('ALTER TABLE TIMKIEM AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
