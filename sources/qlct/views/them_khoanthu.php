@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="vi">
 
@@ -76,20 +77,20 @@
 						</div>
 
 						<div class="form-row">
-							<label for="loai">Loại: <span class="required">*</span></label>
-							<select id="loai" name="loai" required>
+							<label for="matdmhunhap">Loại: <span class="required">*</span></label>
+							<select id="madmthunhap" name="madmthunhap" required>
 								<option value="">-- Chọn nguồn thu --</option>
 								<?php
 								// Lấy danh sách danh mục khoản thu
 								try {
 									require_once __DIR__ . '/../models/KhoanthuModel.php';
 									$khoanthuModel = new KhoanthuModel();
-									$categories = $khoanthuModel->getIncomeCategories(1); // Tạm thời hardcode makh = 1
+									$categories = $khoanthuModel->getAllCategoriesDistinct();
 
-									foreach ($categories as $category) {
-										$selected = (isset($_POST['loai']) && $_POST['loai'] == $category['loai']) ? 'selected' : '';
-										echo "<option value='{$category['loai']}' {$selected}>{$category['tendanhmuc']}</option>";
-									}
+									 foreach ($categories as $category) {
+        								$selected = (isset($_POST['madmthunhap']) && $_POST['madmthunhap'] == $category['madmthunhap']) ? 'selected' : '';
+        								echo "<option value='{$category['madmthunhap']}' {$selected}>{$category['tendanhmuc']}</option>";
+    								}
 								} catch (Exception $e) {
 									echo '';
 								}
@@ -119,7 +120,7 @@
 		// Validate form
 		document.querySelector('form').addEventListener('submit', function(e) {
 			const noidung = document.getElementById('noidung').value.trim();
-			const machitieu = document.getElementById('machitieu').value;
+			const mathunhap = document.getElementById('mathunhap').value;
 			const sotien = document.getElementById('sotien').value;
 			const ngaygiaodich = document.getElementById('ngaygiaodich').value;
 
@@ -129,7 +130,7 @@
 				return;
 			}
 
-			if (!machitieu) {
+			if (!tendanhmuc) {
 				alert('Vui lòng chọn nguồn thu');
 				e.preventDefault();
 				return;

@@ -25,10 +25,11 @@ class KhoanthuController
 			return ['success' => false, 'message' => 'Phương thức không hợp lệ'];
 		}
 
-		$machitieu = trim($_POST['loai'] ?? '');
+		$madmthunhap = intval($_POST['madmthunhap'] ?? 0);
 		$noidung = trim($_POST['noidung'] ?? '');
 		$sotien = floatval($_POST['sotien'] ?? 0);
 		$ngaygiaodich = $_POST['ngaygiaodich'] ?? '';
+		
 
 		if (empty($noidung)) {
 			return ['success' => false, 'message' => 'Nội dung không được để trống'];
@@ -39,17 +40,18 @@ class KhoanthuController
 		if (empty($ngaygiaodich)) {
 			return ['success' => false, 'message' => 'Ngày giao dịch không được để trống'];
 		}	
-		if (empty($machitieu)) {
-			return ['success' => false, 'message' => 'Vui lòng chọn danh mục khoản thu'];
+		if ($madmthunhap <= 0) {
+    		return ['success' => false, 'message' => 'Vui lòng chọn danh mục khoản thu'];
 		}
 
 		try {
 			$result = $this->khoanthuModel->addIncome(
 				$this->makh,
-				$machitieu,  //chính là loại
+				$madmthunhap,
 				$noidung,
 				$sotien,
-				$ngaygiaodich
+				'income', //loai
+				$ngaygiaodich //ngay thu
 			);
 
 			if ($result) {
@@ -67,7 +69,7 @@ class KhoanthuController
 	public function getCategories()
 	{
 		try {
-			$categories = $this->khoanthuModel->getIncomeCategories($this->makh);
+			$categories = $this->khoanthuModel->getAllCategoriesDistinct($this->makh);
 			return ['success' => true, 'data' => $categories];
 		} catch (Exception $e) {
 			error_log("Lỗi khi lấy danh mục khoản thu: " . $e->getMessage());
@@ -75,6 +77,3 @@ class KhoanthuController
 		}
 	}
 }
-
-
-

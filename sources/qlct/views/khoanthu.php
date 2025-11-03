@@ -108,7 +108,7 @@ session_start();
 		echo "<td><input type='checkbox' class='row-select' /></td>";
         echo "<td>" . htmlspecialchars($row['ngaythunhap'] ?? '') . "</td>";
         echo "<td>" . htmlspecialchars($row['noidung'] ?? '') . "</td>";
-		echo "<td>" . htmlspecialchars($row['loai'] ?? '') . "</td>";
+		echo "<td>" . htmlspecialchars($row['tendanhmuc'] ?? '') . "</td>";
         echo "<td>" . htmlspecialchars($row['sotien'] ?? '') . "</td>";
         echo "</tr>";
     }

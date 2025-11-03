@@ -4,20 +4,32 @@ require_once __DIR__ . '/BaseModel.php';
 class KhoanthuModel extends BaseModel
 {
 	// Lấy tất cả khoản thu từ bảng tổng hợp DSTHUNHAP (không phân trang)
-	public function getAllFromDSTHUNHAP()
+	public function getAllFromDSTHUNHAP($makh)
 	{
-		$conn = self::$_connection;
-		$sql = "SELECT * FROM DSTHUNHAP";
+		 $conn = self::$_connection;
+		$makh = intval($makh);
+
+		$sql = "SELECT 
+					ds.mathunhap,
+					ds.ngaythunhap,
+					ds.noidung,
+					dm.tendanhmuc AS tendanhmuc,
+					ds.sotien
+				FROM DSTHUNHAP ds
+				JOIN DMTHUNHAP dm ON ds.madmthunhap = dm.madmthunhap
+				WHERE ds.makh = {$makh}
+				ORDER BY ds.ngaythunhap DESC";
+
 		$result = $conn->query($sql);
 		$rows = [];
-		if ($result && $result ->num_rows > 0) {
+		if ($result && $result->num_rows > 0) {
 			while ($row = $result->fetch_assoc()) {
-				$rows[]= $row;
+				$rows[] = $row;
 			}
 		}
 		return $rows;
-    
-	}
+		
+		}
 
 	public function getKhoanthuById($mathunhap){
 		$conn = self::$_connection;
@@ -47,9 +59,9 @@ class KhoanthuModel extends BaseModel
 					g.ghichu,
 					g.anhhoadon
 				FROM GIAODICH g
-				INNER JOIN DMCHITIEU dm ON g.machitieu = dm.machitieu
+				INNER JOIN DMTHUNHAP dm ON g.mathunhap = dm.mathunhap
 				WHERE g.makh = {$makh} 
-				AND g.loai = 'income'
+				AND g.loai = {$loai}
 				{$searchCondition}
 				ORDER BY g.ngaygiaodich DESC
 				LIMIT {$limit} OFFSET {$offset}";
@@ -57,7 +69,7 @@ class KhoanthuModel extends BaseModel
 		return $this->select($sql);
 	}
 
-	// Đếm tổng số khoản thu
+	// Đếm tổng số khoản thu (để làm phân trang)
 	public function countIncomes($makh, $search = '')
 	{
 		$searchCondition = '';
@@ -70,7 +82,7 @@ class KhoanthuModel extends BaseModel
 				FROM GIAODICH g
 				INNER JOIN DMCHITIEU dm ON g.machitieu = dm.machitieu
 				WHERE g.makh = {$makh} 
-				AND g.loai = 'income'
+				AND g.loai = {$loai} --Nếu mà để income nó chỉ kiếm kh có income xuất ra và bỏ qua expense
 				{$searchCondition}";
 
 		$result = $this->select($sql);
@@ -90,52 +102,38 @@ class KhoanthuModel extends BaseModel
 					g.anhhoadon,
 					g.created_at
 				FROM GIAODICH g
-				INNER JOIN DMCHITIEU dm ON g.machitieu = dm.machitieu
+				INNER JOIN DMTHUNHAP dm ON g.mathunhap = dm.mathunhap
 				WHERE g.magd = {$magd} 
 				AND g.makh = {$makh}
-				AND g.loai = 'income'";
+				AND g.loai = {$loai}";
 
 		$result = $this->select($sql);
 		return $result[0] ?? null;
 	}
 
 	// Thêm khoản thu mới
-	public function addIncome($makh, $machitieu, $noidung, $sotien, $loai, $ngaythunhap)
+	public function addIncome($makh, $madmthunhap, $noidung, $sotien, $loai, $ngaythunhap)
 	{
 		$noidung = $this->escape($noidung);
+		$loai = $this->escape($loai);
 
-		$sql = "INSERT INTO DSTHUNHAP (makh, machitieu, noidung, sotien, loai, ngaythunhap)
-        VALUES ({$makh}, {$machitieu}, '{$noidung}', {$sotien}, 'Nguồn thu', '{$ngaythunhap}')";
-		return $this->insert($sql);
+		$sql = "INSERT INTO DSTHUNHAP (makh, madmthunhap, noidung, sotien, loai, ngaythunhap)
+				VALUES ({$makh}, {$madmthunhap}, '{$noidung}', {$sotien}, '{$loai}', '{$ngaythunhap}')";
 
-		if ($conn->query($sql)) {
-            return ['success' => true];
-        } else {
-            return ['success' => false, 'message' => $conn->error];
-        }
+		// Ghi log câu SQL để xem thực tế chèn gì
+		error_log("SQL addIncome: " . $sql);
+
+		$result = $this->insert($sql);
+
+		// Nếu lỗi SQL, ghi log chi tiết lỗi MySQL
+		if (!$result && self::$_connection->error) {
+			error_log("MySQL error: " . self::$_connection->error);
+		}
+
+		return $result;
 	}
 
-	// Cập nhật khoản thu
-	public function updateIncome($magd, $makh, $machitieu, $noidung, $sotien, $ngaygiaodich, $ghichu = '', $anhhoadon = '')
-	{
-		$noidung = $this->escape($noidung);
-		$ghichu = $this->escape($ghichu);
-		$anhhoadon = $this->escape($anhhoadon);
 
-		$sql = "UPDATE GIAODICH 
-				SET machitieu = {$machitieu},
-					noidung = '{$noidung}',
-					sotien = {$sotien},
-					ngaygiaodich = '{$ngaygiaodich}',
-					ghichu = '{$ghichu}',
-					anhhoadon = '{$anhhoadon}',
-					updated_at = CURRENT_TIMESTAMP
-				WHERE magd = {$magd} 
-				AND makh = {$makh}
-				AND loai = 'income'";
-
-		return $this->update($sql);
-	}
 
 	// Xóa khoản thu
 	public function deleteIncome($magd, $makh)
@@ -178,16 +176,28 @@ class KhoanthuModel extends BaseModel
 	}
 
 	// Lấy danh sách danh mục khoản thu
-	public function getIncomeCategories($makh)
-	{
-		$sql = "SELECT machitieu, tendanhmuc 
-				FROM DMCHITIEU 
-				WHERE makh = {$makh} 
-				AND loai = 'income'
-				ORDER BY tendanhmuc";
+	// public function getIncomeCategories($makh)
+	// {
+	// 	$sql = "SELECT mathunhap, tendanhmuc
+	// 			FROM DMTHUNHAP 
+	// 			WHERE makh = {$makh} 
+	// 			AND loai = 'income'
+	// 			ORDER BY tendanhmuc";
 
-		return $this->select($sql);
-	}
+	// 	return $this->select($sql);
+	// }
+
+	// Lấy tất cả danh mục không trùng lặp
+public function getAllCategoriesDistinct()
+{
+    $sql = "SELECT DISTINCT madmthunhap, tendanhmuc
+            FROM DMTHUNHAP
+            ORDER BY tendanhmuc ASC";
+
+    return $this->select($sql);
+}
+
+
 
 	// Escape string để tránh SQL injection
 	private function escape($string)
@@ -197,6 +207,28 @@ class KhoanthuModel extends BaseModel
 		}
 		return addslashes($string);
 	}
+
+	//lay ten danh muc theo bang dm thu nhap theo makh
+	public function getCategoryByIncome($mathunhap, $makh)
+	{
+		$sql = "SELECT 
+					ds.mathunhap,
+					ds.noidung,
+					ds.ngaythunhap,
+					ds.sotien,
+					dm.tendanhmuc AS tendanhmuc
+				FROM DSTHUNHAP ds
+				JOIN DMTHUNHAP dm ON ds.madmthunhap = dm.madmthunhap
+				WHERE ds.mathunhap = ? AND ds.makh = ?";
+
+		$stmt = self::$_connection->prepare($sql);
+		$stmt->bind_param("ii", $mathunhap, $makh);
+		$stmt->execute();
+		$result = $stmt->get_result();
+
+		return $result->fetch_assoc();
+	}
+
 }
 
 
