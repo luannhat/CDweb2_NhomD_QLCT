@@ -1,67 +1,73 @@
 <?php
-session_start();
-require_once '../models/BaseModel.php'; // nạp lớp BaseModel
+require_once 'models/UploadAvatarModel.php';
 
-// 🔒 Kiểm tra user đăng nhập
-$makh = $_SESSION['makh'] ?? null;
-if (!$makh) {
-    die("⚠️ Bạn chưa đăng nhập!");
-}
+class UploadAvatarController {
+    private $model;
 
-// 🧩 Kiểm tra có file upload không
-if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === 0) {
-    $file_name = $_FILES['avatar']['name'];
-    $tmp_name  = $_FILES['avatar']['tmp_name'];
-    $file_size = $_FILES['avatar']['size'];
-    $file_ext  = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-
-    $allowed_ext = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-
-    // 🧱 Kiểm tra định dạng
-    if (!in_array($file_ext, $allowed_ext)) {
-        die("❌ Chỉ chấp nhận JPG, JPEG, PNG, GIF, WEBP!");
+    public function __construct() {
+        $this->model = new UploadAvatarModel();
     }
 
-    // 🧱 Giới hạn kích thước (2MB)
-    if ($file_size > 2 * 1024 * 1024) {
-        die("❌ File quá lớn (tối đa 2MB)!");
-    }
+    // ✅ Hiển thị trang xem hoặc đổi avatar
+    public function index() {
+        session_start();
 
-    // 🟢 Đường dẫn upload
-    $upload_dir = __DIR__ . '/../public/images/';
-    if (!is_dir($upload_dir)) {
-        mkdir($upload_dir, 0777, true);
-    }
+        $isLoggedIn = isset($_SESSION['makh']);
+        $makh = $_SESSION['makh'] ?? null;
 
-    // 🧩 Tạo tên file duy nhất
-    $new_name = "avatar_" . $makh . "_" . time() . "." . $file_ext;
-    $target_path = $upload_dir . $new_name;
-
-    // 📦 Di chuyển file upload
-    if (move_uploaded_file($tmp_name, $target_path)) {
-
-        // ✅ Tạo một instance ẩn danh của BaseModel để đảm bảo connection được khởi tạo
-        new class extends BaseModel {};
-
-        // 🧩 Lấy kết nối static
-        $conn = BaseModel::$_connection;
-
-        // 🧱 Cập nhật avatar trong DB
-        $safe_name = $conn->real_escape_string($new_name);
-        $makh_int  = intval($makh);
-
-        $sql = "UPDATE KHACHHANG SET hinhanh = '$safe_name' WHERE makh = $makh_int";
-        if ($conn->query($sql)) {
-            $_SESSION['message'] = "✅ Cập nhật ảnh đại diện thành công!";
-            header("Location: /views/profile.php");
-            exit;
+        if ($isLoggedIn) {
+            $hinhanh = $this->model->getAvatarPath($makh);
         } else {
-            die("❌ Lỗi truy vấn: " . $conn->error);
+            $hinhanh = "public/Uploads/default-avatar.png"; // ảnh mặc định
         }
 
-    } else {
-        die("❌ Không thể lưu file.");
+        include 'views/profile.php';
     }
-} else {
-    die("❌ Không có file được tải lên.");
+
+    // ✅ Xử lý khi nhấn "Lưu Avatar"
+    public function uploadAvatarSubmit() {
+        session_start();
+
+        if (!isset($_SESSION['makh'])) {
+            echo "<script>
+                    alert('⚠️ Bạn cần đăng nhập để thay đổi ảnh đại diện!');
+                    window.location='index.php?action=login';
+                  </script>";
+            exit;
+        }
+
+        $makh = $_SESSION['makh'];
+
+        // Kiểm tra file upload
+        if (!isset($_FILES['avatar']) || $_FILES['avatar']['error'] !== UPLOAD_ERR_OK) {
+            echo "<script>alert('❌ File tải lên không hợp lệ!'); history.back();</script>";
+            exit;
+        }
+
+        $uploadDir = "public/Uploads/";
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $fileTmp = $_FILES['avatar']['tmp_name'];
+        $fileName = uniqid("avatar_") . "_" . basename($_FILES['avatar']['name']);
+        $targetPath = $uploadDir . $fileName;
+
+        $fileType = strtolower(pathinfo($targetPath, PATHINFO_EXTENSION));
+        $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        if (!in_array($fileType, $allowedTypes)) {
+            echo "<script>alert('❌ Chỉ chấp nhận file ảnh (JPG, JPEG, PNG, GIF, WEBP)!'); history.back();</script>";
+            exit;
+        }
+
+        // ✅ Upload file lên server
+        if (move_uploaded_file($fileTmp, $targetPath)) {
+            // ✅ Cập nhật DB
+            $this->model->updateAvatar($makh, $targetPath);
+            echo "<script>alert('✅ Cập nhật Avatar thành công!'); window.location='index.php?action=upload_avatar';</script>";
+        } else {
+            echo "<script>alert('❌ Lỗi khi tải ảnh lên.'); history.back();</script>";
+        }
+    }
 }

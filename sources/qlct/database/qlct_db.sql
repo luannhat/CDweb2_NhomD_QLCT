@@ -1,17 +1,42 @@
-﻿
+-- phpMyAdmin SQL Dump
+-- version 5.2.2
+-- https://www.phpmyadmin.net/
+--
+-- Host: db
+-- Generation Time: Nov 03, 2025 at 10:29 AM
+-- Server version: 8.0.43
+-- PHP Version: 8.2.27
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `qlct_db`
+--
+CREATE DATABASE IF NOT EXISTS `qlct_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `qlct_db`;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `BANGNO`
+--
+
 CREATE TABLE `BANGNO` (
   `mabangno` int NOT NULL,
   `makh` int NOT NULL,
   `sotienno` decimal(18,2) NOT NULL,
-  `loai` enum('lend','borrow') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `nguoilienquan` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `loai` enum('lend','borrow') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nguoilienquan` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `ngaydaohan` date NOT NULL,
-  `trangthai` enum('pending','paid') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `trangthai` enum('pending','paid') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -32,7 +57,7 @@ CREATE TABLE `BAOCAO` (
   `sodu` decimal(18,2) GENERATED ALWAYS AS ((`tongthunhap` - `tongchitieu`)) STORED,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -55,7 +80,7 @@ CREATE TABLE `CHITIETNGANSACH` (
 
 CREATE TABLE `DANHMUC` (
   `madanhmuc` int NOT NULL,
-  `tendanhmuc` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tendanhmuc` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `matk` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -68,13 +93,24 @@ CREATE TABLE `DANHMUC` (
 CREATE TABLE `DMCHITIEU` (
   `machitieu` int NOT NULL,
   `makh` int NOT NULL,
-  `tendanhmuc` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `loai` enum('income','expense') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tendanhmuc` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `loai` enum('income','expense') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
+--
+-- Table structure for table `DMTHUNHAP`
+--
+
+CREATE TABLE `DMTHUNHAP` (
+  `madmthunhap` int NOT NULL,
+  `makh` int NOT NULL,
+  `tendanhmuc` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `loai` enum('income','expense') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'income',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Table structure for table `DSCHITIEU`
@@ -85,8 +121,8 @@ CREATE TABLE `DSCHITIEU` (
   `makh` int NOT NULL,
   `machitieu` int NOT NULL,
   `ngaychitieu` date NOT NULL,
-  `noidung` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `loai` enum('income','expense') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `noidung` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `loai` enum('income','expense') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `sotien` decimal(18,2) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -101,16 +137,16 @@ CREATE TABLE `DSCHITIEU` (
 CREATE TABLE `DSTHUNHAP` (
   `mathunhap` int NOT NULL,
   `makh` int NOT NULL,
-  `machitieu` int NOT NULL,
+  `madmthunhap` int NOT NULL,
   `ngaythunhap` date NOT NULL,
-  `noidung` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `loai` enum('income','expense') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'income',
+  `noidung` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `loai` enum('income','expense') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'income',
   `sotien` decimal(18,2) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
+
 
 --
 -- Table structure for table `GIAODICH`
@@ -120,12 +156,12 @@ CREATE TABLE `GIAODICH` (
   `magd` int NOT NULL,
   `makh` int NOT NULL,
   `machitieu` int NOT NULL,
-  `noidung` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `noidung` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `sotien` decimal(18,2) NOT NULL,
-  `loai` enum('income','expense') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `loai` enum('income','expense') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `ngaygiaodich` date NOT NULL,
-  `ghichu` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `anhhoadon` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ghichu` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `anhhoadon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -138,16 +174,14 @@ CREATE TABLE `GIAODICH` (
 
 CREATE TABLE `KHACHHANG` (
   `makh` int NOT NULL,
-  `tenkh` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `matkhau` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `hinhanh` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `quyen` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'user',
+  `tenkh` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `matkhau` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `hinhanh` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `quyen` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'user',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `KHOANCHI`
@@ -155,11 +189,11 @@ CREATE TABLE `KHACHHANG` (
 
 CREATE TABLE `KHOANCHI` (
   `machi` int NOT NULL,
-  `tenkhoanchi` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tenkhoanchi` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `sotien` decimal(12,2) NOT NULL,
   `madanhmuc` int DEFAULT NULL,
   `ngaybatdau` datetime NOT NULL,
-  `lapphieu` enum('Hàng ngày','Hàng tháng','Hàng năm','Không lặp lại') COLLATE utf8mb4_unicode_ci DEFAULT 'Không lặp lại'
+  `lapphieu` enum('Hàng ngày','Hàng tháng','Hàng năm','Không lặp lại') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'Không lặp lại'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -185,9 +219,9 @@ CREATE TABLE `LAPNGANSACHTHEOTHANG` (
 CREATE TABLE `LICHTHUCHI` (
   `mathuchi` int NOT NULL,
   `ngay` datetime NOT NULL,
-  `loai` enum('thu','chi') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `loai` enum('thu','chi') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `sotien` decimal(18,2) NOT NULL,
-  `ghichu` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ghichu` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `makh` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -205,7 +239,7 @@ CREATE TABLE `NGANSACH` (
   `ngansach` decimal(18,2) NOT NULL,
   `dachi` decimal(18,2) NOT NULL DEFAULT '0.00',
   `chenhlech` decimal(18,2) GENERATED ALWAYS AS ((`ngansach` - `dachi`)) STORED,
-  `trangthai` enum('under_budget','on_budget','over_budget') COLLATE utf8mb4_unicode_ci DEFAULT 'on_budget',
+  `trangthai` enum('under_budget','on_budget','over_budget') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'on_budget',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -219,11 +253,11 @@ CREATE TABLE `NGANSACH` (
 CREATE TABLE `SUAKHOANTHUNHAP` (
   `mathuanhap` int NOT NULL,
   `makh` int DEFAULT NULL,
-  `tenkhoanthu` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tenkhoanthu` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `sotien` decimal(18,2) NOT NULL,
   `ngaynhan` datetime NOT NULL,
-  `danhmuc` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `mota` text COLLATE utf8mb4_unicode_ci NOT NULL
+  `danhmuc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mota` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -235,8 +269,8 @@ CREATE TABLE `SUAKHOANTHUNHAP` (
 CREATE TABLE `THONGBAO` (
   `matb` int NOT NULL,
   `makh` int NOT NULL,
-  `noidung` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `loai` enum('warning','reminder','info') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `noidung` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `loai` enum('warning','reminder','info') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `trangthai` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -250,7 +284,7 @@ CREATE TABLE `THONGBAO` (
 CREATE TABLE `TIETKIEM` (
   `matk` int NOT NULL,
   `makh` int NOT NULL,
-  `muctieu` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `muctieu` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `sotiencandat` decimal(18,2) NOT NULL,
   `sotiendatietkiem` decimal(18,2) NOT NULL DEFAULT '0.00',
   `hanmuctieu` date NOT NULL,
@@ -268,11 +302,11 @@ CREATE TABLE `TIMKIEM` (
   `matimkiem` int NOT NULL,
   `magd` int DEFAULT NULL,
   `makh` int DEFAULT NULL,
-  `tenkhoanchi` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `mota` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tenkhoanchi` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mota` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `sotien` decimal(18,2) NOT NULL,
-  `danhmuc` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tukhoa` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `danhmuc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tukhoa` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `ngaychi` datetime NOT NULL,
   `taoluc` datetime DEFAULT CURRENT_TIMESTAMP,
   `capnhatluc` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -319,6 +353,13 @@ ALTER TABLE `DMCHITIEU`
   ADD KEY `FK_DMCHITIEU_KHACHHANG` (`makh`);
 
 --
+-- Indexes for table `DMTHUNHAP`
+--
+ALTER TABLE `DMTHUNHAP`
+  ADD PRIMARY KEY (`madmthunhap`),
+  ADD KEY `makh` (`makh`);
+
+--
 -- Indexes for table `DSCHITIEU`
 --
 ALTER TABLE `DSCHITIEU`
@@ -332,7 +373,7 @@ ALTER TABLE `DSCHITIEU`
 ALTER TABLE `DSTHUNHAP`
   ADD PRIMARY KEY (`mathunhap`),
   ADD KEY `makh` (`makh`),
-  ADD KEY `machitieu` (`machitieu`);
+  ADD KEY `madmthunhap` (`madmthunhap`);
 
 --
 -- Indexes for table `GIAODICH`
@@ -439,7 +480,13 @@ ALTER TABLE `DANHMUC`
 -- AUTO_INCREMENT for table `DMCHITIEU`
 --
 ALTER TABLE `DMCHITIEU`
-  MODIFY `machitieu` int NOT NULL AUTO_INCREMENT;
+  MODIFY `machitieu` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `DMTHUNHAP`
+--
+ALTER TABLE `DMTHUNHAP`
+  MODIFY `madmthunhap` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `DSCHITIEU`
@@ -451,7 +498,7 @@ ALTER TABLE `DSCHITIEU`
 -- AUTO_INCREMENT for table `DSTHUNHAP`
 --
 ALTER TABLE `DSTHUNHAP`
-  MODIFY `mathunhap` int NOT NULL AUTO_INCREMENT;
+  MODIFY `mathunhap` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `GIAODICH`
@@ -463,7 +510,7 @@ ALTER TABLE `GIAODICH`
 -- AUTO_INCREMENT for table `KHACHHANG`
 --
 ALTER TABLE `KHACHHANG`
-  MODIFY `makh` int NOT NULL AUTO_INCREMENT;
+  MODIFY `makh` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `KHOANCHI`
@@ -549,6 +596,12 @@ ALTER TABLE `DMCHITIEU`
   ADD CONSTRAINT `FK_DMCHITIEU_KHACHHANG` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`);
 
 --
+-- Constraints for table `DMTHUNHAP`
+--
+ALTER TABLE `DMTHUNHAP`
+  ADD CONSTRAINT `dmthunhap_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `DSCHITIEU`
 --
 ALTER TABLE `DSCHITIEU`
@@ -560,7 +613,7 @@ ALTER TABLE `DSCHITIEU`
 --
 ALTER TABLE `DSTHUNHAP`
   ADD CONSTRAINT `dsthunhap_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `KHACHHANG` (`makh`),
-  ADD CONSTRAINT `dsthunhap_ibfk_2` FOREIGN KEY (`machitieu`) REFERENCES `DMCHITIEU` (`machitieu`);
+  ADD CONSTRAINT `dsthunhap_ibfk_2` FOREIGN KEY (`maloaithunhap`) REFERENCES `DMCHITIEU` (`machitieu`);
 
 --
 -- Constraints for table `GIAODICH`
@@ -623,3 +676,112 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+/* Nối mã liên tiếp*/
+/*Bảng nợ*/
+SET @max_id = (SELECT IFNULL(MAX(mabangno), 0) + 1 FROM BANGNO);
+SET @sql = CONCAT('ALTER TABLE BANGNO AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+--Báo cáo
+SET @max_id = (SELECT IFNULL(MAX(mabaocao), 0) + 1 FROM BAOCAO);
+SET @sql = CONCAT('ALTER TABLE BAOCAO AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- chi tiết ngân sách
+SET @max_id = (SELECT IFNULL(MAX(machitiet), 0) + 1 FROM CHITIETNGANSACH);
+SET @sql = CONCAT('ALTER TABLE CHITIETNGANSACH AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+--danh mục
+SET @max_id = (SELECT IFNULL(MAX(madanhmuc), 0) + 1 FROM DANHMUC);
+SET @sql = CONCAT('ALTER TABLE DANHMUC AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+--danh mục chi tiêu
+SET @max_id = (SELECT IFNULL(MAX(machitieu), 0) + 1 FROM DMCHITIEU);
+SET @sql = CONCAT('ALTER TABLE DMCHITIEU AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--danh sách chi tiêu
+SET @max_id = (SELECT IFNULL(MAX(maloaichitieu), 0) + 1 FROM DSCHITIEU);
+SET @sql = CONCAT('ALTER TABLE DSCHITIEU AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--ds thu nhập
+SET @max_id = (SELECT IFNULL(MAX(mathunhap), 0) + 1 FROM DSTHUNHAP);
+SET @sql = CONCAT('ALTER TABLE DSTHUNHAP AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--giao dịch
+SET @max_id = (SELECT IFNULL(MAX(magd), 0) + 1 FROM GIAODICH);
+SET @sql = CONCAT('ALTER TABLE GIAODICH AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--khách hàng
+SET @max_id = (SELECT IFNULL(MAX(makh), 0) + 1 FROM KHACHHANG);
+SET @sql = CONCAT('ALTER TABLE KHACHHANG AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--khoản chi
+SET @max_id = (SELECT IFNULL(MAX(machi), 0) + 1 FROM KHOANCHI);
+SET @sql = CONCAT('ALTER TABLE KHOANCHI AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--lập ngân sách theo tháng
+SET @max_id = (SELECT IFNULL(MAX(mangansach), 0) + 1 FROM LAPNGANSACHTHEOTHANG);
+SET @sql = CONCAT('ALTER TABLE LAPNGANSACHTHEOTHANG AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--lịch thu chi
+SET @max_id = (SELECT IFNULL(MAX(mathuchi), 0) + 1 FROM LICHTHUCHI);
+SET @sql = CONCAT('ALTER TABLE LICHTHUCHI AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--ngân sách
+SET @max_id = (SELECT IFNULL(MAX(mangansach), 0) + 1 FROM NGANSACH);
+SET @sql = CONCAT('ALTER TABLE NGANSACH AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--sửa khoản thu nhập
+SET @max_id = (SELECT IFNULL(MAX(mathuanhap), 0) + 1 FROM SUAKHOANTHUNHAP);
+SET @sql = CONCAT('ALTER TABLE SUAKHOANTHUNHAP AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--thông báo
+SET @max_id = (SELECT IFNULL(MAX(matb), 0) + 1 FROM THONGBAO);
+SET @sql = CONCAT('ALTER TABLE THONGBAO AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--tiết kiệm
+SET @max_id = (SELECT IFNULL(MAX(matk), 0) + 1 FROM TIETKIEM);
+SET @sql = CONCAT('ALTER TABLE TIETKIEM AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+--tìm kiếm
+SET @max_id = (SELECT IFNULL(MAX(matimkiem), 0) + 1 FROM TIMKIEM);
+SET @sql = CONCAT('ALTER TABLE TIMKIEM AUTO_INCREMENT = ', @max_id);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;

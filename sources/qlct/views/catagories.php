@@ -179,7 +179,7 @@
 
             <main class="content">
                 <div class="controls">
-                    <button class="btn primary" id="addBtn" onclick="window.location.href='them_danhmuc.php'">Thêm danh mục mới</button>
+                    <button class="btn primary" id="addBtn" onclick="window.location.href='add_catagories.php'">Thêm danh mục mới</button>
                     <button class="btn danger" id="delete-btn">Xóa</button>
                 </div>
 

@@ -76,4 +76,21 @@ class DanhmucModel extends BaseModel {
             return ['success' => false, 'message' => $conn->error];
         }
     }
+    // Lấy tổng tiền chi tiêu theo từng danh mục
+     public function getExpenseByCategory() {
+        $sql = "SELECT d.tendanhmuc, SUM(c.sotien) AS tongtien
+                FROM DSCHITIEU c
+                JOIN DANHMUC d ON c.maloaichitieu = d.maloaichitieu
+                WHERE c.loai = 'expense'
+                GROUP BY d.tendanhmuc";
+        $result = self::$_connection->query($sql);
+
+        $data = [];
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $data[] = $row;
+            }
+        }
+        return $data;
+    }
 }
