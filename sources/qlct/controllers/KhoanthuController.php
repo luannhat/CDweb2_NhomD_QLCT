@@ -14,9 +14,25 @@ class KhoanthuController
 
 	// Hiển thị danh sách khoản thu
 	public function index(){
-		$makh=$_SESSION['makh'] ?? 1;
-		$khoanthus = $this->khoanthuModel->getAllFromDSTHUNHAP($makh);
-		return $khoanthus;
+		$makh = $_SESSION['makh'] ?? 1;
+
+		// --- Thiết lập phân trang ---
+		$limit = 5; // số bản ghi mỗi trang
+		$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+		if ($page < 1) $page = 1;
+		$offset = ($page - 1) * $limit;
+
+		// --- Lấy dữ liệu ---
+		$totalRecords = $this->khoanthuModel->countTotalIncomes($makh);
+		$totalPages = ceil($totalRecords / $limit);
+		$khoanthus = $this->khoanthuModel->getPagedIncomes($makh, $limit, $offset);
+
+		// --- Trả về dữ liệu để render view ---
+		return [
+			'khoanthus' => $khoanthus,
+			'page' => $page,
+			'totalPages' => $totalPages
+		];
 	}
 	// Thêm khoản thu mới
 	public function add()

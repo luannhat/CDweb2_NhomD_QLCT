@@ -40,6 +40,44 @@ class KhoanthuModel extends BaseModel
 		return $result->fetch_assoc();
 	}
 
+	// Lấy khoản thu với phân trang
+	public function getPagedIncomes($makh, $limit = 5, $offset = 0)
+	{
+		$conn = self::$_connection;
+		$makh = intval($makh);
+
+		$sql = "SELECT 
+					ds.mathunhap,
+					ds.ngaythunhap,
+					ds.noidung,
+					dm.tendanhmuc AS tendanhmuc,
+					ds.sotien
+				FROM DSTHUNHAP ds
+				JOIN DMTHUNHAP dm ON ds.madmthunhap = dm.madmthunhap
+				WHERE ds.makh = {$makh}
+				ORDER BY ds.ngaythunhap DESC
+				LIMIT {$limit} OFFSET {$offset}";
+
+		$result = $conn->query($sql);
+		$rows = [];
+		if ($result && $result->num_rows > 0) {
+			while ($row = $result->fetch_assoc()) {
+				$rows[] = $row;
+			}
+		}
+		return $rows;
+	}
+
+	public function countTotalIncomes($makh)
+	{
+		$conn = self::$_connection;
+		$makh = intval($makh);
+		$sql = "SELECT COUNT(*) AS total FROM DSTHUNHAP WHERE makh = {$makh}";
+		$result = $conn->query($sql);
+		$row = $result->fetch_assoc();
+		return $row['total'] ?? 0;
+	}
+
 	
 	// Lấy danh sách khoản thu của khách hàng
 	public function getIncomes($makh, $search = '', $limit = 10, $offset = 0)
@@ -135,45 +173,45 @@ class KhoanthuModel extends BaseModel
 
 
 
-	// Xóa khoản thu
-	public function deleteIncome($magd, $makh)
-	{
-		$sql = "DELETE FROM GIAODICH 
-				WHERE magd = {$magd} 
-				AND makh = {$makh}
-				AND loai = 'income'";
+	// // Xóa khoản thu
+	// public function deleteIncome($magd, $makh)
+	// {
+	// 	$sql = "DELETE FROM GIAODICH 
+	// 			WHERE magd = {$magd} 
+	// 			AND makh = {$makh}
+	// 			AND loai = 'income'";
 
-		return $this->delete($sql);
-	}
+	// 	return $this->delete($sql);
+	// }
 
-	// Xóa nhiều khoản thu
-	public function deleteMultipleIncomes($magdList, $makh)
-	{
-		if (empty($magdList)) {
-			return false;
-		}
+	// // Xóa nhiều khoản thu
+	// public function deleteMultipleIncomes($magdList, $makh)
+	// {
+	// 	if (empty($magdList)) {
+	// 		return false;
+	// 	}
 
-		$validIds = [];
-		foreach ($magdList as $id) {
-			$id = intval($id);
-			if ($id > 0) {
-				$validIds[] = $id;
-			}
-		}
+	// 	$validIds = [];
+	// 	foreach ($magdList as $id) {
+	// 		$id = intval($id);
+	// 		if ($id > 0) {
+	// 			$validIds[] = $id;
+	// 		}
+	// 	}
 
-		if (empty($validIds)) {
-			return false;
-		}
+	// 	if (empty($validIds)) {
+	// 		return false;
+	// 	}
 
-		$magdList = implode(',', $validIds);
-		$sql = "DELETE FROM GIAODICH 
-				WHERE magd IN ({$magdList}) 
-				AND makh = " . intval($makh) . "
-				AND loai = 'income'";
+	// 	$magdList = implode(',', $validIds);
+	// 	$sql = "DELETE FROM GIAODICH 
+	// 			WHERE magd IN ({$magdList}) 
+	// 			AND makh = " . intval($makh) . "
+	// 			AND loai = 'income'";
 
-		$affectedRows = $this->delete($sql);
-		return $affectedRows > 0;
-	}
+	// 	$affectedRows = $this->delete($sql);
+	// 	return $affectedRows > 0;
+	// }
 
 	// Lấy danh sách danh mục khoản thu
 	// public function getIncomeCategories($makh)
@@ -188,14 +226,17 @@ class KhoanthuModel extends BaseModel
 	// }
 
 	// Lấy tất cả danh mục không trùng lặp
-public function getAllCategoriesDistinct()
-{
-    $sql = "SELECT DISTINCT madmthunhap, tendanhmuc
-            FROM DMTHUNHAP
-            ORDER BY tendanhmuc ASC";
+	public function getAllCategoriesDistinct()
+	{
+		$sql = "SELECT 
+					MIN(madmthunhap) AS madmthunhap, 
+					tendanhmuc
+				FROM DMTHUNHAP
+				GROUP BY tendanhmuc
+				ORDER BY tendanhmuc ASC";
 
-    return $this->select($sql);
-}
+		return $this->select($sql);
+	}
 
 
 
