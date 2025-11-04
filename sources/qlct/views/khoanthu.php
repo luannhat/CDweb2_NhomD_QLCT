@@ -1,6 +1,12 @@
 <?php
 session_start();
+require_once __DIR__ . '/../controllers/KhoanthuController.php';
+$controller = new KhoanthuController();
+$result = $controller->index();
 
+$khoanthus = $result['khoanthus'];
+$currentPage = $result['page'];
+$totalPages = $result['totalPages'];
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -12,7 +18,7 @@ session_start();
 	<!-- Font Awesome 6 -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-	<!-- CSS riêng của trang Khoản thu (tái sử dụng khoanchi.css) -->
+	<!-- CSS riêng của trang Khoản thu -->
 	<?php $cssVersion = @filemtime(__DIR__ . '/../public/css/khoanchi.css') ?: time(); ?>
 	<link rel="stylesheet" href="../public/css/khoanchi.css?v=<?php echo $cssVersion; ?>" />
 </head>
@@ -74,6 +80,7 @@ session_start();
 					?>
 				</div>
 			<?php endif; ?>
+
 			<div class="controls">
 				<button class="btn primary" id="addBtn" onclick="window.location.href='them_khoanthu.php'">
 					Thêm khoản thu
@@ -90,39 +97,32 @@ session_start();
 							</th>
 							<th class="col-date">Ngày</th>
 							<th class="col-content">Nội dung</th>
-							<th class="col-type">Loại</th>
+							<th class="col-type">Danh mục</th>
 							<th class="col-money">Số tiền</th>
 						</tr>
 					</thead>
 					<tbody id="tbody">
-						<?php
-						require_once __DIR__ . '/../controllers/KhoanthuController.php';
-						$controller = new KhoanthuController();
-						$makh = 1;
-						$khoanthus = $controller->index($makh);
-						$currentPage;
-
-						if (!empty($khoanthus)) {
-    foreach ($khoanthus as $row) {
-        echo "<tr data-mathunhap='{$row['mathunhap']}'>";
-		echo "<td><input type='checkbox' class='row-select' /></td>";
-        echo "<td>" . htmlspecialchars($row['ngaythunhap'] ?? '') . "</td>";
-        echo "<td>" . htmlspecialchars($row['noidung'] ?? '') . "</td>";
-		echo "<td>" . htmlspecialchars($row['tendanhmuc'] ?? '') . "</td>";
-        echo "<td>" . htmlspecialchars($row['sotien'] ?? '') . "</td>";
-        echo "</tr>";
-    }
-} else {
-    echo "<tr><td colspan='5' style='text-align:center; padding:20px; color:#666;'>Chưa có khoản thu nào</td></tr>";
-}
-						?>
+						<?php if (!empty($khoanthus)): ?>
+							<?php foreach ($khoanthus as $row): ?>
+								<tr data-mathunhap="<?php echo htmlspecialchars($row['mathunhap']); ?>">
+									<td><input type="checkbox" class="row-select" /></td>
+									<td><?php echo htmlspecialchars($row['ngaythunhap']); ?></td>
+									<td><?php echo htmlspecialchars($row['noidung']); ?></td>
+									<td><?php echo htmlspecialchars($row['tendanhmuc']); ?></td>
+									<td><?php echo number_format($row['sotien']); ?> đ</td>
+								</tr>
+							<?php endforeach; ?>
+						<?php else: ?>
+							<tr><td colspan="5" style="text-align:center; padding:20px; color:#666;">Chưa có khoản thu nào</td></tr>
+						<?php endif; ?>
 					</tbody>
 				</table>
 
-				<!-- Phân trang
-				<div class="pagination" style="margin-top:12px;">
+				<!-- PHÂN TRANG -->
+				<?php if ($totalPages > 1): ?>
+				<div class="pagination" style="margin-top:12px; display:flex; align-items:center; justify-content:center; gap:8px;">
 					<?php if ($currentPage > 1): ?>
-						<a href="?page=<?php echo $currentPage - 1; ?><?php echo !empty($search) ? '&q=' . urlencode($search) : ''; ?>" class="circle" id="prevBtn">&lt;</a>
+						<a href="?page=<?php echo $currentPage - 1; ?>" class="circle" id="prevBtn">&lt;</a>
 					<?php else: ?>
 						<span class="circle disabled">&lt;</span>
 					<?php endif; ?>
@@ -130,11 +130,12 @@ session_start();
 					<div class="page-num" id="pageInfo"><?php echo $currentPage; ?>/<?php echo $totalPages; ?></div>
 
 					<?php if ($currentPage < $totalPages): ?>
-						<a href="?page=<?php echo $currentPage + 1; ?><?php echo !empty($search) ? '&q=' . urlencode($search) : ''; ?>" class="circle" id="nextBtn">&gt;</a>
+						<a href="?page=<?php echo $currentPage + 1; ?>" class="circle" id="nextBtn">&gt;</a>
 					<?php else: ?>
 						<span class="circle disabled">&gt;</span>
 					<?php endif; ?>
-				</div> -->
+				</div>
+				<?php endif; ?>
 			</section>
 		</main>
 	</div>
@@ -179,5 +180,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
-
-
