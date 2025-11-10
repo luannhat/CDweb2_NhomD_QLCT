@@ -1,0 +1,33 @@
+# Dockerfile với Xdebug cho debugging chuyên nghiệp
+# Để sử dụng: docker-compose -f docker-compose.xdebug.yml up -d
+
+FROM php:8.2-apache
+
+# Cài extension PHP cần cho MySQL
+RUN docker-php-ext-install pdo pdo_mysql mysqli
+
+# Cài đặt Xdebug
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
+# Cấu hình Xdebug
+RUN echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.log=/tmp/xdebug.log" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+# Enable error reporting cho development
+RUN echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/error-reporting.ini \
+    && echo "display_errors = On" >> /usr/local/etc/php/conf.d/error-reporting.ini \
+    && echo "display_startup_errors = On" >> /usr/local/etc/php/conf.d/error-reporting.ini
+
+# Copy toàn bộ mã nguồn vào container
+COPY . /var/www/html/
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html
+
+# Mở cổng 80 cho web
+EXPOSE 80
+

@@ -1,0 +1,8 @@
+# Bỏ thư mục chứa dữ liệu MySQL
+data/
+sources/data/
+src/vendor/
+node_modules/
+.git/
+.vagrant/
+*.log
