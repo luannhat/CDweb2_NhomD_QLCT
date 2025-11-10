@@ -65,4 +65,57 @@ class TransactionModel extends BaseModel
         $stmt->close();
         return null; // nếu không tìm thấy
     }
+
+    //thóng kê chi tiêu theo tháng
+    public function getMonthlySpending($makh, $year)
+    {
+        $rows = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $rows[$m] = $this->getMonthlySpendingByMonth($makh, $year, $m);
+        }
+        return $rows;
+    }
+
+    // Lấy tổng chi tiêu của khách hàng theo tháng cụ thể
+    public function getMonthlySpendingByMonth($makh, $year, $month)
+    {
+        $conn = self::$_connection;
+        $stmt = $conn->prepare("
+            SELECT SUM(sotien) AS total 
+            FROM GIAODICH 
+            WHERE makh = ? 
+              AND YEAR(ngaygiaodich) = ? 
+              AND MONTH(ngaygiaodich) = ?
+              AND loai = 'expense'
+        ");
+        $stmt->bind_param("iii", $makh, $year, $month);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $stmt->close();
+        return $row['total'] ?? 0;
+    }
+    //hàm lấy ds giao dịch theo tháng
+    public function getTransactionsByMonth($makh, $year, $month) {
+    $conn = self::$_connection;
+    $stmt = $conn->prepare("
+        SELECT * 
+        FROM GIAODICH
+        WHERE makh = ? 
+          AND YEAR(ngaygiaodich) = ? 
+          AND MONTH(ngaygiaodich) = ?
+          AND loai = 'expense'
+        ORDER BY ngaygiaodich ASC
+    ");
+    $stmt->bind_param("iii", $makh, $year, $month);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $rows = [];
+    while($row = $result->fetch_assoc()) {
+        $rows[] = $row;
+    }
+    $stmt->close();
+    return $rows;
+}
+
 }
