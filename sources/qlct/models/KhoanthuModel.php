@@ -80,7 +80,7 @@ class KhoanthuModel extends BaseModel
 
 	
 	// Lấy danh sách khoản thu của khách hàng
-	public function getIncomes($makh, $search = '', $limit = 10, $offset = 0)
+	public function getIncomes($makh, $search = '', $limit = 10, $offset = 0,$loai)
 	{
 		$searchCondition = '';
 		if (!empty($search)) {
@@ -108,7 +108,7 @@ class KhoanthuModel extends BaseModel
 	}
 
 	// Đếm tổng số khoản thu (để làm phân trang)
-	public function countIncomes($makh, $search = '')
+	public function countIncomes($makh, $search = '',$loai)
 	{
 		$searchCondition = '';
 		if (!empty($search)) {
@@ -120,7 +120,7 @@ class KhoanthuModel extends BaseModel
 				FROM GIAODICH g
 				INNER JOIN DMCHITIEU dm ON g.machitieu = dm.machitieu
 				WHERE g.makh = {$makh} 
-				AND g.loai = {$loai} --Nếu mà để income nó chỉ kiếm kh có income xuất ra và bỏ qua expense
+				AND g.loai = {$loai} 
 				{$searchCondition}";
 
 		$result = $this->select($sql);
@@ -128,7 +128,7 @@ class KhoanthuModel extends BaseModel
 	}
 
 	// Lấy thông tin chi tiết một khoản thu
-	public function getIncomeById($magd, $makh)
+	public function getIncomeById($magd, $makh,$loai)
 	{
 		$sql = "SELECT 
 					g.magd,
