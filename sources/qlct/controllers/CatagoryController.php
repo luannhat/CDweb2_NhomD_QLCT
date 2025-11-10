@@ -14,7 +14,8 @@ class DanhmucController
     {
         $makh = $_SESSION['makh'] ?? 1;
         $danhmucs = $this->model->getAllCatagory($makh);
-        return $danhmucs; // trả về mảng danh mục
+        return $danhmucs; 
+        
     }
 
 

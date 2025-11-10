@@ -1,26 +1,47 @@
 <?php
-// index.php — file chính của ứng dụng PHP MVC
+session_start();
+// Cấu hình tự động nạp class
+spl_autoload_register(function ($className) {
+    $paths = ['controllers', 'models', 'configs'];
+    foreach ($paths as $path) {
+        $file = __DIR__ . "/$path/$className.php";
+        if (file_exists($file)) {
+            require_once $file;
+            return;
+        }
+    }
+});
 
-// require_once 'controllers/UploadAvatarController.php';
+// Lấy controller và action từ URL
+$controllerName = $_GET['controller'] ?? 'statistical';  // controller mặc định
+$actionName = $_GET['action'] ?? 'index';                 // action mặc định
 
-// // Lấy action trên URL
-// $action = $_GET['action'] ?? 'upload_avatar';
+// Chuyển controllerName về dạng PascalCase, thêm hậu tố "Controller"
+$controllerClass = ucfirst($controllerName) . 'Controller';
 
-// // Tạo controller
-// $controller = new UploadAvatarController();
+// Đường dẫn tới file controller
+$controllerFile = __DIR__ . "/controllers/{$controllerClass}.php";
 
-// // Điều hướng theo action
-// switch ($action) {
-//     case 'upload_avatar_submit':
-//         $controller->uploadAvatarSubmit();
-//         break;
-//     case 'upload_avatar':
-//     default:
-//         $controller->index();
-//         break;
-// }
+// Kiểm tra tồn tại controller
+if (!file_exists($controllerFile)) {
+    die("❌ Controller '{$controllerClass}' không tồn tại!");
+}
 
-require_once 'controllers/StatisticalController.php';
+// Gọi file controller
+require_once $controllerFile;
 
-$controller = new StatisticalController();
-$controller->index();
+// Kiểm tra class có tồn tại không
+if (!class_exists($controllerClass)) {
+    die("❌ Lớp '{$controllerClass}' không tồn tại trong file controller!");
+}
+
+// Khởi tạo controller
+$controller = new $controllerClass();
+
+// Kiểm tra action có tồn tại không
+if (!method_exists($controller, $actionName)) {
+    die("❌ Action '{$actionName}' không tồn tại trong controller '{$controllerClass}'!");
+}
+
+// Gọi action tương ứng
+$controller->$actionName();
