@@ -70,14 +70,14 @@
                         </div>
 
                         <div class="form-row">
-                            <label for="ngaygiaodich">Ngày: <span class="required">*</span></label>
-                            <input type="date" id="ngaygiaodich" name="ngaygiaodich" required
-                                   value="<?php echo htmlspecialchars($_POST['ngaygiaodich'] ?? date('Y-m-d')); ?>">
+                            <label for="ngaychitieu">Ngày: <span class="required">*</span></label>
+                            <input type="date" id="ngaychitieu" name="ngaychitieu" required
+                                   value="<?php echo htmlspecialchars($_POST['ngaychitieu'] ?? date('Y-m-d')); ?>">
                         </div>
 
                         <div class="form-row">
-                            <label for="machitieu">Danh mục: <span class="required">*</span></label>
-                            <select id="machitieu" name="machitieu" required>
+                            <label for="madmchitieu">Danh mục: <span class="required">*</span></label>
+                            <select id="madmchitieu" name="madmchitieu" required>
                                 <option value="">-- Chọn danh mục --</option>
                                 <?php
                                 // Lấy danh sách danh mục chi tiêu
@@ -87,8 +87,8 @@
                                     $categories = $khoanchiModel->getExpenseCategories(1); // Tạm thời hardcode makh = 1
                                     
                                     foreach ($categories as $category) {
-                                        $selected = (isset($_POST['machitieu']) && $_POST['machitieu'] == $category['machitieu']) ? 'selected' : '';
-                                        echo "<option value='{$category['machitieu']}' {$selected}>{$category['tendanhmuc']}</option>";
+                                        $selected = (isset($_POST['madmchitieu']) && $_POST['madmchitieu'] == $category['madmchitieu']) ? 'selected' : '';
+                                        echo "<option value='{$category['madmchitieu']}' {$selected}>{$category['tendanhmuc']}</option>";
                                     }
                                 } catch (Exception $e) {
                                     echo '';
@@ -119,9 +119,9 @@
         // Validate form
         document.querySelector('form').addEventListener('submit', function(e) {
             const noidung = document.getElementById('noidung').value.trim();
-            const machitieu = document.getElementById('machitieu').value;
+            const madmchitieu = document.getElementById('madmchitieu').value;
             const sotien = document.getElementById('sotien').value;
-            const ngaygiaodich = document.getElementById('ngaygiaodich').value;
+            const ngaychitieu = document.getElementById('ngaychitieu').value;
 
             if (!noidung) {
                 alert('Vui lòng nhập tên khoản chi tiêu');
@@ -129,7 +129,7 @@
                 return;
             }
 
-            if (!machitieu) {
+            if (!madmchitieu) {
                 alert('Vui lòng chọn danh mục');
                 e.preventDefault();
                 return;
@@ -141,7 +141,7 @@
                 return;
             }
 
-            if (!ngaygiaodich) {
+            if (!ngaychitieu) {
                 alert('Vui lòng chọn ngày');
                 e.preventDefault();
                 return;

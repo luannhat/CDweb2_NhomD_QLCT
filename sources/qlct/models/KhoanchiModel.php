@@ -3,9 +3,49 @@ require_once __DIR__ . '/BaseModel.php';
 
 class KhoanchiModel extends BaseModel
 {
-    // Lấy danh sách khoản chi của khách hàng
-    public function getExpenses($makh, $search = '', $limit = 10, $offset = 0)
+    // Lấy tất cả khoản thu từ bảng tổng hợp DSTHUNHAP (không phân trang)
+	public function getAllFromDSCHITIEU($makh)
+	{
+		 $conn = self::$_connection;
+		$makh = intval($makh);
+
+		$sql = "SELECT 
+					ds.machitieu,
+					ds.ngaychitieu,
+					ds.noidung,
+					dm.tendanhmuc AS tendanhmuc,
+					ds.sotien
+				FROM DSCHITIEU ds
+				JOIN DMCHITIEU dm ON ds.madmchitieu = dm.madmchitieu
+				WHERE ds.makh = {$makh}
+				ORDER BY ds.ngaychitieu DESC";
+
+		$result = $conn->query($sql);
+		$rows = [];
+		if ($result && $result->num_rows > 0) {
+			while ($row = $result->fetch_assoc()) {
+				$rows[] = $row;
+			}
+		}
+		return $rows;
+		
+		}
+
+	public function getKhoanchiById($machitieu){
+		$conn = self::$_connection;
+		$machitieu = intval($machitieu);
+		$sql = "SELECT * FROM DSCHITIEU WHERE machitieu = {$machitieu}";
+		$result = $conn->query($sql);
+
+		return $result->fetch_assoc();
+	}
+
+    public function getPagedExpenses($makh, $limit = 5, $offset = 0, $search = '')
     {
+        $makh = intval($makh);
+        $limit = intval($limit);
+        $offset = intval($offset);
+
         $searchCondition = '';
         if (!empty($search)) {
             $search = $this->escape($search);
@@ -13,37 +53,79 @@ class KhoanchiModel extends BaseModel
         }
 
         $sql = "SELECT 
-                    g.magd,
-                    g.ngaygiaodich,
+                    g.machitieu,
+                    g.ngaychitieu,
                     g.noidung,
-                    dm.tendanhmuc as loai,
-                    g.sotien,
-                    g.ghichu,
-                    g.anhhoadon
-                FROM GIAODICH g
-                INNER JOIN DMCHITIEU dm ON g.machitieu = dm.machitieu
-                WHERE g.makh = {$makh} 
+                    dm.tendanhmuc AS tendanhmuc,
+                    g.sotien
+                FROM DSCHITIEU g
+                INNER JOIN DMCHITIEU dm ON g.madmchitieu = dm.madmchitieu
+                WHERE g.makh = {$makh}
                 AND g.loai = 'expense'
                 {$searchCondition}
-                ORDER BY g.ngaygiaodich DESC
+                ORDER BY g.ngaychitieu DESC
                 LIMIT {$limit} OFFSET {$offset}";
 
         return $this->select($sql);
     }
 
-    // Đếm tổng số khoản chi
+
+	// Lấy khoản chi với phân trang
+	public function getPagedIncomes($makh, $limit = 5, $offset = 0)
+	{
+		$conn = self::$_connection;
+		$makh = intval($makh);
+
+		$sql = "SELECT 
+					ds.machitieu,
+					ds.ngaychitieu,
+					ds.noidung,
+					dm.tendanhmuc AS tendanhmuc,
+					ds.sotien
+				FROM DSCHITIEU ds
+				JOIN DMCHITIEU dm ON ds.madmchitieu = dm.madmchitieu
+				WHERE ds.makh = {$makh}
+				ORDER BY ds.ngaychitieu DESC
+				LIMIT {$limit} OFFSET {$offset}";
+
+		$result = $conn->query($sql);
+		$rows = [];
+		if ($result && $result->num_rows > 0) {
+			while ($row = $result->fetch_assoc()) {
+				$rows[] = $row;
+			}
+		}
+		return $rows;
+	}
+
+	public function countTotalIncomes($makh)
+	{
+		$conn = self::$_connection;
+		$makh = intval($makh);
+		$sql = "SELECT COUNT(*) AS total FROM DSCHITIEU WHERE makh = {$makh}";
+		$result = $conn->query($sql);
+		$row = $result->fetch_assoc();
+		return $row['total'] ?? 0;
+	}
+
+    /**
+     * Đếm tổng số khoản chi (có tìm kiếm)
+     */
     public function countExpenses($makh, $search = '')
     {
+        $conn = self::$_connection;
+        $makh = intval($makh);
         $searchCondition = '';
+
         if (!empty($search)) {
             $search = $this->escape($search);
             $searchCondition = "AND (g.noidung LIKE '%{$search}%' OR dm.tendanhmuc LIKE '%{$search}%')";
         }
 
-        $sql = "SELECT COUNT(*) as total
-                FROM GIAODICH g
+        $sql = "SELECT COUNT(*) AS total
+                FROM DSKHOANCHI g
                 INNER JOIN DMCHITIEU dm ON g.machitieu = dm.machitieu
-                WHERE g.makh = {$makh} 
+                WHERE g.makh = {$makh}
                 AND g.loai = 'expense'
                 {$searchCondition}";
 
@@ -51,126 +133,169 @@ class KhoanchiModel extends BaseModel
         return $result[0]['total'] ?? 0;
     }
 
-    // Lấy thông tin chi tiết một khoản chi
-    public function getExpenseById($magd, $makh)
+    public function countTotalExpenses($makh)
     {
+        $makh = intval($makh);
+
+        $sql = "SELECT COUNT(*) AS total 
+                FROM DSCHITIEU
+                WHERE makh = $makh";
+
+        $result = $this->select($sql);
+        return $result[0]['total'] ?? 0;
+    }
+
+
+
+    /**
+     * Lấy chi tiết một khoản chi theo ID
+     */
+    public function getExpenseById($madmchitieu, $makh)
+    {
+        $conn = self::$_connection;
+        $madmchitieu = intval($madmchitieu);
+        $makh = intval($makh);
+
         $sql = "SELECT 
-                    g.magd,
-                    g.ngaygiaodich,
+                    g.madmchitieu = dm.madmchitieu,
+                    g.ngaychitieu,
                     g.noidung,
-                    dm.tendanhmuc as loai,
+                    dm.tendanhmuc AS loai,
                     g.sotien,
-                    g.ghichu,
-                    g.anhhoadon,
                     g.created_at
-                FROM GIAODICH g
-                INNER JOIN DMCHITIEU dm ON g.machitieu = dm.machitieu
-                WHERE g.magd = {$magd} 
-                AND g.makh = {$makh}
-                AND g.loai = 'expense'";
+                FROM DSCHITIEU g
+                INNER JOIN DMCHITIEU dm ON g.madmchitieu = dm.madmchitieu
+                WHERE g.madmchitieu = {$madmchitieu}
+                AND g.makh = {$makh}";
 
         $result = $this->select($sql);
         return $result[0] ?? null;
     }
 
-    // Thêm khoản chi mới
-    public function addExpense($makh, $machitieu, $noidung, $sotien, $ngaygiaodich, $ghichu = '', $anhhoadon = '')
+    /**
+     * Thêm khoản chi mới
+     */
+    public function addExpense($makh, $madmchitieu, $ngaychitieu, $noidung, $loai, $sotien)
     {
+        $conn = self::$_connection;
+        $makh = intval($makh);
+        $madmchitieu = intval($madmchitieu);
+        $ngaychitieu = $this->escape($ngaychitieu);
         $noidung = $this->escape($noidung);
-        $ghichu = $this->escape($ghichu);
-        $anhhoadon = $this->escape($anhhoadon);
+        $loai = $this->escape($loai);
+        $sotien = floatval($sotien);
 
-        $sql = "INSERT INTO GIAODICH (makh, machitieu, noidung, sotien, loai, ngaygiaodich, ghichu, anhhoadon)
-                VALUES ({$makh}, {$machitieu}, '{$noidung}', {$sotien}, 'expense', '{$ngaygiaodich}', '{$ghichu}', '{$anhhoadon}')";
+        $sql = "INSERT INTO DSCHITIEU 
+                    (makh, madmchitieu, ngaychitieu, noidung, loai, sotien)
+                VALUES 
+                    ('{$makh}', '{$madmchitieu}', '{$ngaychitieu}', '{$noidung}', '{$loai}', '{$sotien}')";
 
         return $this->insert($sql);
     }
 
-    // Cập nhật khoản chi
+    /**
+     * Cập nhật khoản chi
+     */
     public function updateExpense($magd, $makh, $machitieu, $noidung, $sotien, $ngaygiaodich, $ghichu = '', $anhhoadon = '')
     {
+        $conn = self::$_connection;
+        $magd = intval($magd);
+        $makh = intval($makh);
+        $machitieu = intval($machitieu);
+        $sotien = floatval($sotien);
+
         $noidung = $this->escape($noidung);
         $ghichu = $this->escape($ghichu);
         $anhhoadon = $this->escape($anhhoadon);
 
         $sql = "UPDATE GIAODICH 
-                SET machitieu = {$machitieu},
+                SET 
+                    machitieu = {$machitieu},
                     noidung = '{$noidung}',
                     sotien = {$sotien},
                     ngaygiaodich = '{$ngaygiaodich}',
                     ghichu = '{$ghichu}',
                     anhhoadon = '{$anhhoadon}',
                     updated_at = CURRENT_TIMESTAMP
-                WHERE magd = {$magd} 
+                WHERE magd = {$magd}
                 AND makh = {$makh}
                 AND loai = 'expense'";
 
         return $this->update($sql);
     }
 
-    // Xóa khoản chi
+    /**
+     * Xóa khoản chi đơn
+     */
     public function deleteExpense($magd, $makh)
     {
+        $magd = intval($magd);
+        $makh = intval($makh);
+
         $sql = "DELETE FROM GIAODICH 
-                WHERE magd = {$magd} 
+                WHERE magd = {$magd}
                 AND makh = {$makh}
                 AND loai = 'expense'";
 
         return $this->delete($sql);
     }
 
-    // Xóa nhiều khoản chi
+    /**
+     * Xóa nhiều khoản chi
+     */
     public function deleteMultipleExpenses($magdList, $makh)
     {
         if (empty($magdList)) {
             return false;
         }
 
-        // Validate và escape IDs
-        $validIds = [];
-        foreach ($magdList as $id) {
-            $id = intval($id);
-            if ($id > 0) {
-                $validIds[] = $id;
-            }
-        }
-
+        $validIds = array_filter(array_map('intval', $magdList), fn($id) => $id > 0);
         if (empty($validIds)) {
             return false;
         }
 
-        $magdList = implode(',', $validIds);
+        $makh = intval($makh);
+        $idString = implode(',', $validIds);
+
         $sql = "DELETE FROM GIAODICH 
-                WHERE magd IN ({$magdList}) 
-                AND makh = " . intval($makh) . "
+                WHERE magd IN ({$idString})
+                AND makh = {$makh}
                 AND loai = 'expense'";
 
         $affectedRows = $this->delete($sql);
-        
-        // Trả về true nếu có ít nhất 1 hàng bị xóa
         return $affectedRows > 0;
     }
 
-    // Lấy danh sách danh mục chi tiêu
+    /**
+     * Lấy danh mục chi tiêu của khách hàng
+     */
     public function getExpenseCategories($makh)
     {
-        $sql = "SELECT machitieu, tendanhmuc 
+        $makh = intval($makh);
+
+        $sql = "SELECT madmchitieu, tendanhmuc 
                 FROM DMCHITIEU 
-                WHERE makh = {$makh} 
+                WHERE makh = {$makh}
                 AND loai = 'expense'
-                ORDER BY tendanhmuc";
+                ORDER BY tendanhmuc ASC";
 
         return $this->select($sql);
     }
 
-    // Lấy thống kê tổng chi tiêu theo tháng
+    /**
+     * Thống kê chi tiêu theo tháng
+     */
     public function getMonthlyExpenseStats($makh, $thang, $nam)
     {
+        $makh = intval($makh);
+        $thang = intval($thang);
+        $nam = intval($nam);
+
         $sql = "SELECT 
-                    SUM(sotien) as tong_chitieu,
-                    COUNT(*) as so_giao_dich
+                    SUM(sotien) AS tong_chitieu,
+                    COUNT(*) AS so_giao_dich
                 FROM GIAODICH 
-                WHERE makh = {$makh} 
+                WHERE makh = {$makh}
                 AND loai = 'expense'
                 AND MONTH(ngaygiaodich) = {$thang}
                 AND YEAR(ngaygiaodich) = {$nam}";
@@ -179,12 +304,13 @@ class KhoanchiModel extends BaseModel
         return $result[0] ?? ['tong_chitieu' => 0, 'so_giao_dich' => 0];
     }
 
-    // Escape string để tránh SQL injection
+    /**
+     * Escape string để tránh SQL Injection
+     */
     private function escape($string)
     {
-        if (self::$_connection) {
-            return self::$_connection->real_escape_string($string);
-        }
-        return addslashes($string);
+        return self::$_connection 
+            ? self::$_connection->real_escape_string($string)
+            : addslashes($string);
     }
 }
