@@ -1,4 +1,4 @@
--- phpMyAdmin SQL Dump
+﻿-- phpMyAdmin SQL Dump
 -- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
@@ -91,7 +91,7 @@ CREATE TABLE `DANHMUC` (
 --
 
 CREATE TABLE `DMCHITIEU` (
-  `machitieu` int NOT NULL,
+  `madmchitieu` int NOT NULL,
   `makh` int NOT NULL,
   `tendanhmuc` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `loai` enum('income','expense') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -117,9 +117,9 @@ CREATE TABLE `DMTHUNHAP` (
 --
 
 CREATE TABLE `DSCHITIEU` (
-  `maloaichitieu` int NOT NULL,
-  `makh` int NOT NULL,
   `machitieu` int NOT NULL,
+  `makh` int NOT NULL,
+  `madmchitieu` int NOT NULL,
   `ngaychitieu` date NOT NULL,
   `noidung` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `loai` enum('income','expense') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -349,7 +349,7 @@ ALTER TABLE `DANHMUC`
 -- Indexes for table `DMCHITIEU`
 --
 ALTER TABLE `DMCHITIEU`
-  ADD PRIMARY KEY (`machitieu`),
+  ADD PRIMARY KEY (`madmchitieu`),
   ADD KEY `FK_DMCHITIEU_KHACHHANG` (`makh`);
 
 --
@@ -480,7 +480,7 @@ ALTER TABLE `DANHMUC`
 -- AUTO_INCREMENT for table `DMCHITIEU`
 --
 ALTER TABLE `DMCHITIEU`
-  MODIFY `machitieu` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `madmchitieu` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `DMTHUNHAP`
@@ -492,7 +492,7 @@ ALTER TABLE `DMTHUNHAP`
 -- AUTO_INCREMENT for table `DSCHITIEU`
 --
 ALTER TABLE `DSCHITIEU`
-  MODIFY `maloaichitieu` int NOT NULL AUTO_INCREMENT;
+  MODIFY `machitieu` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `DSTHUNHAP`
