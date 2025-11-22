@@ -1,6 +1,21 @@
 <?php
 require_once __DIR__ . '/../models/KhoanchiModel.php';
 
+if (isset($_GET['action']) && $_GET['action'] === 'deleteMultiple') {
+    header('Content-Type: application/json');
+    $controller = new KhoanchiController();
+    echo json_encode($controller->deleteMultiple());
+    exit;
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'delete') {
+    header('Content-Type: application/json');
+    $controller = new KhoanchiController();
+    echo json_encode($controller->delete());
+    exit;
+}
+
+
 class KhoanchiController
 {
     private $model;
@@ -105,11 +120,13 @@ class KhoanchiController
         }
 
         $machitieu = intval($_POST['machitieu'] ?? 0);
-        if ($machitieu <= 0) {
+        $makh = intval($_POST['makh'] ?? 0);
+
+        if ($machitieu <= 0 || $makh <= 0) {
             return ['success' => false, 'message' => 'ID không hợp lệ'];
         }
 
-        $ok = $this->model->deleteExpense($machitieu);
+        $ok = $this->model->deleteExpense($machitieu, $makh);
 
         return $ok
             ? ['success' => true, 'message' => 'Đã xóa khoản chi']
@@ -123,16 +140,18 @@ class KhoanchiController
         }
 
         $list = $_POST['machitieu_list'] ?? [];
-        if (empty($list) || !is_array($list)) {
+        $makh = intval($_POST['makh'] ?? 0);
+
+        if (empty($list) || !is_array($list) || $makh <= 0) {
             return ['success' => false, 'message' => 'Vui lòng chọn ít nhất một khoản chi'];
         }
 
-        $valid = array_filter(array_map('intval', $list), fn($id) => $id > 0);
+        $machitieuList = array_filter(array_map('intval', $list), fn($id) => $id > 0);
 
-        $ok = $this->model->deleteMultipleExpenses($valid);
+        $ok = $this->model->deleteMultipleExpenses($machitieuList , $makh);
 
         return $ok
-            ? ['success' => true, 'message' => 'Đã xóa ' . count($valid) . ' khoản chi']
+            ? ['success' => true, 'message' => 'Đã xóa ' . count($machitieuList) . ' khoản chi']
             : ['success' => false, 'message' => 'Không thể xóa'];
     }
 

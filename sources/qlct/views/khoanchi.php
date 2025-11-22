@@ -98,7 +98,6 @@ require_once __DIR__ . '/../controllers/KhoanchiController.php';
 					</thead>
 					<tbody id="tbody">
 						<?php
-						require_once __DIR__ . '/../controllers/KhoanchiController.php';
 						$controller = new KhoanchiController();
 						$data = $controller->index(); // trả về ['khoanchis', 'page', 'totalPages']
 						
@@ -155,38 +154,90 @@ require_once __DIR__ . '/../controllers/KhoanchiController.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-	var account = document.getElementById('accountDropdown');
-	if (!account) return;
-	var btn = account.querySelector('.account-btn');
-	var menu = account.querySelector('.dropdown-menu');
+    var account = document.getElementById('accountDropdown');
+    if (!account) return;
 
-	function closeMenu() {
-		menu.style.display = 'none';
-		btn.setAttribute('aria-expanded', 'false');
-		menu.setAttribute('aria-hidden', 'true');
-	}
+    var btn = account.querySelector('.account-btn');
+    var menu = account.querySelector('.dropdown-menu');
 
-	function toggleMenu() {
-		var isOpen = menu.style.display === 'block';
-		if (isOpen) closeMenu();
-		else {
-			menu.style.display = 'block';
-			btn.setAttribute('aria-expanded', 'true');
-			menu.setAttribute('aria-hidden', 'false');
-		}
-	}
+    function closeMenu() {
+        menu.style.display = 'none';
+        btn.setAttribute('aria-expanded', 'false');
+        menu.setAttribute('aria-hidden', 'true');
+    }
 
-	btn.addEventListener('click', function(e) {
-		e.stopPropagation();
-		toggleMenu();
-	});
+    function toggleMenu() {
+        var isOpen = menu.style.display === 'block';
+        if (isOpen) closeMenu();
+        else {
+            menu.style.display = 'block';
+            btn.setAttribute('aria-expanded', 'true');
+            menu.setAttribute('aria-hidden', 'false');
+        }
+    }
 
-	document.addEventListener('click', function(e) {
-		if (!account.contains(e.target)) {
-			closeMenu();
-		}
-	});
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleMenu();
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!account.contains(e.target)) {
+            closeMenu();
+        }
+    });
+
+    /** ========================
+        DELETE MULTIPLE
+    ========================= */
+    const deleteBtn = document.getElementById('deleteBtn');
+    const selectAll = document.getElementById('selectAll');
+
+    function updateDeleteBtn() {
+        const anyChecked = document.querySelectorAll('.row-select:checked').length > 0;
+        deleteBtn.disabled = !anyChecked;
+    }
+
+    // Select tất cả
+    selectAll.addEventListener('change', () => {
+        const checked = selectAll.checked;
+        document.querySelectorAll('.row-select').forEach(cb => cb.checked = checked);
+        updateDeleteBtn();
+    });
+
+    // Khi chọn từng dòng
+    document.querySelectorAll('.row-select').forEach(cb => {
+        cb.addEventListener('change', updateDeleteBtn);
+    });
+
+    // Xử lý xóa
+    deleteBtn.addEventListener('click', function () {
+        const rows = document.querySelectorAll('.row-select:checked');
+        if (rows.length === 0) return;
+
+        if (!confirm("Bạn có chắc muốn xóa các khoản chi đã chọn?")) return;
+
+        const ids = [...rows].map(cb => 
+            cb.closest("tr").dataset.machitieu
+        );
+
+        const formData = new FormData();
+        formData.append("makh", "<?php echo $_SESSION['id']; ?>");
+        ids.forEach(id => formData.append("machitieu_list[]", id));
+
+        fetch('../controllers/KhoanchiController.php?action=deleteMultiple', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(result => {
+            alert(result.message);
+            if (result.success) location.reload();
+        })
+        .catch(() => alert("Có lỗi xảy ra khi xóa."));
+    });
 });
+
 </script>
 
 </body>

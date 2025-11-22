@@ -227,13 +227,13 @@ class KhoanchiModel extends BaseModel
     /**
      * Xóa khoản chi đơn
      */
-    public function deleteExpense($magd, $makh)
+    public function deleteExpense($machitieu, $makh)
     {
-        $magd = intval($magd);
+        $machitieu = intval($machitieu);
         $makh = intval($makh);
 
-        $sql = "DELETE FROM GIAODICH 
-                WHERE magd = {$magd}
+        $sql = "DELETE FROM DSCHITIEU 
+                WHERE machitieu = {$machitieu}
                 AND makh = {$makh}
                 AND loai = 'expense'";
 
@@ -243,13 +243,13 @@ class KhoanchiModel extends BaseModel
     /**
      * Xóa nhiều khoản chi
      */
-    public function deleteMultipleExpenses($magdList, $makh)
+    public function deleteMultipleExpenses($machitieuList, $makh)
     {
-        if (empty($magdList)) {
+        if (empty($machitieuList)) {
             return false;
         }
 
-        $validIds = array_filter(array_map('intval', $magdList), fn($id) => $id > 0);
+        $validIds = array_filter(array_map('intval', $machitieuList), fn($id) => $id > 0);
         if (empty($validIds)) {
             return false;
         }
@@ -257,8 +257,8 @@ class KhoanchiModel extends BaseModel
         $makh = intval($makh);
         $idString = implode(',', $validIds);
 
-        $sql = "DELETE FROM GIAODICH 
-                WHERE magd IN ({$idString})
+        $sql = "DELETE FROM DSCHITIEU 
+                WHERE machitieu IN ({$idString})
                 AND makh = {$makh}
                 AND loai = 'expense'";
 
