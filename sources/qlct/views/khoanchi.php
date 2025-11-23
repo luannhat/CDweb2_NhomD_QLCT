@@ -80,16 +80,13 @@ require_once __DIR__ . '/../controllers/KhoanchiController.php';
 				<button class="btn primary" id="addBtn" onclick="window.location.href='them_khoanchi.php'">
 					Thêm khoản chi tiêu
 				</button>
-				<button class="btn danger" id="deleteBtn" disabled title="Sắp có">Xóa</button>
+				<button class="btn danger" id="deleteBtn" disabled>Xóa</button>
 			</div>
 
 			<section class="card" aria-labelledby="tableTitle">
 				<table id="expenseTable" aria-describedby="tableTitle">
 					<thead>
 						<tr>
-							<th class="col-select">
-								<input type="checkbox" id="selectAll" title="Chọn tất cả" />
-							</th>
 							<th class="col-date">Ngày</th>
 							<th class="col-content">Nội dung</th>
 							<th class="col-type">Danh mục</th>
@@ -113,8 +110,8 @@ require_once __DIR__ . '/../controllers/KhoanchiController.php';
 								$tendanhmuc = htmlspecialchars($row['tendanhmuc']);
 								$sotien = number_format($row['sotien'], 0, ',', '.') . ' VNĐ';
 
-								echo "<tr data-machitieu='{$row['machitieu']}'>
-										<td><input type='checkbox' class='row-select' /></td>
+								$machitieu = $row['machitieu'];
+								echo "<tr class='row-selectable' data-machitieu='{$machitieu}'>
 										<td>{$ngay}</td>
 										<td>{$noidung}</td>
 										<td>{$tendanhmuc}</td>
@@ -122,7 +119,7 @@ require_once __DIR__ . '/../controllers/KhoanchiController.php';
 									  </tr>";
 							}
 						} else {
-							echo "<tr><td colspan='5' style='text-align:center; padding:20px; color:#666;'>Chưa có khoản chi nào</td></tr>";
+							echo "<tr><td colspan='4' style='text-align:center; padding:20px; color:#666;'>Chưa có khoản chi nào</td></tr>";
 						}
 						?>
 					</tbody>
@@ -155,37 +152,108 @@ require_once __DIR__ . '/../controllers/KhoanchiController.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-	var account = document.getElementById('accountDropdown');
-	if (!account) return;
-	var btn = account.querySelector('.account-btn');
-	var menu = account.querySelector('.dropdown-menu');
+    var account = document.getElementById('accountDropdown');
+	if (account) {
+		var btn = account.querySelector('.account-btn');
+		var menu = account.querySelector('.dropdown-menu');
 
-	function closeMenu() {
-		menu.style.display = 'none';
-		btn.setAttribute('aria-expanded', 'false');
-		menu.setAttribute('aria-hidden', 'true');
+		function closeMenu() {
+			menu.style.display = 'none';
+			btn.setAttribute('aria-expanded', 'false');
+			menu.setAttribute('aria-hidden', 'true');
+		}
+
+		function toggleMenu() {
+			var isOpen = menu.style.display === 'block';
+			if (isOpen) closeMenu();
+			else {
+				menu.style.display = 'block';
+				btn.setAttribute('aria-expanded', 'true');
+				menu.setAttribute('aria-hidden', 'false');
+			}
+		}
+
+		btn.addEventListener('click', function(e) {
+			e.stopPropagation();
+			toggleMenu();
+		});
+
+		document.addEventListener('click', function(e) {
+			if (!account.contains(e.target)) {
+				closeMenu();
+			}
+		});
 	}
 
-	function toggleMenu() {
-		var isOpen = menu.style.display === 'block';
-		if (isOpen) closeMenu();
-		else {
-			menu.style.display = 'block';
-			btn.setAttribute('aria-expanded', 'true');
-			menu.setAttribute('aria-hidden', 'false');
-		}
+
+    /** ========================
+		ROW SELECTION & DELETE
+	========================= */
+	const deleteBtn = document.getElementById('deleteBtn');
+	const tbody = document.getElementById('tbody');
+
+	// Cập nhật trạng thái nút Xóa
+	function updateDeleteBtn() {
+		if (!deleteBtn) return;
+		const selectedRows = document.querySelectorAll('.row-selectable.selected');
+		deleteBtn.disabled = selectedRows.length === 0;
 	}
 
-	btn.addEventListener('click', function(e) {
-		e.stopPropagation();
-		toggleMenu();
+	// Sử dụng event delegation trên tbody để xử lý click
+	if (tbody) {
+		tbody.addEventListener('click', function(e) {
+			// Tìm dòng cha (tr) gần nhất có class row-selectable
+			const row = e.target.closest('.row-selectable');
+			
+			if (!row) return;
+			
+			// Ngăn chặn sự kiện khi click vào các phần tử con (nếu có)
+			if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') {
+				return;
+			}
+			
+			// Toggle class selected
+			row.classList.toggle('selected');
+			updateDeleteBtn();
+		});
+	}
+
+	// Thêm cursor pointer cho tất cả các dòng có thể chọn
+	document.querySelectorAll('.row-selectable').forEach(row => {
+		row.style.cursor = 'pointer';
 	});
 
-	document.addEventListener('click', function(e) {
-		if (!account.contains(e.target)) {
-			closeMenu();
-		}
-	});
+	// Khởi tạo trạng thái nút Xóa
+	updateDeleteBtn();
+
+	// Xử lý xóa
+	if (deleteBtn) {
+		deleteBtn.addEventListener('click', function () {
+			const selectedRows = document.querySelectorAll('.row-selectable.selected');
+			if (selectedRows.length === 0) return;
+
+			if (!confirm("Bạn có chắc muốn xóa " + selectedRows.length + " khoản chi đã chọn?")) return;
+
+			const ids = [...selectedRows].map(row => row.dataset.machitieu);
+
+			const formData = new FormData();
+			const makh = <?php echo isset($_SESSION['id']) ? intval($_SESSION['id']) : 1; ?>;
+			formData.append("makh", makh);
+			ids.forEach(id => formData.append("machitieu_list[]", id));
+
+			fetch('../controllers/KhoanchiController.php?action=deleteMultiple', {
+				method: 'POST',
+				body: formData
+			})
+			.then(res => res.json())
+			.then(result => {
+				alert(result.message);
+				if (result.success) location.reload();
+			})
+			.catch(() => alert("Có lỗi xảy ra khi xóa."));
+		});
+	}
+
 });
 </script>
 

@@ -113,20 +113,19 @@ class KhoanchiModel extends BaseModel
      */
     public function countExpenses($makh, $search = '')
     {
-        $conn = self::$_connection;
         $makh = intval($makh);
         $searchCondition = '';
 
         if (!empty($search)) {
             $search = $this->escape($search);
-            $searchCondition = "AND (g.noidung LIKE '%{$search}%' OR dm.tendanhmuc LIKE '%{$search}%')";
+            $searchCondition = "AND (ds.noidung LIKE '%{$search}%' OR dm.tendanhmuc LIKE '%{$search}%')";
         }
 
         $sql = "SELECT COUNT(*) AS total
-                FROM DSKHOANCHI g
-                INNER JOIN DMCHITIEU dm ON g.machitieu = dm.machitieu
-                WHERE g.makh = {$makh}
-                AND g.loai = 'expense'
+                FROM DSCHITIEU ds
+                INNER JOIN DMCHITIEU dm ON ds.madmchitieu = dm.madmchitieu
+                WHERE ds.makh = {$makh}
+                AND ds.loai = 'expense'
                 {$searchCondition}";
 
         $result = $this->select($sql);
@@ -139,7 +138,8 @@ class KhoanchiModel extends BaseModel
 
         $sql = "SELECT COUNT(*) AS total 
                 FROM DSCHITIEU
-                WHERE makh = $makh";
+                WHERE makh = $makh
+                AND loai = 'expense'";
 
         $result = $this->select($sql);
         return $result[0]['total'] ?? 0;
@@ -150,27 +150,28 @@ class KhoanchiModel extends BaseModel
     /**
      * Lấy chi tiết một khoản chi theo ID
      */
-    public function getExpenseById($madmchitieu, $makh)
+    public function getExpenseById($machitieu)
     {
         $conn = self::$_connection;
-        $madmchitieu = intval($madmchitieu);
-        $makh = intval($makh);
+        $machitieu = intval($machitieu);
 
         $sql = "SELECT 
-                    g.madmchitieu = dm.madmchitieu,
+                    g.machitieu,
+                    g.madmchitieu,
+                    dm.tendanhmuc AS loai,
                     g.ngaychitieu,
                     g.noidung,
-                    dm.tendanhmuc AS loai,
                     g.sotien,
                     g.created_at
                 FROM DSCHITIEU g
                 INNER JOIN DMCHITIEU dm ON g.madmchitieu = dm.madmchitieu
-                WHERE g.madmchitieu = {$madmchitieu}
-                AND g.makh = {$makh}";
+                WHERE g.machitieu = {$machitieu}
+                AND g.loai = 'expense'";
 
         $result = $this->select($sql);
         return $result[0] ?? null;
     }
+
 
     /**
      * Thêm khoản chi mới
@@ -196,7 +197,7 @@ class KhoanchiModel extends BaseModel
     /**
      * Cập nhật khoản chi
      */
-    public function updateExpense($magd, $makh, $machitieu, $noidung, $sotien, $ngaygiaodich, $ghichu = '', $anhhoadon = '')
+    /*public function updateExpense($magd, $makh, $machitieu, $noidung, $sotien, $ngaygiaodich, $ghichu = '', $anhhoadon = '')
     {
         $conn = self::$_connection;
         $magd = intval($magd);
@@ -222,34 +223,34 @@ class KhoanchiModel extends BaseModel
                 AND loai = 'expense'";
 
         return $this->update($sql);
-    }
+    }*/
 
     /**
      * Xóa khoản chi đơn
      */
-    public function deleteExpense($magd, $makh)
+    public function deleteExpense($machitieu, $makh)
     {
-        $magd = intval($magd);
+        $machitieu = intval($machitieu);
         $makh = intval($makh);
 
-        $sql = "DELETE FROM GIAODICH 
-                WHERE magd = {$magd}
+        $sql = "DELETE FROM DSCHITIEU 
+                WHERE machitieu = {$machitieu}
                 AND makh = {$makh}
                 AND loai = 'expense'";
 
-        return $this->delete($sql);
+        return $this->delete($sql) > 0;
     }
 
     /**
      * Xóa nhiều khoản chi
      */
-    public function deleteMultipleExpenses($magdList, $makh)
+    public function deleteMultipleExpenses($machitieuList, $makh)
     {
-        if (empty($magdList)) {
+        if (empty($machitieuList)) {
             return false;
         }
 
-        $validIds = array_filter(array_map('intval', $magdList), fn($id) => $id > 0);
+        $validIds = array_filter(array_map('intval', $machitieuList), fn($id) => $id > 0);
         if (empty($validIds)) {
             return false;
         }
@@ -257,13 +258,12 @@ class KhoanchiModel extends BaseModel
         $makh = intval($makh);
         $idString = implode(',', $validIds);
 
-        $sql = "DELETE FROM GIAODICH 
-                WHERE magd IN ({$idString})
+        $sql = "DELETE FROM DSCHITIEU 
+                WHERE machitieu IN ({$idString})
                 AND makh = {$makh}
                 AND loai = 'expense'";
 
-        $affectedRows = $this->delete($sql);
-        return $affectedRows > 0;
+        return $this->delete($sql) > 0;
     }
 
     /**
@@ -294,11 +294,11 @@ class KhoanchiModel extends BaseModel
         $sql = "SELECT 
                     SUM(sotien) AS tong_chitieu,
                     COUNT(*) AS so_giao_dich
-                FROM GIAODICH 
+                FROM DSCHITIEU 
                 WHERE makh = {$makh}
                 AND loai = 'expense'
-                AND MONTH(ngaygiaodich) = {$thang}
-                AND YEAR(ngaygiaodich) = {$nam}";
+                AND MONTH(ngaychitieu) = {$thang}
+                AND YEAR(ngaychitieu) = {$nam}";
 
         $result = $this->select($sql);
         return $result[0] ?? ['tong_chitieu' => 0, 'so_giao_dich' => 0];
