@@ -536,6 +536,44 @@ tbody td {
 	border-color: #8fe0b0;
 }
 
+/* Biểu đồ */
+.chart-selection-container {
+	margin-top: 32px;
+	width: 100%;
+}
+
+.chart-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 16px;
+	max-width: 800px;
+}
+
+.chart-btn {
+	padding: 16px 20px;
+	border-radius: 4px;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	background: #e6e6e6;
+	color: #222;
+	font-weight: 600;
+	cursor: pointer;
+	font-size: 14px;
+	text-align: left;
+	transition: all 0.2s;
+	width: 100%;
+	min-height: 60px;
+	display: flex;
+	align-items: center;
+}
+
+.chart-btn:hover {
+	background: #d6d6d6;
+}
+
+.chart-btn.active {
+	background: #fff;
+	border-color: rgba(0, 0, 0, 0.2);
+}
 
 /* Responsive */
 @media (max-width:880px) {
@@ -578,6 +616,10 @@ tbody td {
     .report-section {
         max-width: 100%;
         width: 100%;
+    }
+
+    .chart-grid {
+        grid-template-columns: 1fr;
     }
 
 }
@@ -683,6 +725,128 @@ tbody td {
 	.year-form {
 		flex-direction: column;
 		align-items: flex-start;
+	}
+}
+
+/* Biểu đồ đường */
+.date-range-selector {
+	margin-bottom: 24px;
+}
+
+.date-range-form {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.date-input-group {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.date-input-group label {
+	font-weight: 600;
+	color: #222;
+}
+
+.date-input-group input[type="date"] {
+	padding: 10px 12px;
+	border-radius: 4px;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	background: #fff;
+	font-size: 14px;
+	cursor: pointer;
+}
+
+.chart-legend-inline {
+	display: flex;
+	gap: 24px;
+	margin-bottom: 20px;
+	flex-wrap: wrap;
+}
+
+.legend-item-inline {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.legend-item-inline .legend-color {
+	width: 16px;
+	height: 16px;
+	border-radius: 2px;
+	flex-shrink: 0;
+}
+
+.legend-item-inline span {
+	font-size: 14px;
+	color: #222;
+}
+
+.line-chart-container {
+	margin-bottom: 24px;
+	position: relative;
+	height: 400px;
+	width: 100%;
+}
+
+.line-chart-summary {
+	display: flex;
+	gap: 32px;
+	padding: 20px;
+	background: #f5f5f5;
+	border-radius: 6px;
+	flex-wrap: wrap;
+}
+
+.summary-item {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.summary-label {
+	font-size: 14px;
+	color: #666;
+}
+
+.summary-value {
+	font-size: 18px;
+	font-weight: 600;
+	color: #222;
+}
+
+.summary-value.positive {
+	color: #0b6b3f;
+}
+
+.summary-value.negative {
+	color: #d32f2f;
+}
+
+@media (max-width: 880px) {
+	.date-range-form {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.date-input-group {
+		width: 100%;
+	}
+
+	.date-input-group input[type="date"] {
+		flex: 1;
+	}
+
+	.line-chart-container {
+		height: 300px;
+	}
+
+	.line-chart-summary {
+		flex-direction: column;
+		gap: 16px;
 	}
 }
 
