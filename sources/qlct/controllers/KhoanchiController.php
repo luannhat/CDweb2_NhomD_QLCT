@@ -9,12 +9,12 @@ class KhoanchiController
     public function __construct()
     {
         $this->model = new KhoanchiModel();
-        $this->makh = 1; // hoặc từ session
+        $this->makh = $_SESSION['id'] ?? 1;
     }
 
     public function index()
     {
-        $makh = $_SESSION['makh'] ?? 1;
+        $makh = $_SESSION['id'] ?? 1;
 
         $limit = 5;
         $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
@@ -69,7 +69,7 @@ class KhoanchiController
             : ['success' => false, 'message' => 'Không thể thêm khoản chi'];
     }
 
-    public function update()
+    /*public function update()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return ['success' => false, 'message' => 'Phương thức không hợp lệ'];
@@ -96,7 +96,7 @@ class KhoanchiController
         return $ok
             ? ['success' => true, 'message' => 'Cập nhật thành công']
             : ['success' => false, 'message' => 'Không thể cập nhật'];
-    }
+    }*/
 
     public function delete()
     {
@@ -109,7 +109,7 @@ class KhoanchiController
             return ['success' => false, 'message' => 'ID không hợp lệ'];
         }
 
-        $ok = $this->model->deleteExpense($machitieu);
+        $ok = $this->model->deleteExpense($machitieu, $this->makh);
 
         return $ok
             ? ['success' => true, 'message' => 'Đã xóa khoản chi']
@@ -129,7 +129,7 @@ class KhoanchiController
 
         $valid = array_filter(array_map('intval', $list), fn($id) => $id > 0);
 
-        $ok = $this->model->deleteMultipleExpenses($valid);
+        $ok = $this->model->deleteMultipleExpenses($valid, $this->makh);
 
         return $ok
             ? ['success' => true, 'message' => 'Đã xóa ' . count($valid) . ' khoản chi']
@@ -150,3 +150,23 @@ class KhoanchiController
             : ['success' => false, 'message' => 'Không tìm thấy khoản chi'];
     }
 }
+
+if (isset($_GET['action']) || isset($_POST['action'])) {
+    header('Content-Type: application/json');
+    $controller = new KhoanchiController();
+    $action = $_GET['action'] ?? $_POST['action'];
+    switch ($action) {
+        case 'deleteMultiple':
+            $result = $controller->deleteMultiple();
+            echo json_encode($result);
+            exit;
+        case 'deleteSingle':
+            $result = $controller->delete();
+            echo json_encode($result);
+            exit;
+        default:
+            echo json_encode(['success' => false, 'message' => 'Action không hợp lệ']);
+            exit;
+    }
+}
+
