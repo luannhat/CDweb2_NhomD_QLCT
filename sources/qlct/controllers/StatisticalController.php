@@ -27,4 +27,14 @@ class StatisticalController {
 
         include './views/thongke_nam.php';
     }
+
+    public function lineChart() {
+        $fromDate = isset($_GET['from_date']) ? $_GET['from_date'] : date('Y-01-01');
+        $toDate = isset($_GET['to_date']) ? $_GET['to_date'] : date('Y-12-31');
+        
+        $monthlyData = $this->model->getIncomeExpenseByDateRange($this->makh, $fromDate, $toDate);
+        $totals = $this->model->getTotalIncomeExpenseByDateRange($this->makh, $fromDate, $toDate);
+
+        include './views/bieu_do_duong.php';
+    }
 }

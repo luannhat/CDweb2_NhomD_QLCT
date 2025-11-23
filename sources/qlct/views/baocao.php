@@ -103,6 +103,24 @@ session_start();
 					<button class="report-btn" id="multiMonthBtn">Báo cáo tổng hợp nhiều tháng</button>
 				</div>
 			</div>
+
+			<!-- Biểu đồ -->
+			<div class="chart-selection-container">
+				<div class="chart-grid">
+					<button class="chart-btn" data-chart="line-compare">
+						Biểu đồ đường so sánh thu nhập - chi tiêu
+					</button>
+					<button class="chart-btn" data-chart="trend">
+						Biểu đồ xu hướng chi tiêu
+					</button>
+					<button class="chart-btn" data-chart="bar">
+						Biểu đồ cột theo tháng/năm
+					</button>
+					<button class="chart-btn" data-chart="percentage">
+						Biểu đồ phần trăm theo danh mục
+					</button>
+				</div>
+			</div>
 		</main>
 	</div>
 </div>
@@ -189,6 +207,32 @@ document.addEventListener('DOMContentLoaded', function() {
 			console.log('Multi-month report clicked');
 		});
 	}
+
+	// Xử lý các nút biểu đồ
+	const chartButtons = document.querySelectorAll('.chart-btn');
+	chartButtons.forEach(btn => {
+		btn.addEventListener('click', function() {
+			// Xóa active từ tất cả các nút biểu đồ
+			chartButtons.forEach(b => b.classList.remove('active'));
+			// Thêm active cho nút được click
+			this.classList.add('active');
+			
+			const chartType = this.dataset.chart;
+			if (chartType === 'line-compare') {
+				// Chuyển đến trang biểu đồ đường
+				window.location.href = 'bieu_do_duong.php';
+			} else if (chartType === 'trend') {
+				// TODO: Xử lý biểu đồ xu hướng
+				console.log('Selected chart: trend');
+			} else if (chartType === 'bar') {
+				// TODO: Xử lý biểu đồ cột
+				console.log('Selected chart: bar');
+			} else if (chartType === 'percentage') {
+				// TODO: Xử lý biểu đồ phần trăm
+				console.log('Selected chart: percentage');
+			}
+		});
+	});
 });
 </script>
 

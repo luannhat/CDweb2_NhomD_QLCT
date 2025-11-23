@@ -59,4 +59,97 @@ class StatisticalModel {
         $row = $result ? $result->fetch_assoc() : null;
         return $row ? floatval($row['tongtien']) : 0;
     }
+
+    // Lấy dữ liệu thu nhập và chi tiêu theo khoảng thời gian, nhóm theo tháng
+    public function getIncomeExpenseByDateRange($makh, $fromDate, $toDate) {
+        $makh = intval($makh);
+        $fromDate = $this->conn->real_escape_string($fromDate);
+        $toDate = $this->conn->real_escape_string($toDate);
+        
+        $sql = "SELECT 
+                    DATE_FORMAT(ngaythunhap, '%Y-%m') AS thang,
+                    COALESCE(SUM(sotien), 0) AS thu_nhap
+                FROM DSTHUNHAP
+                WHERE makh = {$makh}
+                AND ngaythunhap >= '{$fromDate}'
+                AND ngaythunhap <= '{$toDate}'
+                GROUP BY DATE_FORMAT(ngaythunhap, '%Y-%m')
+                ORDER BY thang ASC";
+        
+        $incomeResult = $this->conn->query($sql);
+        $incomeData = [];
+        if ($incomeResult) {
+            while ($row = $incomeResult->fetch_assoc()) {
+                $incomeData[$row['thang']] = floatval($row['thu_nhap']);
+            }
+        }
+        
+        $sql = "SELECT 
+                    DATE_FORMAT(ngaychitieu, '%Y-%m') AS thang,
+                    COALESCE(SUM(sotien), 0) AS chi_tieu
+                FROM DSCHITIEU
+                WHERE makh = {$makh}
+                AND loai = 'expense'
+                AND ngaychitieu >= '{$fromDate}'
+                AND ngaychitieu <= '{$toDate}'
+                GROUP BY DATE_FORMAT(ngaychitieu, '%Y-%m')
+                ORDER BY thang ASC";
+        
+        $expenseResult = $this->conn->query($sql);
+        $expenseData = [];
+        if ($expenseResult) {
+            while ($row = $expenseResult->fetch_assoc()) {
+                $expenseData[$row['thang']] = floatval($row['chi_tieu']);
+            }
+        }
+        
+        // Tạo mảng kết hợp tất cả các tháng
+        $allMonths = array_unique(array_merge(array_keys($incomeData), array_keys($expenseData)));
+        sort($allMonths);
+        
+        $result = [];
+        foreach ($allMonths as $month) {
+            $result[] = [
+                'thang' => $month,
+                'thu_nhap' => $incomeData[$month] ?? 0,
+                'chi_tieu' => $expenseData[$month] ?? 0
+            ];
+        }
+        
+        return $result;
+    }
+
+    // Lấy tổng thu nhập và chi tiêu trong khoảng thời gian
+    public function getTotalIncomeExpenseByDateRange($makh, $fromDate, $toDate) {
+        $makh = intval($makh);
+        $fromDate = $this->conn->real_escape_string($fromDate);
+        $toDate = $this->conn->real_escape_string($toDate);
+        
+        $sql = "SELECT COALESCE(SUM(sotien), 0) AS tong_thu_nhap
+                FROM DSTHUNHAP
+                WHERE makh = {$makh}
+                AND ngaythunhap >= '{$fromDate}'
+                AND ngaythunhap <= '{$toDate}'";
+        
+        $result = $this->conn->query($sql);
+        $row = $result ? $result->fetch_assoc() : null;
+        $totalIncome = $row ? floatval($row['tong_thu_nhap']) : 0;
+        
+        $sql = "SELECT COALESCE(SUM(sotien), 0) AS tong_chi_tieu
+                FROM DSCHITIEU
+                WHERE makh = {$makh}
+                AND loai = 'expense'
+                AND ngaychitieu >= '{$fromDate}'
+                AND ngaychitieu <= '{$toDate}'";
+        
+        $result = $this->conn->query($sql);
+        $row = $result ? $result->fetch_assoc() : null;
+        $totalExpense = $row ? floatval($row['tong_chi_tieu']) : 0;
+        
+        return [
+            'tong_thu_nhap' => $totalIncome,
+            'tong_chi_tieu' => $totalExpense,
+            'chenh_lech' => $totalIncome - $totalExpense
+        ];
+    }
 }
