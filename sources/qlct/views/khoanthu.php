@@ -92,9 +92,6 @@ $totalPages = $result['totalPages'];
 				<table id="incomeTable" aria-describedby="tableTitle">
 					<thead>
 						<tr>
-							<th class="col-select">
-								<input type="checkbox" id="selectAll" title="Chọn tất cả" />
-							</th>
 							<th class="col-date">Ngày</th>
 							<th class="col-content">Nội dung</th>
 							<th class="col-type">Danh mục</th>
@@ -105,7 +102,6 @@ $totalPages = $result['totalPages'];
 						<?php if (!empty($khoanthus)): ?>
 							<?php foreach ($khoanthus as $row): ?>
 								<tr data-mathunhap="<?php echo htmlspecialchars($row['mathunhap']); ?>">
-									<td><input type="checkbox" class="row-select" /></td>
 									<td><?php echo htmlspecialchars($row['ngaythunhap']); ?></td>
 									<td><?php echo htmlspecialchars($row['noidung']); ?></td>
 									<td><?php echo htmlspecialchars($row['tendanhmuc']); ?></td>
@@ -113,14 +109,14 @@ $totalPages = $result['totalPages'];
 								</tr>
 							<?php endforeach; ?>
 						<?php else: ?>
-							<tr><td colspan="5" style="text-align:center; padding:20px; color:#666;">Chưa có khoản thu nào</td></tr>
+							<tr><td colspan="4" style="text-align:center; padding:20px; color:#666;">Chưa có khoản thu nào</td></tr>
 						<?php endif; ?>
 					</tbody>
 				</table>
 
 				<!-- PHÂN TRANG -->
 				<?php if ($totalPages > 1): ?>
-				<div class="pagination" style="margin-top:12px; display:flex; align-items:center; justify-content:center; gap:8px;">
+				<div class="pagination">
 					<?php if ($currentPage > 1): ?>
 						<a href="?page=<?php echo $currentPage - 1; ?>" class="circle" id="prevBtn">&lt;</a>
 					<?php else: ?>
