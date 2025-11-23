@@ -150,6 +150,23 @@ require_once __DIR__ . '/../controllers/KhoanchiController.php';
 	</div>
 </div>
 
+<!-- Hộp thoại xác nhận xóa -->
+<div id="deleteConfirmDialog" class="confirm-dialog-overlay" style="display: none;">
+	<div class="confirm-dialog">
+		<div class="confirm-dialog-header">
+			<i class="fa-solid fa-triangle-exclamation" style="color: #666; margin-right: 8px;"></i>
+			<span>Xóa chi tiêu</span>
+		</div>
+		<div class="confirm-dialog-body">
+			<p>Bạn có muốn xóa không?</p>
+		</div>
+		<div class="confirm-dialog-footer">
+			<button class="confirm-btn cancel-btn">Hủy</button>
+			<button class="confirm-btn confirm-btn-primary">Xác nhận</button>
+		</div>
+	</div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var account = document.getElementById('accountDropdown');
@@ -226,31 +243,78 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Khởi tạo trạng thái nút Xóa
 	updateDeleteBtn();
 
+	// Xử lý xóa với hộp thoại xác nhận tùy chỉnh
+	const deleteDialog = document.getElementById('deleteConfirmDialog');
+	const cancelBtn = deleteDialog?.querySelector('.cancel-btn');
+	const confirmBtn = deleteDialog?.querySelector('.confirm-btn-primary');
+	let deleteCallback = null;
+
+	// Hàm hiển thị hộp thoại xác nhận
+	function showDeleteConfirm(callback) {
+		if (!deleteDialog) return;
+		deleteCallback = callback;
+		deleteDialog.style.display = 'flex';
+	}
+
+	// Hàm ẩn hộp thoại xác nhận
+	function hideDeleteConfirm() {
+		if (!deleteDialog) return;
+		deleteDialog.style.display = 'none';
+		deleteCallback = null;
+	}
+
+	// Xử lý nút Hủy
+	if (cancelBtn) {
+		cancelBtn.addEventListener('click', function() {
+			hideDeleteConfirm();
+		});
+	}
+
+	// Xử lý nút Xác nhận
+	if (confirmBtn) {
+		confirmBtn.addEventListener('click', function() {
+			if (deleteCallback) {
+				deleteCallback();
+			}
+			hideDeleteConfirm();
+		});
+	}
+
+	// Đóng hộp thoại khi click ra ngoài
+	if (deleteDialog) {
+		deleteDialog.addEventListener('click', function(e) {
+			if (e.target === deleteDialog) {
+				hideDeleteConfirm();
+			}
+		});
+	}
+
 	// Xử lý xóa
 	if (deleteBtn) {
 		deleteBtn.addEventListener('click', function () {
 			const selectedRows = document.querySelectorAll('.row-selectable.selected');
 			if (selectedRows.length === 0) return;
 
-			if (!confirm("Bạn có chắc muốn xóa " + selectedRows.length + " khoản chi đã chọn?")) return;
+			// Hiển thị hộp thoại xác nhận
+			showDeleteConfirm(function() {
+				const ids = [...selectedRows].map(row => row.dataset.machitieu);
 
-			const ids = [...selectedRows].map(row => row.dataset.machitieu);
+				const formData = new FormData();
+				const makh = <?php echo isset($_SESSION['id']) ? intval($_SESSION['id']) : 1; ?>;
+				formData.append("makh", makh);
+				ids.forEach(id => formData.append("machitieu_list[]", id));
 
-			const formData = new FormData();
-			const makh = <?php echo isset($_SESSION['id']) ? intval($_SESSION['id']) : 1; ?>;
-			formData.append("makh", makh);
-			ids.forEach(id => formData.append("machitieu_list[]", id));
-
-			fetch('../controllers/KhoanchiController.php?action=deleteMultiple', {
-				method: 'POST',
-				body: formData
-			})
-			.then(res => res.json())
-			.then(result => {
-				alert(result.message);
-				if (result.success) location.reload();
-			})
-			.catch(() => alert("Có lỗi xảy ra khi xóa."));
+				fetch('../controllers/KhoanchiController.php?action=deleteMultiple', {
+					method: 'POST',
+					body: formData
+				})
+				.then(res => res.json())
+				.then(result => {
+					alert(result.message);
+					if (result.success) location.reload();
+				})
+				.catch(() => alert("Có lỗi xảy ra khi xóa."));
+			});
 		});
 	}
 
