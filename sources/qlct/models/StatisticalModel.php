@@ -152,4 +152,81 @@ class StatisticalModel {
             'chenh_lech' => $totalIncome - $totalExpense
         ];
     }
+
+    /**
+     * Lấy dữ liệu thu nhập/chi tiêu theo từng tuần (4 tuần) trong 1 tháng cụ thể.
+     * Tuần được chia theo các mốc 1-7, 8-14, 15-21, 22-cuối tháng.
+     */
+    public function getWeeklyIncomeExpenseByMonth($makh, $year, $month) {
+        $makh = intval($makh);
+        $year = intval($year);
+        $month = intval($month);
+
+        if ($month < 1 || $month > 12) {
+            $month = intval(date('n'));
+        }
+
+        $incomeSql = "
+            SELECT 
+                CASE
+                    WHEN DAY(ngaythunhap) BETWEEN 1 AND 7 THEN 1
+                    WHEN DAY(ngaythunhap) BETWEEN 8 AND 14 THEN 2
+                    WHEN DAY(ngaythunhap) BETWEEN 15 AND 21 THEN 3
+                    ELSE 4
+                END AS week_index,
+                COALESCE(SUM(sotien), 0) AS total
+            FROM DSTHUNHAP
+            WHERE makh = {$makh}
+                AND YEAR(ngaythunhap) = {$year}
+                AND MONTH(ngaythunhap) = {$month}
+            GROUP BY week_index
+        ";
+
+        $expenseSql = "
+            SELECT 
+                CASE
+                    WHEN DAY(ngaychitieu) BETWEEN 1 AND 7 THEN 1
+                    WHEN DAY(ngaychitieu) BETWEEN 8 AND 14 THEN 2
+                    WHEN DAY(ngaychitieu) BETWEEN 15 AND 21 THEN 3
+                    ELSE 4
+                END AS week_index,
+                COALESCE(SUM(sotien), 0) AS total
+            FROM DSCHITIEU
+            WHERE makh = {$makh}
+                AND loai = 'expense'
+                AND YEAR(ngaychitieu) = {$year}
+                AND MONTH(ngaychitieu) = {$month}
+            GROUP BY week_index
+        ";
+
+        $incomeResult = $this->conn->query($incomeSql);
+        $expenseResult = $this->conn->query($expenseSql);
+
+        $weeks = [
+            1 => ['label' => 'Tuần 1', 'thu_nhap' => 0, 'chi_tieu' => 0],
+            2 => ['label' => 'Tuần 2', 'thu_nhap' => 0, 'chi_tieu' => 0],
+            3 => ['label' => 'Tuần 3', 'thu_nhap' => 0, 'chi_tieu' => 0],
+            4 => ['label' => 'Tuần 4', 'thu_nhap' => 0, 'chi_tieu' => 0],
+        ];
+
+        if ($incomeResult) {
+            while ($row = $incomeResult->fetch_assoc()) {
+                $index = intval($row['week_index']);
+                if (isset($weeks[$index])) {
+                    $weeks[$index]['thu_nhap'] = floatval($row['total']);
+                }
+            }
+        }
+
+        if ($expenseResult) {
+            while ($row = $expenseResult->fetch_assoc()) {
+                $index = intval($row['week_index']);
+                if (isset($weeks[$index])) {
+                    $weeks[$index]['chi_tieu'] = floatval($row['total']);
+                }
+            }
+        }
+
+        return array_values($weeks);
+    }
 }

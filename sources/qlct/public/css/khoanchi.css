@@ -850,5 +850,111 @@ tbody td {
 	}
 }
 
+/* Biểu đồ cột */
+.bar-chart-page {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.bar-chart-hero {
+	background: transparent;
+	padding: 0;
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 20px;
+	flex-wrap: wrap;
+}
+
+.bar-chart-hero__text h2 {
+	font-size: 24px;
+	color: #1f1f1f;
+	margin-bottom: 6px;
+}
+
+.bar-chart-hero__text p {
+	color: #3d3d3d;
+	margin: 0;
+}
+
+.bar-chart-filter {
+	display: flex;
+	gap: 12px;
+	align-items: flex-end;
+	flex-wrap: wrap;
+}
+
+.bar-chart-filter label {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-weight: 600;
+	color: #1f1f1f;
+}
+
+.bar-chart-filter select {
+	padding: 10px 14px;
+	border: 1px solid rgba(0,0,0,0.12);
+	border-radius: 8px;
+	background: #fff;
+	min-width: 120px;
+	font-size: 14px;
+}
+
+.bar-chart-card {
+	background: #fff;
+	border-radius: 12px;
+	padding: 24px;
+	box-shadow: 0 12px 40px rgba(15, 71, 36, 0.08);
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.bar-chart-card__chart {
+	height: 360px;
+}
+
+.legend-income {
+	background-color: #00f16f;
+}
+
+.legend-expense {
+	background-color: #ff2a2a;
+}
+
+.bar-chart-summary {
+	display: flex;
+	gap: 40px;
+	font-size: 16px;
+	font-weight: 600;
+	flex-wrap: wrap;
+}
+
+.bar-chart-summary .summary-value {
+	display: block;
+	margin-top: 4px;
+	font-size: 20px;
+	color: #111;
+}
+
+@media (max-width: 768px) {
+	.bar-chart-hero {
+		flex-direction: column;
+		align-items: flex-start;
+		padding: 0;
+	}
+
+	.bar-chart-card__chart {
+		height: 280px;
+	}
+
+	.bar-chart-summary {
+		flex-direction: column;
+		gap: 12px;
+	}
+}
+
 
 

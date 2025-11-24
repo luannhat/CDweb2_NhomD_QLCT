@@ -227,8 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				// TODO: Xử lý biểu đồ xu hướng
 				console.log('Selected chart: trend');
 			} else if (chartType === 'bar') {
-				// TODO: Xử lý biểu đồ cột
-				console.log('Selected chart: bar');
+				window.location.href = 'bieu_do_cot.php';
 			} else if (chartType === 'percentage') {
 				// TODO: Xử lý biểu đồ phần trăm
 				console.log('Selected chart: percentage');
