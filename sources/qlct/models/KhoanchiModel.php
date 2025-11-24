@@ -313,4 +313,29 @@ class KhoanchiModel extends BaseModel
             ? self::$_connection->real_escape_string($string)
             : addslashes($string);
     }
+
+    public function getTongChiTheoThang($makh, $thang, $nam)
+    {
+        $makh = intval($makh);
+        $thang = intval($thang);
+        $nam = intval($nam);
+        
+        if ($makh <= 0) {
+            return 0;
+        }
+        
+        $sql = "SELECT SUM(sotien) AS tong
+                FROM DSCHITIEU
+                WHERE makh = {$makh}
+                AND MONTH(ngaychitieu) = {$thang}
+                AND YEAR(ngaychitieu) = {$nam}
+                AND loai = 'expense'";
+
+        $result = self::$_connection->query($sql);
+        if (!$result) {
+            return 0;
+        }
+        $row = $result->fetch_assoc();
+        return $row['tong'] ?? 0;
+    }
 }
