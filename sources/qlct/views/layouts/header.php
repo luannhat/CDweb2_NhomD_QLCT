@@ -10,6 +10,8 @@ $keyword = $_GET['keyword'] ?? '';
 <head>
     <meta charset="UTF-8">
     <title>Quản lý chi tiêu</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="alternate icon" href="../public/favicon.svg">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <!-- Font Awesome -->

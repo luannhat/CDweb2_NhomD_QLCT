@@ -28,6 +28,8 @@ foreach ($monthlyData as $row) {
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Biểu đồ đường - Quản lý chi tiêu</title>
+	<link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+	<link rel="alternate icon" href="../public/favicon.svg">
 
 	<!-- Font Awesome 6 -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />

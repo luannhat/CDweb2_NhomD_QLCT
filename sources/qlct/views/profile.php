@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Ảnh đại diện</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="alternate icon" href="../public/favicon.svg">
     <style>
         body {
             font-family: Arial, sans-serif;

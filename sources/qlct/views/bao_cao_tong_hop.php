@@ -9,6 +9,8 @@ session_start();
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Báo cáo tổng hợp nhiều tháng</title>
+	<link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+	<link rel="alternate icon" href="../public/favicon.svg">
 
 	<!-- Font Awesome 6 -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -166,6 +168,22 @@ session_start();
 	</div>
 </div>
 
+<!-- Modal xác nhận xuất PDF -->
+<div id="exportConfirmModal" class="export-modal" style="display: none;">
+    <div class="export-modal-content">
+        <div class="export-modal-header">
+            <h3>Thông báo xuất</h3>
+        </div>
+        <div class="export-modal-body">
+            <p>Bạn có muốn xuất không?</p>
+        </div>
+        <div class="export-modal-footer">
+            <button class="export-modal-btn export-modal-cancel" id="exportCancelBtn">Hủy</button>
+            <button class="export-modal-btn export-modal-confirm" id="exportConfirmBtn">Xác nhận</button>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Account dropdown
@@ -237,8 +255,24 @@ document.addEventListener('DOMContentLoaded', function() {
             option.addEventListener('click', function(e) {
                 e.preventDefault();
                 var format = this.getAttribute('data-format');
-                // TODO: Implement export functionality
-                console.log('Export as:', format);
+                
+                // Lấy các giá trị filter từ form
+                var filterForm = document.querySelector('.filter-row');
+                var fromMonth = filterForm.querySelector('select[name="from"]').value;
+                var toMonth = filterForm.querySelector('select[name="to"]').value;
+                var year = filterForm.querySelector('select[name="year"]').value;
+                
+                if (format === 'pdf') {
+                    // Hiển thị modal xác nhận
+                    showExportModal(fromMonth, toMonth, year);
+                } else if (format === 'excel') {
+                    // TODO: Implement Excel export
+                    alert('Chức năng xuất Excel đang được phát triển');
+                } else if (format === 'csv') {
+                    // TODO: Implement CSV export
+                    alert('Chức năng xuất CSV đang được phát triển');
+                }
+                
                 closeExportMenu();
             });
         });
@@ -259,8 +293,57 @@ document.addEventListener('DOMContentLoaded', function() {
     var btnExport = document.querySelector('.btn-export');
     if (btnExport) {
         btnExport.addEventListener('click', function() {
-            // TODO: Implement export functionality
-            console.log('Export button clicked');
+            // Lấy các giá trị filter từ form
+            var filterForm = document.querySelector('.filter-row');
+            var fromMonth = filterForm.querySelector('select[name="from"]').value;
+            var toMonth = filterForm.querySelector('select[name="to"]').value;
+            var year = filterForm.querySelector('select[name="year"]').value;
+            
+            // Hiển thị modal xác nhận
+            showExportModal(fromMonth, toMonth, year);
+        });
+    }
+
+    // Modal xác nhận xuất PDF
+    var exportModal = document.getElementById('exportConfirmModal');
+    var exportCancelBtn = document.getElementById('exportCancelBtn');
+    var exportConfirmBtn = document.getElementById('exportConfirmBtn');
+    var currentExportUrl = '';
+
+    function showExportModal(fromMonth, toMonth, year) {
+        currentExportUrl = 'export_baocao_pdf.php?from=' + fromMonth + '&to=' + toMonth + '&year=' + year;
+        exportModal.style.display = 'flex';
+    }
+
+    function hideExportModal() {
+        exportModal.style.display = 'none';
+        currentExportUrl = '';
+    }
+
+    // Xử lý nút Hủy
+    if (exportCancelBtn) {
+        exportCancelBtn.addEventListener('click', function() {
+            hideExportModal();
+        });
+    }
+
+    // Xử lý nút Xác nhận
+    if (exportConfirmBtn) {
+        exportConfirmBtn.addEventListener('click', function() {
+            if (currentExportUrl) {
+                // Tải file PDF về máy
+                window.location.href = currentExportUrl;
+                hideExportModal();
+            }
+        });
+    }
+
+    // Đóng modal khi click bên ngoài
+    if (exportModal) {
+        exportModal.addEventListener('click', function(e) {
+            if (e.target === exportModal) {
+                hideExportModal();
+            }
         });
     }
 });
