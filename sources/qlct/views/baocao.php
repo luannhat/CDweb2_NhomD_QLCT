@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	if (multiMonthBtn) {
 		multiMonthBtn.addEventListener('click', function() {
 			// TODO: Xử lý logic báo cáo tổng hợp nhiều tháng
-			console.log('Multi-month report clicked');
+			window.location.href = 'bao_cao_tong_hop.php';
 		});
 	}
 

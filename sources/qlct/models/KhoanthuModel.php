@@ -80,7 +80,7 @@ class KhoanthuModel extends BaseModel
 
 	
 	// Lấy danh sách khoản thu của khách hàng
-	public function getIncomes($makh, $search = '', $limit = 10, $offset = 0,$loai)
+	public function getIncomes($makh, $loai, $search = '', $limit = 10, $offset = 0)
 	{
 		$searchCondition = '';
 		if (!empty($search)) {
@@ -108,7 +108,7 @@ class KhoanthuModel extends BaseModel
 	}
 
 	// Đếm tổng số khoản thu (để làm phân trang)
-	public function countIncomes($makh, $search = '',$loai)
+	public function countIncomes($makh, $loai, $search = '')
 	{
 		$searchCondition = '';
 		if (!empty($search)) {
@@ -270,6 +270,30 @@ class KhoanthuModel extends BaseModel
 		return $result->fetch_assoc();
 	}
 
+	public function getTongThuTheoThang($makh, $thang, $nam)
+	{
+		$makh = intval($makh);
+		$thang = intval($thang);
+		$nam = intval($nam);
+		
+		if ($makh <= 0) {
+			return 0;
+		}
+		
+		$sql = "SELECT SUM(sotien) AS tong
+				FROM DSTHUNHAP
+				WHERE makh = {$makh}
+				AND MONTH(ngaythunhap) = {$thang}
+				AND YEAR(ngaythunhap) = {$nam}
+				AND loai = 'income'";
+
+		$result = self::$_connection->query($sql);
+		if (!$result) {
+			return 0;
+		}
+		$row = $result->fetch_assoc();
+		return $row['tong'] ?? 0;
+	}
 }
 
 
