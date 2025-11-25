@@ -15,9 +15,9 @@ class StatisticalModel {
     // Lấy tất cả danh mục + tổng chi tiêu
     public function getAllExpenseByCategory() {
         $sql = "SELECT d.tendanhmuc AS tendanhmuc, COALESCE(SUM(c.sotien),0) AS tongtien
-                FROM DMCHITIEU d
-                LEFT JOIN DSCHITIEU c ON d.machitieu = c.machitieu AND c.loai = 'expense'
-                GROUP BY d.machitieu, d.tendanhmuc";
+        FROM DMCHITIEU d
+        LEFT JOIN DSCHITIEU c ON d.madmchitieu = c.machitieu AND c.loai = 'expense'
+        GROUP BY d.madmchitieu, d.tendanhmuc";
         $result = $this->conn->query($sql);
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
