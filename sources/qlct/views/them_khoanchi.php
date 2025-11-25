@@ -124,6 +124,16 @@
             validateSotien();
         });
 
+        // Hàm trim toàn diện: xóa cả khoảng trắng 1 byte và 2 byte
+        function fullTrim(str) {
+            return str.replace(/^[\s\u3000]+|[\s\u3000]+$/g, '');
+        }
+
+        // Hàm kiểm tra chuỗi có phải toàn khoảng trắng không
+        function isOnlyWhitespace(str) {
+            return str.replace(/[\s\u3000]/g, '') === '';
+        }
+
         function validateSotien() {
             const value = sotienInput.value.trim();
             sotienError.style.display = 'none';
@@ -174,16 +184,25 @@
 
         // Validate form khi submit
         document.querySelector('form').addEventListener('submit', function(e) {
-            const noidung = document.getElementById('noidung').value.trim();
+            const noidungRaw = document.getElementById('noidung').value;
+            const noidung = fullTrim(noidungRaw);
             const madmchitieu = document.getElementById('madmchitieu').value;
             const sotien = document.getElementById('sotien').value.trim();
             const ngaychitieu = document.getElementById('ngaychitieu').value;
             let hasError = false;
 
+            // --- SỬA LOGIC NỘI DUNG ---
+            // ❌ Không cho phép chỉ khoảng trắng (1 byte hoặc 2 byte)
+            if (isOnlyWhitespace(noidungRaw)) {
+                alert('Lỗi: Tên khoản chi tiêu không được chỉ chứa khoảng trắng');
+                e.preventDefault();
+                return;
+            }
+
+            // ❌ Không được để trống sau khi trim
             if (!noidung) {
                 alert('Vui lòng nhập tên khoản chi tiêu');
                 e.preventDefault();
-                hasError = true;
                 return;
             }
 
