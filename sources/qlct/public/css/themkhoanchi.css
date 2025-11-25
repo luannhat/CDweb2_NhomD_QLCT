@@ -127,6 +127,23 @@
     border: 1px solid #f5c6cb;
 }
 
+.error-message {
+    color: #e74c3c;
+    font-size: 0.875em;
+    margin-top: 5px;
+    display: block;
+    font-weight: 500;
+}
+
+.form-row input.error {
+    border-color: #e74c3c;
+}
+
+.form-row input.error:focus {
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
 @media (max-width: 768px) {
     .form-row {
         flex-direction: column;
