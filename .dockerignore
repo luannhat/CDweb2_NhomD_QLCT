@@ -2,6 +2,7 @@
 data/
 sources/data/
 src/vendor/
+sources/qlct/vendor/
 node_modules/
 .git/
 .vagrant/
