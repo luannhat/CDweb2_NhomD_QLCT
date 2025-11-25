@@ -337,6 +337,18 @@ document.addEventListener('DOMContentLoaded', function() {
             amountInput.value = digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         });
     }
+
+    // Xử lý nút hủy bỏ trong form lập ngân sách theo tuần
+    var cancelBtn = document.querySelector('.form-btn.ghost[data-target-mode]');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var targetMode = cancelBtn.getAttribute('data-target-mode');
+            if (targetMode) {
+                window.location.href = 'ngansach.php?mode=' + targetMode;
+            }
+        });
+    }
 });
 </script>
 </body>
