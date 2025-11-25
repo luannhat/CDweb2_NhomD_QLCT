@@ -10,12 +10,7 @@
         <a href="khoanchi.php" class="<?= basename($_SERVER['PHP_SELF']) == 'khoanchi.php' ? 'active' : '' ?>">Khoản chi</a>
         <a href="danhmuc.php" class="<?= basename($_SERVER['PHP_SELF']) == 'danhmuc.php' ? 'active' : '' ?>">Danh mục</a>
         <a href="ngansach.php" class="<?= basename($_SERVER['PHP_SELF']) == 'ngansach.php' ? 'active' : '' ?>">Ngân sách</a>
-        <?php
-            $reportPages = ['baocao.php', 'bieu_do_duong.php', 'bieu_do_cot.php'];
-            $isReportActive = in_array(basename($_SERVER['PHP_SELF']), $reportPages, true)
-                || (isset($_GET['controller']) && $_GET['controller'] == 'statistical' && isset($_GET['action']) && $_GET['action'] == 'annualStatistics');
-        ?>
-        <a href="baocao.php" class="<?= $isReportActive ? 'active' : '' ?>">Báo cáo</a>
+        <a href="baocao.php" class="<?= basename($_SERVER['PHP_SELF']) == 'baocao.php' ? 'active' : '' ?>">Báo cáo</a>
         <a href="caidat.php" class="<?= basename($_SERVER['PHP_SELF']) == 'caidat.php' ? 'active' : '' ?>">Cài đặt</a>
     </nav>
 </aside>
