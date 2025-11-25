@@ -196,8 +196,25 @@ document.addEventListener('DOMContentLoaded', function() {
 			exportButtons.forEach(b => b.classList.remove('active'));
 			// Thêm active cho nút được click
 			this.classList.add('active');
-			// TODO: Xử lý logic xuất báo cáo
-			console.log('Export format:', this.dataset.export);
+			
+			const exportFormat = this.dataset.export;
+			
+			if (exportFormat === 'pdf') {
+				// Chuyển sang màn hình báo cáo tổng hợp nhiều tháng với auto export PDF
+				// Sử dụng giá trị mặc định: từ tháng 1 đến tháng 6, năm hiện tại
+				const currentYear = new Date().getFullYear();
+				window.location.href = 'bao_cao_tong_hop.php?from=1&to=6&year=' + currentYear + '&auto_export=pdf';
+			} else if (exportFormat === 'excel') {
+				// TODO: Xử lý xuất Excel
+				console.log('Export format: Excel (chưa được triển khai)');
+			} else if (exportFormat === 'csv') {
+				// Chuyển sang màn hình báo cáo tổng hợp nhiều tháng với auto export CSV
+				const currentYear = new Date().getFullYear();
+				window.location.href = 'bao_cao_tong_hop.php?from=1&to=6&year=' + currentYear + '&auto_export=csv';
+			} else if (exportFormat === 'print') {
+				// In trực tiếp
+				window.print();
+			}
 		});
 	});
 
@@ -227,8 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				// TODO: Xử lý biểu đồ xu hướng
 				console.log('Selected chart: trend');
 			} else if (chartType === 'bar') {
-				// TODO: Xử lý biểu đồ cột
-				console.log('Selected chart: bar');
+				window.location.href = 'bieu_do_cot.php';
 			} else if (chartType === 'percentage') {
 				// TODO: Xử lý biểu đồ phần trăm
 				console.log('Selected chart: percentage');

@@ -16,15 +16,15 @@ RUN docker-php-ext-install pdo pdo_mysql mysqli
 # Cài đặt Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Copy composer files vào container để cài đặt dependencies
-COPY composer.json composer.lock* /var/www/html/
+# Copy composer files từ sources/qlct vào container để cài đặt dependencies
+COPY sources/qlct/composer.json sources/qlct/composer.lock* /var/www/html/
 
 # Cài đặt mPDF và các dependencies
 WORKDIR /var/www/html
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Copy toàn bộ mã nguồn vào container (sau khi cài dependencies)
-COPY . /var/www/html/
+# Copy toàn bộ mã nguồn từ sources/qlct vào container (sau khi cài dependencies)
+COPY sources/qlct/ /var/www/html/
 
 # Mở cổng 80 cho web
 EXPOSE 80

@@ -362,6 +362,31 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Tự động xuất PDF/CSV nếu có tham số auto_export trong URL
+    var urlParams = new URLSearchParams(window.location.search);
+    var autoExport = urlParams.get('auto_export');
+    if (autoExport) {
+        // Lấy các giá trị filter từ URL hoặc form
+        var fromMonth = urlParams.get('from');
+        var toMonth = urlParams.get('to');
+        var year = urlParams.get('year');
+        
+        // Nếu không có trong URL, lấy từ form
+        if (!fromMonth || !toMonth || !year) {
+            var filterForm = document.querySelector('.filter-row');
+            if (filterForm) {
+                fromMonth = fromMonth || filterForm.querySelector('select[name="from"]').value;
+                toMonth = toMonth || filterForm.querySelector('select[name="to"]').value;
+                year = year || filterForm.querySelector('select[name="year"]').value;
+            }
+        }
+        
+        // Tự động hiển thị modal để người dùng xác nhận xuất file
+        if (autoExport === 'pdf' || autoExport === 'csv') {
+            showExportModal(fromMonth, toMonth, year, autoExport);
+        }
+    }
 });
 </script>
 
