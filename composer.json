@@ -1,7 +1,0 @@
-{
-    "name": "qlct/baocao-pdf",
-    "description": "Quản lý chi tiêu - Báo cáo PDF",
-    "require": {
-        "mpdf/mpdf": "^8.2"
-    }
-}

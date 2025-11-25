@@ -168,14 +168,14 @@ session_start();
 	</div>
 </div>
 
-<!-- Modal xác nhận xuất PDF -->
+<!-- Modal xác nhận xuất file -->
 <div id="exportConfirmModal" class="export-modal" style="display: none;">
     <div class="export-modal-content">
         <div class="export-modal-header">
             <h3>Thông báo xuất</h3>
         </div>
         <div class="export-modal-body">
-            <p>Bạn có muốn xuất không?</p>
+            <p id="exportModalMessage">Bạn có muốn xuất file không?</p>
         </div>
         <div class="export-modal-footer">
             <button class="export-modal-btn export-modal-cancel" id="exportCancelBtn">Hủy</button>
@@ -263,14 +263,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 var year = filterForm.querySelector('select[name="year"]').value;
                 
                 if (format === 'pdf') {
-                    // Hiển thị modal xác nhận
-                    showExportModal(fromMonth, toMonth, year);
+                    // Hiển thị modal xác nhận cho PDF
+                    showExportModal(fromMonth, toMonth, year, 'pdf');
                 } else if (format === 'excel') {
                     // TODO: Implement Excel export
                     alert('Chức năng xuất Excel đang được phát triển');
                 } else if (format === 'csv') {
-                    // TODO: Implement CSV export
-                    alert('Chức năng xuất CSV đang được phát triển');
+                    // Hiển thị modal xác nhận cho CSV
+                    showExportModal(fromMonth, toMonth, year, 'csv');
                 }
                 
                 closeExportMenu();
@@ -299,25 +299,41 @@ document.addEventListener('DOMContentLoaded', function() {
             var toMonth = filterForm.querySelector('select[name="to"]').value;
             var year = filterForm.querySelector('select[name="year"]').value;
             
-            // Hiển thị modal xác nhận
-            showExportModal(fromMonth, toMonth, year);
+            // Hiển thị modal xác nhận (mặc định PDF)
+            showExportModal(fromMonth, toMonth, year, 'pdf');
         });
     }
 
-    // Modal xác nhận xuất PDF
+    // Modal xác nhận xuất file
     var exportModal = document.getElementById('exportConfirmModal');
     var exportCancelBtn = document.getElementById('exportCancelBtn');
     var exportConfirmBtn = document.getElementById('exportConfirmBtn');
     var currentExportUrl = '';
+    var currentExportFormat = 'pdf'; // pdf hoặc csv
 
-    function showExportModal(fromMonth, toMonth, year) {
-        currentExportUrl = 'export_baocao_pdf.php?from=' + fromMonth + '&to=' + toMonth + '&year=' + year;
+    function showExportModal(fromMonth, toMonth, year, format) {
+        currentExportFormat = format || 'pdf';
+        
+        if (currentExportFormat === 'pdf') {
+            currentExportUrl = 'export_baocao_pdf.php?from=' + fromMonth + '&to=' + toMonth + '&year=' + year;
+        } else if (currentExportFormat === 'csv') {
+            currentExportUrl = 'export_baocao_csv.php?from=' + fromMonth + '&to=' + toMonth + '&year=' + year;
+        }
+        
+        // Cập nhật thông báo trong modal
+        var modalMessage = document.getElementById('exportModalMessage');
+        if (modalMessage) {
+            var formatText = currentExportFormat.toUpperCase();
+            modalMessage.textContent = 'Bạn có muốn xuất file ' + formatText + ' không?';
+        }
+        
         exportModal.style.display = 'flex';
     }
 
     function hideExportModal() {
         exportModal.style.display = 'none';
         currentExportUrl = '';
+        currentExportFormat = 'pdf';
     }
 
     // Xử lý nút Hủy
