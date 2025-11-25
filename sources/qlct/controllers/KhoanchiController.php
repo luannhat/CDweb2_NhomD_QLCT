@@ -133,7 +133,7 @@ class KhoanchiController
 
         return $ok
             ? ['success' => true, 'message' => 'Đã xóa ' . count($valid) . ' khoản chi']
-            : ['success' => false, 'message' => 'Không thể xóa'];
+            : ['success' => false, 'message' => 'Xóa không hợp lệ'];
     }
 
     public function getDetail()
