@@ -14,6 +14,7 @@ class KhoanchiController
 
     public function index()
     {
+
         $makh = $_SESSION['id'] ?? 1;
 
         $limit = 5;
