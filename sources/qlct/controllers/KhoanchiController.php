@@ -14,6 +14,7 @@ class KhoanchiController
 
     public function index()
     {
+
         $makh = $_SESSION['id'] ?? 1;
 
         $limit = 5;
@@ -47,13 +48,47 @@ class KhoanchiController
         $madmchitieu = isset($_POST['madmchitieu']) ? intval($_POST['madmchitieu']) : 0;
         $ngaychitieu = trim($_POST['ngaychitieu'] ?? '');
         $noidung = trim($_POST['noidung'] ?? '');
-        $sotien = isset($_POST['sotien']) ? floatval($_POST['sotien']) : 0;
+        $sotienInput = trim($_POST['sotien'] ?? '');
 
         $loai = 'expense';
 
-        if (!$madmchitieu || !$ngaychitieu || !$noidung || $sotien <= 0) {
-            return ['success' => false, 'message' => 'Vui lòng nhập đầy đủ thông tin'];
+        // Validate các trường bắt buộc
+        if (!$noidung) {
+            return ['success' => false, 'message' => 'Lỗi: Vui lòng nhập tên khoản chi tiêu'];
         }
+
+        if (!$madmchitieu) {
+            return ['success' => false, 'message' => 'Lỗi: Vui lòng chọn danh mục'];
+        }
+
+        if (!$ngaychitieu) {
+            return ['success' => false, 'message' => 'Lỗi: Vui lòng chọn ngày'];
+        }
+
+        // Validate số tiền với thông báo cụ thể
+        if (!$sotienInput) {
+            return ['success' => false, 'message' => 'Lỗi: Vui lòng nhập số tiền'];
+        }
+
+        // Kiểm tra nếu giá trị không phải là số
+        if (!is_numeric($sotienInput)) {
+            return ['success' => false, 'message' => 'Lỗi: Giá trị nhập vào không phải là số. Vui lòng chỉ nhập số (ví dụ: 100000)'];
+        }
+
+        $sotien = floatval($sotienInput);
+
+        // Kiểm tra nếu số tiền <= 0
+        if ($sotien <= 0) {
+            return ['success' => false, 'message' => 'Lỗi: Số tiền phải lớn hơn 0. Vui lòng nhập số dương'];
+        }
+
+        // Kiểm tra nếu số tiền không phải là số nguyên
+        // So sánh giá trị float với giá trị integer của nó
+        if ((int)$sotien != $sotien) {
+            return ['success' => false, 'message' => 'Lỗi: Số tiền phải là số nguyên. Vui lòng không nhập số thập phân'];
+        }
+
+        $sotien = (int)$sotien;
 
         $ok = $this->model->addExpense(
             $this->makh,
@@ -133,7 +168,7 @@ class KhoanchiController
 
         return $ok
             ? ['success' => true, 'message' => 'Đã xóa ' . count($valid) . ' khoản chi']
-            : ['success' => false, 'message' => 'Không thể xóa'];
+            : ['success' => false, 'message' => 'Xóa không hợp lệ'];
     }
 
     public function getDetail()

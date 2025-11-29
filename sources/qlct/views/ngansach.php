@@ -220,6 +220,12 @@ $defaultYear = (int)date('Y');
                         <tbody>
                         <?php if (!empty($budgets)): ?>
                             <?php foreach ($budgets as $budget): ?>
+                                <?php
+                                    $diffValue = floatval($budget['chenhlech_value']);
+                                    $diffPrefix = $diffValue >= 0 ? '+' : '-';
+                                    $diffAmount = number_format(abs($diffValue), 0, ',', '.');
+                                    $diffDisplay = (abs($diffValue) < 0.005) ? '0' : $diffPrefix . $diffAmount;
+                                ?>
                                 <tr>
                                     <td>
                                         <div class="date-label">
@@ -232,7 +238,7 @@ $defaultYear = (int)date('Y');
                                     <td><?php echo htmlspecialchars($budget['tendanhmuc'] ?? 'Không xác định'); ?></td>
                                     <td><?php echo number_format($budget['ngansach'], 0, ',', '.'); ?></td>
                                     <td><?php echo number_format($budget['dachi'], 0, ',', '.'); ?></td>
-                                    <td><?php echo number_format($budget['chenhlech_value'], 0, ',', '.'); ?></td>
+                                    <td><?php echo $diffDisplay; ?></td>
                                     <td>
                                         <?php
                                         $status = $statusLabels[$budget['trangthai']] ?? $statusLabels['on_budget'];

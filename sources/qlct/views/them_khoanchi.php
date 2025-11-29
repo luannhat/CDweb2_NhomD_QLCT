@@ -64,9 +64,12 @@
 
                         <div class="form-row">
                             <label for="sotien">Số tiền: <span class="required">*</span></label>
-                            <input type="number" id="sotien" name="sotien" required min="1" step="1"
-                                   value="<?php echo htmlspecialchars($_POST['sotien'] ?? ''); ?>"
-                                   placeholder="Nhập số tiền">
+                            <div style="flex: 1; display: flex; flex-direction: column;">
+                                <input type="text" id="sotien" name="sotien" required
+                                       value="<?php echo htmlspecialchars($_POST['sotien'] ?? ''); ?>"
+                                       placeholder="Nhập số tiền">
+                                <span id="sotien-error" class="error-message" style="display: none;"></span>
+                            </div>
                         </div>
 
                         <div class="form-row">
@@ -108,21 +111,95 @@
     </div>
 
     <script>
-        // Format số tiền khi nhập
-        document.getElementById('sotien').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value) {
-                e.target.value = parseInt(value);
-            }
+        const sotienInput = document.getElementById('sotien');
+        const sotienError = document.getElementById('sotien-error');
+
+        // Validate số tiền khi người dùng nhập
+        sotienInput.addEventListener('input', function(e) {
+            validateSotien();
         });
 
-        // Validate form
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const noidung = document.getElementById('noidung').value.trim();
-            const madmchitieu = document.getElementById('madmchitieu').value;
-            const sotien = document.getElementById('sotien').value;
-            const ngaychitieu = document.getElementById('ngaychitieu').value;
+        // Validate số tiền khi người dùng rời khỏi trường
+        sotienInput.addEventListener('blur', function(e) {
+            validateSotien();
+        });
 
+        // Hàm trim toàn diện: xóa cả khoảng trắng 1 byte và 2 byte
+        function fullTrim(str) {
+            return str.replace(/^[\s\u3000]+|[\s\u3000]+$/g, '');
+        }
+
+        // Hàm kiểm tra chuỗi có phải toàn khoảng trắng không
+        function isOnlyWhitespace(str) {
+            return str.replace(/[\s\u3000]/g, '') === '';
+        }
+
+        function validateSotien() {
+            const value = sotienInput.value.trim();
+            sotienError.style.display = 'none';
+            sotienError.textContent = '';
+
+            if (!value) {
+                sotienError.textContent = 'Lỗi: Vui lòng nhập số tiền';
+                sotienError.style.display = 'block';
+                sotienInput.style.borderColor = '#e74c3c';
+                sotienInput.classList.add('error');
+                return false;
+            }
+
+            // Kiểm tra nếu giá trị không phải là số
+            if (isNaN(value)) {
+                sotienError.textContent = 'Lỗi: Giá trị nhập vào không phải là số. Vui lòng chỉ nhập số (ví dụ: 100000)';
+                sotienError.style.display = 'block';
+                sotienInput.style.borderColor = '#e74c3c';
+                sotienInput.classList.add('error');
+                return false;
+            }
+
+            // Kiểm tra nếu giá trị là số âm hoặc bằng 0
+            const numValue = parseFloat(value);
+            if (numValue <= 0) {
+                sotienError.textContent = 'Lỗi: Số tiền phải lớn hơn 0. Vui lòng nhập số dương';
+                sotienError.style.display = 'block';
+                sotienInput.style.borderColor = '#e74c3c';
+                sotienInput.classList.add('error');
+                return false;
+            }
+
+            // Kiểm tra nếu giá trị không phải là số nguyên dương
+            // So sánh giá trị float với giá trị integer của nó
+            if (parseInt(numValue) != numValue) {
+                sotienError.textContent = 'Lỗi: Số tiền phải là số nguyên. Vui lòng không nhập số thập phân';
+                sotienError.style.display = 'block';
+                sotienInput.style.borderColor = '#e74c3c';
+                sotienInput.classList.add('error');
+                return false;
+            }
+
+            // Hợp lệ
+            sotienInput.style.borderColor = '';
+            sotienInput.classList.remove('error');
+            return true;
+        }
+
+        // Validate form khi submit
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const noidungRaw = document.getElementById('noidung').value;
+            const noidung = fullTrim(noidungRaw);
+            const madmchitieu = document.getElementById('madmchitieu').value;
+            const sotien = document.getElementById('sotien').value.trim();
+            const ngaychitieu = document.getElementById('ngaychitieu').value;
+            let hasError = false;
+
+            // --- SỬA LOGIC NỘI DUNG ---
+            // ❌ Không cho phép chỉ khoảng trắng (1 byte hoặc 2 byte)
+            if (isOnlyWhitespace(noidungRaw)) {
+                alert('Lỗi: Tên khoản chi tiêu không được chỉ chứa khoảng trắng');
+                e.preventDefault();
+                return;
+            }
+
+            // ❌ Không được để trống sau khi trim
             if (!noidung) {
                 alert('Vui lòng nhập tên khoản chi tiêu');
                 e.preventDefault();
@@ -132,19 +209,61 @@
             if (!madmchitieu) {
                 alert('Vui lòng chọn danh mục');
                 e.preventDefault();
+                hasError = true;
                 return;
             }
 
-            if (!sotien || parseInt(sotien) <= 0) {
-                alert('Vui lòng nhập số tiền hợp lệ');
+            // Validate số tiền với thông báo cụ thể
+            if (!sotien) {
+                sotienError.textContent = 'Lỗi: Vui lòng nhập số tiền';
+                sotienError.style.display = 'block';
+                sotienInput.style.borderColor = '#e74c3c';
+                sotienInput.classList.add('error');
                 e.preventDefault();
+                hasError = true;
+                return;
+            }
+
+            if (isNaN(sotien)) {
+                sotienError.textContent = 'Lỗi: Giá trị nhập vào không phải là số. Vui lòng chỉ nhập số (ví dụ: 100000)';
+                sotienError.style.display = 'block';
+                sotienInput.style.borderColor = '#e74c3c';
+                sotienInput.classList.add('error');
+                e.preventDefault();
+                hasError = true;
+                return;
+            }
+
+            const numValue = parseFloat(sotien);
+            if (numValue <= 0) {
+                sotienError.textContent = 'Lỗi: Số tiền phải lớn hơn 0. Vui lòng nhập số dương';
+                sotienError.style.display = 'block';
+                sotienInput.style.borderColor = '#e74c3c';
+                sotienInput.classList.add('error');
+                e.preventDefault();
+                hasError = true;
+                return;
+            }
+
+            if (parseInt(numValue) != numValue) {
+                sotienError.textContent = 'Lỗi: Số tiền phải là số nguyên. Vui lòng không nhập số thập phân';
+                sotienError.style.display = 'block';
+                sotienInput.style.borderColor = '#e74c3c';
+                sotienInput.classList.add('error');
+                e.preventDefault();
+                hasError = true;
                 return;
             }
 
             if (!ngaychitieu) {
                 alert('Vui lòng chọn ngày');
                 e.preventDefault();
+                hasError = true;
                 return;
+            }
+
+            if (hasError) {
+                e.preventDefault();
             }
         });
     </script>
