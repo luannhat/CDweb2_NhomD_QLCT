@@ -3,7 +3,7 @@ session_start();
 
 // Nếu không có controller/action trong URL, trỏ thẳng tới home.php
 if (!isset($_GET['controller']) && !isset($_GET['action'])) {
-    require_once __DIR__ . '/views/home.php';
+    require_once __DIR__ . '/views/user/home.php';
     exit;
 }
 
