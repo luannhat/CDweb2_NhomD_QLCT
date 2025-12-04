@@ -37,6 +37,7 @@ class KhoanchiController
             'totalPages' => $totalPages,
             'totalRecords' => $totalRecords
         ];
+        include './views/khoanchi.php';
     }
 
     public function add()

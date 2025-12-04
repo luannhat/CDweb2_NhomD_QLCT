@@ -1,8 +1,4 @@
 <?php
-session_start();
-require_once __DIR__ . '/../controllers/KhoanthuController.php';
-$controller = new KhoanthuController();
-$result = $controller->index();
 
 $khoanthus = $result['khoanthus'];
 $currentPage = $result['page'];

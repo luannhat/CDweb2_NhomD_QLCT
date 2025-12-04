@@ -1,8 +1,14 @@
-<?php ob_start(); 
+<?php ob_start();
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+if (isset($_SESSION['user'])) {
+    header("Location: index.php?controller=user&action=dashboard");
+    exit();
+}
 ?>
+
 
 <section class="hero">
     <div class="hero-text">
@@ -10,9 +16,14 @@ if (session_status() === PHP_SESSION_NONE) {
         <p>Giúp bạn theo dõi thu nhập – chi tiêu, lập ngân sách, xem thống kê trực quan và kiểm soát tài chính dễ dàng hơn mỗi ngày.</p>
 
         <div class="hero-buttons">
-            <a href="?controller=auth&action=register" class="btn-primary">Bắt đầu miễn phí</a>
-            <a href="?controller=auth&action=login" class="btn-secondary">Đăng nhập</a>
+            <?php if (isset($_SESSION['user'])): ?>
+                <a href="?controller=user&action=dashboard" class="btn-primary">Đi đến Dashboard</a>
+            <?php else: ?>
+                <a href="?controller=auth&action=register" class="btn-primary">Bắt đầu miễn phí</a>
+                <a href="?controller=auth&action=login" class="btn-secondary">Đăng nhập</a>
+            <?php endif; ?>
         </div>
+
     </div>
 
     <div class="hero-image">
@@ -51,4 +62,5 @@ if (session_status() === PHP_SESSION_NONE) {
     </div>
 </section>
 
-<?php $content = ob_get_clean(); include 'layout.php'; ?>
+<?php $content = ob_get_clean();
+include 'layout.php'; ?>

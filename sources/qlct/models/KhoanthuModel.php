@@ -6,7 +6,7 @@ class KhoanthuModel extends BaseModel
 	// Lấy tất cả khoản thu từ bảng tổng hợp DSTHUNHAP (không phân trang)
 	public function getAllFromDSTHUNHAP($makh)
 	{
-		 $conn = self::$_connection;
+		$conn = self::$_connection;
 		$makh = intval($makh);
 
 		$sql = "SELECT 
@@ -28,10 +28,10 @@ class KhoanthuModel extends BaseModel
 			}
 		}
 		return $rows;
-		
-		}
+	}
 
-	public function getKhoanthuById($mathunhap){
+	public function getKhoanthuById($mathunhap)
+	{
 		$conn = self::$_connection;
 		$mathunhap = intval($mathunhap);
 		$sql = "SELECT * FROM DSTHUNHAP WHERE mathunhap = {$mathunhap}";
@@ -78,7 +78,7 @@ class KhoanthuModel extends BaseModel
 		return $row['total'] ?? 0;
 	}
 
-	
+
 	// Lấy danh sách khoản thu của khách hàng
 	public function getIncomes($makh, $loai, $search = '', $limit = 10, $offset = 0)
 	{
@@ -128,7 +128,7 @@ class KhoanthuModel extends BaseModel
 	}
 
 	// Lấy thông tin chi tiết một khoản thu
-	public function getIncomeById($magd, $makh,$loai)
+	public function getIncomeById($magd, $makh, $loai)
 	{
 		$sql = "SELECT 
 					g.magd,
@@ -270,31 +270,78 @@ class KhoanthuModel extends BaseModel
 		return $result->fetch_assoc();
 	}
 
+	// Lấy tổng thu nhập theo tháng
 	public function getTongThuTheoThang($makh, $thang, $nam)
 	{
 		$makh = intval($makh);
 		$thang = intval($thang);
 		$nam = intval($nam);
-		
-		if ($makh <= 0) {
-			return 0;
-		}
-		
-		$sql = "SELECT SUM(sotien) AS tong
-				FROM DSTHUNHAP
-				WHERE makh = {$makh}
-				AND MONTH(ngaythunhap) = {$thang}
-				AND YEAR(ngaythunhap) = {$nam}
-				AND loai = 'income'";
+
+		if ($makh <= 0) return 0;
+
+		$sql = "SELECT COALESCE(SUM(sotien), 0) AS tong
+                FROM DSTHUNHAP
+                WHERE makh = {$makh}
+                AND MONTH(ngaythunhap) = {$thang}
+                AND YEAR(ngaythunhap) = {$nam}
+                AND loai = 'income'";
 
 		$result = self::$_connection->query($sql);
 		if (!$result) {
+			// Debug khi query lỗi
+			// die("Query lỗi getTongThuTheoThang: " . self::$_connection->error);
 			return 0;
 		}
+
 		$row = $result->fetch_assoc();
-		return $row['tong'] ?? 0;
+		return floatval($row['tong']);
+	}
+
+	// Lấy tổng thu nhập theo năm
+	public function getTongThuTheoNam($makh, $nam)
+	{
+		$makh = intval($makh);
+		$nam = intval($nam);
+
+		if ($makh <= 0) return 0;
+
+		$sql = "SELECT COALESCE(SUM(sotien), 0) AS tong
+                FROM DSTHUNHAP
+                WHERE makh = {$makh}
+                AND YEAR(ngaythunhap) = {$nam}
+                AND loai = 'income'";
+
+		$result = self::$_connection->query($sql);
+		if (!$result) {
+			// Debug khi query lỗi
+			// die("Query lỗi getTongThuTheoNam: " . self::$_connection->error);
+			return 0;
+		}
+
+		$row = $result->fetch_assoc();
+		return floatval($row['tong']);
+	}
+
+	// Lấy tổng thu nhập để hiển thị dashboard
+	public function getDashboardSummary($makh, $thang = null, $nam = null)
+	{
+		$makh = intval($makh);
+		$thang = $thang ? intval($thang) : intval(date('m'));
+		$nam = $nam ? intval($nam) : intval(date('Y'));
+
+		// Tổng thu nhập tháng hiện tại
+		$totalIncomeMonth = $this->getTongThuTheoThang($makh, $thang, $nam);
+
+		// Tổng thu nhập cả năm
+		$totalIncomeYear = $this->getTongThuTheoNam($makh, $nam);
+
+		return [
+			'month' => [
+				'totalIncome' => $totalIncomeMonth,
+			],
+			'year' => [
+				'totalIncome' => $totalIncomeYear,
+			]
+		];
 	}
 }
-
-
-
