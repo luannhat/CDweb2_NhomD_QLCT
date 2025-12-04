@@ -1,4 +1,8 @@
-<?php ob_start(); ?>
+<?php ob_start(); 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 
 <section class="hero">
     <div class="hero-text">
