@@ -8,7 +8,7 @@ $userModel = new UserModel();
 
 // Nếu người dùng đã login, chuyển thẳng sang dashboard
 if (isset($_SESSION['user'])) {
-    header("Location: index.php?controller=user&action=dashboard");
+    header("Location: dashboard.php");
     exit();
 }
 

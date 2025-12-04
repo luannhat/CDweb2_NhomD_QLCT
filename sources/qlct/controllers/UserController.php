@@ -14,8 +14,6 @@ class UserController {
         $this->requireLogin();
         include __DIR__ . '/../views/user/stats.php';
     }
-<<<<<<< Updated upstream
-=======
 
     public function dashboard() {
         if (session_status() === PHP_SESSION_NONE) {
