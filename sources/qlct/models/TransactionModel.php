@@ -3,67 +3,38 @@ require_once __DIR__ . '/../models/BaseModel.php';
 
 class TransactionModel extends BaseModel
 {
-
+    private $model;
+    private $makh;
     public function __construct()
     {
         parent::__construct();
     }
-    // Lấy tất cả giao dịch
+
+    // Lấy tất cả giao dịch của khách hàng
     public function getAllTransaction($makh)
     {
-        $conn = self::$_connection;
-
-        if ($makh !== null) {
-            // Nếu có mã khách hàng, chỉ lấy giao dịch của khách đó
-            $makh = intval($makh);
-            $sql = "SELECT * FROM GIAODICH WHERE makh = $makh";
-        } else {
-            // Nếu không truyền mã khách hàng, lấy tất cả
-            $sql = "SELECT * FROM GIAODICH";
-        }
-
-        $result = $conn->query($sql);
-
-        $rows = [];
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $rows[] = $row;
-            }
-        }
-        return $rows;
+        $makh = intval($makh);
+        $sql = "SELECT * FROM GIAODICH WHERE makh = $makh ORDER BY ngaygiaodich ASC";
+        return $this->select($sql); // select trả về array
     }
 
-    // Cập nhật ghi chú cho giao dịch
-    public function updateGhichu($magd, $ghichu)
-    {
-        $conn = self::$_connection;
-
-        // Chuẩn bị câu lệnh tránh lỗi SQL Injection
-        $stmt = $conn->prepare("UPDATE GIAODICH SET ghichu = ? WHERE magd = ?");
-        if ($stmt) {
-            $stmt->bind_param("si", $ghichu, $magd);
-            $stmt->execute();
-            $affected = $stmt->affected_rows;
-            $stmt->close();
-            return $affected > 0; // trả về true nếu có dòng được cập nhật
-        }
-        return false;
-    }
-
-    //lấy tên khách hàng để hiện cho bảng giao dịch của ai
+    // Lấy tên khách hàng
     public function getCustomerName($makh)
     {
-        $conn = self::$_connection;
-        $stmt = $conn->prepare("SELECT tenkh FROM KHACHHANG WHERE makh = ?");
-        $stmt->bind_param("i", $makh);
-        $stmt->execute();
-        $stmt->bind_result($tenkh);
-        if ($stmt->fetch()) {
-            $stmt->close();
-            return $tenkh;
-        }
-        $stmt->close();
-        return null; // nếu không tìm thấy
+        $makh = intval($makh);
+        $sql = "SELECT tenkh FROM KHACHHANG WHERE makh = $makh LIMIT 1";
+        $rows = $this->select($sql);
+        return !empty($rows) ? $rows[0]['tenkh'] : 'Khách hàng';
+    }
+
+    // Cập nhật ghi chú
+    public function updateGhichu($magd, $ghichu)
+    {
+        $magd = intval($magd);
+        $ghichu = self::$_connection->real_escape_string($ghichu);
+        $sql = "UPDATE GIAODICH SET ghichu = '$ghichu' WHERE magd = $magd";
+        $this->update($sql);
+        return self::$_connection->affected_rows > 0;
     }
 
     //thóng kê chi tiêu theo tháng
@@ -96,9 +67,10 @@ class TransactionModel extends BaseModel
         return $row['total'] ?? 0;
     }
     //hàm lấy ds giao dịch theo tháng
-    public function getTransactionsByMonth($makh, $year, $month) {
-    $conn = self::$_connection;
-    $stmt = $conn->prepare("
+    public function getTransactionsByMonth($makh, $year, $month)
+    {
+        $conn = self::$_connection;
+        $stmt = $conn->prepare("
         SELECT * 
         FROM GIAODICH
         WHERE makh = ? 
@@ -107,15 +79,79 @@ class TransactionModel extends BaseModel
           AND loai = 'expense'
         ORDER BY ngaygiaodich ASC
     ");
-    $stmt->bind_param("iii", $makh, $year, $month);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $rows = [];
-    while($row = $result->fetch_assoc()) {
-        $rows[] = $row;
+        $stmt->bind_param("iii", $makh, $year, $month);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $rows = [];
+        while ($row = $result->fetch_assoc()) {
+            $rows[] = $row;
+        }
+        $stmt->close();
+        return $rows;
     }
-    $stmt->close();
-    return $rows;
-}
 
+    public function monthlyStatistics()
+    {
+        // Lấy năm/tháng từ GET
+        $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
+        $month = isset($_GET['month']) ? intval($_GET['month']) : '';
+
+        // Lấy dữ liệu từ model (gọi trực tiếp)
+        $data = $this->getMonthlyStatistics($this->makh, $year, $month);
+        $transactions = $month ? $this->getTransactionsByMonth($this->makh, $year, $month) : [];
+
+        // Gửi sang view thống kê
+        include __DIR__ . '/../views/monthly_statistics.php';
+    }
+
+
+    public function getMonthlyStatistics($makh, $year, $month = null)
+    {
+        $makh = intval($makh);
+        $year = intval($year);
+        $conn = self::$_connection;
+
+        if (!empty($month)) {
+            $month = intval($month);
+            $stmt = $conn->prepare("
+            SELECT SUM(sotien) AS total
+            FROM GIAODICH
+            WHERE makh = ? 
+              AND loai = 'expense' 
+              AND YEAR(ngaygiaodich) = ? 
+              AND MONTH(ngaygiaodich) = ?
+        ");
+            $stmt->bind_param("iii", $makh, $year, $month);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            $stmt->close();
+            return [$month => floatval($row['total'] ?? 0)];
+        } else {
+            // Tổng chi tiêu từng tháng
+            $stmt = $conn->prepare("
+            SELECT MONTH(ngaygiaodich) AS month, SUM(sotien) AS total
+            FROM GIAODICH
+            WHERE makh = ? AND loai = 'expense' AND YEAR(ngaygiaodich) = ?
+            GROUP BY MONTH(ngaygiaodich)
+        ");
+            $stmt->bind_param("ii", $makh, $year);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $rows = [];
+            while ($row = $result->fetch_assoc()) {
+                $rows[intval($row['month'])] = floatval($row['total']);
+            }
+            $stmt->close();
+
+            // Đảm bảo tất cả các tháng 1-12 luôn có giá trị
+            $allMonths = [];
+            for ($m = 1; $m <= 12; $m++) {
+                $allMonths[$m] = $rows[$m] ?? 0;
+            }
+            return $allMonths;
+        }
+    }
+
+    // Lấy chi tiết giao dịch theo tháng (nếu có)
 }

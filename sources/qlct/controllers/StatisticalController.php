@@ -13,9 +13,6 @@ class StatisticalController {
     public function index() {
         $data = $this->model->getAllExpenseByCategory();
 
-        // Nếu không có dữ liệu -> trả mảng rỗng
-        if (!$data) $data = [];
-
         include './views/statistical.php';
     }
 

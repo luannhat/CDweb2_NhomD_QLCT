@@ -13,7 +13,7 @@ spl_autoload_register(function ($className) {
 });
 
 // Lấy controller và action từ URL
-$controllerName = $_GET['controller'] ?? 'statistical';  // controller mặc định
+$controllerName = $_GET['controller'] ?? 'transaction';  // controller mặc định
 $actionName = $_GET['action'] ?? 'index';                 // action mặc định
 
 // Chuyển controllerName về dạng PascalCase, thêm hậu tố "Controller"

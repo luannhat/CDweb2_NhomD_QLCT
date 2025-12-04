@@ -127,7 +127,9 @@ $transactions = $transactions ?? []; // chi tiết giao dịch nếu có
     <label for="year">Chọn năm:</label>
     <select name="year" id="year">
         <?php for ($y = date('Y') - 5; $y <= date('Y') + 1; $y++): ?>
-            <option value="<?= $y ?>" <?= ($year == $y) ? 'selected' : '' ?>><?= $y ?></option>
+            <option value="<?= $y ?>" <?= (isset($_GET['year']) && $_GET['year']==$y) ? 'selected' : '' ?>>
+                <?= $y ?>
+            </option>
         <?php endfor; ?>
     </select>
 
@@ -135,7 +137,9 @@ $transactions = $transactions ?? []; // chi tiết giao dịch nếu có
     <select name="month" id="month">
         <option value="">--Tất cả tháng--</option>
         <?php for ($m = 1; $m <= 12; $m++): ?>
-            <option value="<?= $m ?>" <?= ($month == $m) ? 'selected' : '' ?>><?= $m ?></option>
+            <option value="<?= $m ?>" <?= (isset($_GET['month']) && $_GET['month']==$m) ? 'selected' : '' ?>>
+                <?= $m ?>
+            </option>
         <?php endfor; ?>
     </select>
 
