@@ -54,6 +54,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="login-container">
         <h2>Đăng Nhập</h2>
 
+        <?php if (isset($_SESSION['error'])): ?>
+            <p class="message"><?= $_SESSION['error'] ?></p>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+
+
         <?php if ($message): ?>
             <p class="message"><?= $message ?></p>
         <?php endif; ?>

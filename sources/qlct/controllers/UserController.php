@@ -11,6 +11,7 @@ class UserController {
     }
 
     public function stats() {
+        $this->requireLogin();
         include __DIR__ . '/../views/user/stats.php';
     }
 
@@ -38,5 +39,34 @@ class UserController {
 
         // Load view dashboard
         include __DIR__ . '/../views/user/dashboard.php';
+    }
+
+    public function __construct() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+    }
+
+    private function requireLogin() {
+        if (!isset($_SESSION['user'])) {
+            $_SESSION['error'] = "Bạn cần đăng nhập để truy cập trang này!";
+            header("Location: index.php?controller=auth&action=login");
+            exit();
+        }
+    }
+
+    public function income() {
+        $this->requireLogin();
+        // xử lý hiển thị trang income
+    }
+
+    public function expense() {
+        $this->requireLogin();
+        // xử lý hiển thị trang expense
+    }
+
+    public function budget() {
+        $this->requireLogin();
+        // xử lý hiển thị trang budget
     }
 }
