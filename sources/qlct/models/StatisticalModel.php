@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../configs/database.php';
+require_once __DIR__ . '/../models/BaseModel.php';
 
-class StatisticalModel {
+class StatisticalModel extends BaseModel {
     private $conn;
 
     public function __construct() {

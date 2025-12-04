@@ -64,11 +64,11 @@ class DanhmucModel extends BaseModel {
         }
     }
     //xóa danh mục đc chọn
-    public function deleteCatagories($machitieu) {
+    public function deleteCatagories($madmchitieu) {
         $conn = self::$_connection;
-        $machitieu = intval($machitieu);
+        $madmchitieu = intval($madmchitieu);
 
-        $sql = "DELETE FROM DMCHITIEU WHERE machitieu = $machitieu";
+        $sql = "DELETE FROM DMCHITIEU WHERE madmchitieu = $madmchitieu";
 
         if ($conn->query($sql)) {
             return ['success' => true];

@@ -1,120 +1,10 @@
-<style>
-    /* Toàn màn hình */
-    body {
-        background-color: #f4f6fa;
-        /* màu nền nhẹ nhàng */
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin: 0;
-        padding: 20px;
-    }
-
-    /* Tiêu đề */
-    h1,
-    h2 {
-        text-align: center;
-        color: #333;
-        margin-bottom: 20px;
-    }
-
-    /* Form chọn năm/tháng */
-    form {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 15px;
-        margin-bottom: 30px;
-        align-items: center;
-    }
-
-    form label {
-        font-weight: bold;
-        color: #555;
-    }
-
-    form select {
-        padding: 6px 10px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        font-size: 14px;
-    }
-
-    form button {
-        padding: 6px 16px;
-        background-color: #4a90e2;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.2s;
-    }
-
-    form button:hover {
-        background-color: #357ABD;
-    }
-
-    /* Bảng container */
-    .table-container {
-        display: flex;
-        justify-content: center;
-        overflow-x: auto;
-        max-width: 90%;
-    }
-
-    /* Bảng thống kê */
-    table {
-        border-collapse: collapse;
-        min-width: 800px;
-        text-align: center;
-        background-color: #fff;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Header bảng */
-    th {
-        background-color: #4a90e2;
-        color: white;
-        padding: 14px 15px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border: 1px solid #ccc;
-        /* giữ đường dọc */
-    }
-
-    /* Dòng dữ liệu */
-    td {
-        padding: 12px 15px;
-        border: 1px solid #ccc;
-        /* giữ đường dọc */
-    }
-
-    /* Dòng chẵn */
-    tr:nth-child(even) td {
-        background-color: #f9f9f9;
-    }
-
-    /* Hover trên cả dòng */
-    tr:hover td {
-        background-color: #e6f7ff;
-        transition: 0.2s;
-    }
-
-    /* Thông báo khi không có dữ liệu */
-    .no-data {
-        text-align: center;
-        color: #888;
-        font-style: italic;
-        margin-top: 20px;
-    }
-</style>
-
 <?php
+// Biến từ controller
 $year = $year ?? date('Y');
-$month = $month ?? '';
+$month = $month ?? null;
 $data = $data ?? [];
-$transactions = $transactions ?? []; // chi tiết giao dịch nếu có
+$transactions = $transactions ?? [];
+$availableMonths = $availableMonths ?? [];
 ?>
 
 <h1>Thống kê chi tiêu</h1>
@@ -122,7 +12,7 @@ $transactions = $transactions ?? []; // chi tiết giao dịch nếu có
 <!-- Form chọn năm/tháng -->
 <form method="GET" action="index.php">
     <input type="hidden" name="controller" value="transaction">
-    <input type="hidden" name="action" value="monthlyStatistics">
+    <input type="hidden" name="action" value="monthlyStatisticsController">
 
     <label for="year">Chọn năm:</label>
     <select name="year" id="year">
@@ -134,19 +24,19 @@ $transactions = $transactions ?? []; // chi tiết giao dịch nếu có
     <label for="month">Chọn tháng:</label>
     <select name="month" id="month">
         <option value="">--Tất cả tháng--</option>
-        <?php for ($m = 1; $m <= 12; $m++): ?>
+        <?php foreach ($availableMonths as $m): ?>
             <option value="<?= $m ?>" <?= ($month == $m) ? 'selected' : '' ?>><?= $m ?></option>
-        <?php endfor; ?>
+        <?php endforeach; ?>
     </select>
 
     <button type="submit">Xem thống kê</button>
 </form>
 
-<!-- Bảng thống kê -->
 <?php if (!empty($data)): ?>
     <h2>Năm <?= htmlspecialchars($year) ?> <?= $month ? "- Tháng $month" : "" ?></h2>
-    <div style="display:flex; justify-content:center; align-items:flex-start; gap:30px; flex-wrap:wrap;">
+    <div style="display:flex; flex-wrap:wrap; gap:30px; justify-content:center; align-items:flex-start;">
 
+        <!-- Bảng thống kê -->
         <div class="table-container" style="flex:1; min-width:400px; overflow-x:auto;">
             <table>
                 <tr>
@@ -163,7 +53,6 @@ $transactions = $transactions ?? []; // chi tiết giao dịch nếu có
                 </tr>
 
                 <?php if ($month): ?>
-                    <!-- Chi tiết các giao dịch -->
                     <?php foreach ($transactions as $gd): ?>
                         <tr>
                             <td><?= $gd['magd'] ?></td>
@@ -173,17 +62,11 @@ $transactions = $transactions ?? []; // chi tiết giao dịch nếu có
                             <td><?= htmlspecialchars($gd['ghichu']) ?></td>
                         </tr>
                     <?php endforeach; ?>
-
-                    <!-- Tổng chi tiêu nằm dưới cùng -->
                     <tr style="font-weight:bold; background-color:#f2f2f2;">
                         <td colspan="4" style="text-align:right;">Tổng chi tiêu tháng <?= $month ?>:</td>
                         <td><?= number_format($data[$month] ?? 0, 0, ',', '.') ?> đ</td>
                     </tr>
-
-
-
                 <?php else: ?>
-                    <!-- Tổng chi tiêu theo tất cả tháng -->
                     <?php for ($m = 1; $m <= 12; $m++): ?>
                         <tr>
                             <td><?= $m ?></td>
@@ -193,6 +76,8 @@ $transactions = $transactions ?? []; // chi tiết giao dịch nếu có
                 <?php endif; ?>
             </table>
         </div>
+
+        <!-- PieChart -->
         <div style="flex:0 0 500px; max-width:500px;">
             <canvas id="pieChart"></canvas>
         </div>
@@ -201,27 +86,23 @@ $transactions = $transactions ?? []; // chi tiết giao dịch nếu có
     <p class="no-data">Không có dữ liệu chi tiêu cho năm/tháng này</p>
 <?php endif; ?>
 
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-
 <?php
 $labels = [];
 $values = [];
-
 if ($month) {
     foreach ($transactions as $gd) {
         $labels[] = htmlspecialchars($gd['noidung']);
         $values[] = $gd['sotien'];
     }
 } else {
-    foreach ($data as $monthNum => $total) {
-        $labels[] = "Tháng $monthNum";
+    foreach ($data as $m => $total) {
+        $labels[] = "Tháng $m";
         $values[] = $total;
     }
 }
-
 ?>
-
 <script>
     const ctx = document.getElementById('pieChart').getContext('2d');
     const pieChart = new Chart(ctx, {
@@ -243,7 +124,7 @@ if ($month) {
             responsive: true,
             plugins: {
                 legend: {
-                    position: 'right',
+                    position: 'right'
                 },
                 tooltip: {
                     callbacks: {
@@ -256,3 +137,97 @@ if ($month) {
         }
     });
 </script>
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        background: #f4f6fa;
+        padding: 20px;
+    }
+
+    h1,
+    h2 {
+        text-align: center;
+        color: #333;
+    }
+
+    form {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 30px;
+        align-items: center;
+    }
+
+    form label {
+        font-weight: bold;
+        color: #555;
+    }
+
+    form select,
+    form button {
+        padding: 6px 12px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    form button {
+        background: #4a90e2;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+        transition: 0.2s;
+    }
+
+    form button:hover {
+        background: #357ABD;
+    }
+
+    .table-container {
+        display: flex;
+        justify-content: center;
+        overflow-x: auto;
+        max-width: 90%;
+    }
+
+    table {
+        border-collapse: collapse;
+        min-width: 400px;
+        text-align: center;
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    th {
+        background: #4a90e2;
+        color: #fff;
+        padding: 12px;
+        border: 1px solid #ccc;
+    }
+
+    td {
+        padding: 12px;
+        border: 1px solid #ccc;
+    }
+
+    tr:nth-child(even) td {
+        background: #f9f9f9;
+    }
+
+    tr:hover td {
+        background: #e6f7ff;
+        transition: 0.2s;
+    }
+
+    .no-data {
+        text-align: center;
+        color: #888;
+        font-style: italic;
+        margin-top: 20px;
+    }
+</style>
