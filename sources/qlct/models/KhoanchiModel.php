@@ -338,4 +338,37 @@ class KhoanchiModel extends BaseModel
         $row = $result->fetch_assoc();
         return $row['tong'] ?? 0;
     }
+
+    // Lấy danh sách danh mục chi tiêu
+    public function getCategories($makh)
+    {
+        $makh = intval($makh);
+        $sql = "SELECT DISTINCT madmchitieu  FROM DSCHITIEU WHERE makh = {$makh}";
+        $result = self::$_connection->query($sql);
+        $categories = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $categories[] = $row['madmchitieu'];
+            }
+        }
+        return $categories;
+    }
+
+    // Lấy tổng chi theo từng danh mục
+     public function getExpenseByCategory($makh)
+    {
+        $makh = intval($makh);
+        $sql = "SELECT madmchitieu, SUM(sotien) AS tong
+                FROM DSCHITIEU
+                WHERE makh = {$makh}
+                GROUP BY madmchitieu";
+        $result = self::$_connection->query($sql);
+        $expenses = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $expenses[] = (float)$row['tong'];
+            }
+        }
+        return $expenses;
+    }
 }

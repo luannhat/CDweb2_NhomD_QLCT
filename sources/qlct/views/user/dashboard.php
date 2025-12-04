@@ -1,6 +1,11 @@
 <?php
 ob_start();
 
+// Bắt đầu session nếu chưa active
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Nếu chưa login, redirect về home
 if (!isset($_SESSION['user'])) {
     header("Location: home.php");
@@ -8,9 +13,41 @@ if (!isset($_SESSION['user'])) {
 }
 
 $user = $_SESSION['user'];
-// Bảo đảm biến là mảng
-$categories = isset($categories) && is_array($categories) ? $categories : [];
-$categoryExpenses = isset($categoryExpenses) && is_array($categoryExpenses) ? $categoryExpenses : [];
+
+require_once 'models/KhoanThuModel.php';
+require_once 'models/KhoanChiModel.php';
+
+$makh = intval($user['id'] ?? 0); // id user là makh
+
+$khoanthuModel = new KhoanThuModel();
+$khoanchiModel = new KhoanChiModel();
+//ép kiểu tháng và năm đẻ test hiện tổng thu nhập vì tổng thu nhập đang được lấy theo tháng hiện tại
+$thang = 11;
+$nam = 2025;
+// --- Tổng thu nhập ---
+$dashboard = $khoanthuModel->getDashboardSummary($makh, $thang, $nam);
+$totalIncome = floatval($dashboard['month']['totalIncome'] ?? 0);
+
+// --- Tổng chi tiêu ---
+$totalExpense = floatval($khoanchiModel->getTongChiTheoThang($makh, date('m'), date('Y')));
+
+// --- Số dư ---
+$balance = $totalIncome - $totalExpense;
+
+// --- Dữ liệu biểu đồ ---
+$categories = $khoanchiModel->getCategories($makh);
+$categoryExpenses = $khoanchiModel->getExpenseByCategory($makh);
+
+// Đảm bảo dữ liệu mảng
+$categories = is_array($categories) ? $categories : [];
+$categoryExpenses = is_array($categoryExpenses) ? $categoryExpenses : [];
+
+// --- Debug (nếu cần) ---
+// echo "<pre>";
+// print_r($dashboard);
+// print_r($categories);
+// print_r($categoryExpenses);
+// echo "</pre>";
 ?>
 
 <section class="dashboard-hero">
@@ -21,15 +58,15 @@ $categoryExpenses = isset($categoryExpenses) && is_array($categoryExpenses) ? $c
 <section class="dashboard-summary">
     <div class="summary-card">
         <h3>Tổng thu nhập</h3>
-        <p><?= number_format($totalIncome ?? 0, 0, ',', '.') ?> VND</p>
+        <p><?= number_format($totalIncome, 0, ',', '.') ?> VND</p>
     </div>
     <div class="summary-card">
         <h3>Tổng chi tiêu</h3>
-        <p><?= number_format($totalExpense ?? 0, 0, ',', '.') ?> VND</p>
+        <p><?= number_format($totalExpense, 0, ',', '.') ?> VND</p>
     </div>
     <div class="summary-card">
         <h3>Số dư hiện tại</h3>
-        <p><?= number_format($balance ?? 0, 0, ',', '.') ?> VND</p>
+        <p><?= number_format($balance, 0, ',', '.') ?> VND</p>
     </div>
 </section>
 

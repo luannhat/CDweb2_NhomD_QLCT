@@ -13,7 +13,8 @@ class KhoanthuController
 	}
 
 	// Hiển thị danh sách khoản thu
-	public function index(){
+	public function index()
+	{
 		$makh = $_SESSION['makh'] ?? 1;
 
 		// --- Thiết lập phân trang ---
@@ -27,12 +28,13 @@ class KhoanthuController
 		$totalPages = ceil($totalRecords / $limit);
 		$khoanthus = $this->khoanthuModel->getPagedIncomes($makh, $limit, $offset);
 
-		// --- Trả về dữ liệu để render view ---
-		return [
+		// --- Trả về dữ liệu view ---
+		$result = [
 			'khoanthus' => $khoanthus,
 			'page' => $page,
 			'totalPages' => $totalPages
 		];
+		include './views/khoanthu.php';
 	}
 	// Thêm khoản thu mới
 	public function add()
@@ -45,7 +47,7 @@ class KhoanthuController
 		$noidung = trim($_POST['noidung'] ?? '');
 		$sotien = floatval($_POST['sotien'] ?? 0);
 		$ngaygiaodich = $_POST['ngaygiaodich'] ?? '';
-		
+
 
 		if (empty($noidung)) {
 			return ['success' => false, 'message' => 'Nội dung không được để trống'];
@@ -55,9 +57,9 @@ class KhoanthuController
 		}
 		if (empty($ngaygiaodich)) {
 			return ['success' => false, 'message' => 'Ngày giao dịch không được để trống'];
-		}	
+		}
 		if ($madmthunhap <= 0) {
-    		return ['success' => false, 'message' => 'Vui lòng chọn danh mục khoản thu'];
+			return ['success' => false, 'message' => 'Vui lòng chọn danh mục khoản thu'];
 		}
 
 		try {
