@@ -4,7 +4,6 @@ require_once __DIR__ . '/../models/UserModel.php';
 class AuthController {
 
     public function login() {
-        // Khởi tạo session nếu chưa có
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -16,15 +15,15 @@ class AuthController {
             $email = trim($_POST['email']);
             $password = trim($_POST['password']);
 
-            // Gọi phương thức login trong UserModel
             $user = $userModel->login($email, $password);
 
             if ($user) {
                 $_SESSION['user'] = [
-                    'id' => $user['makh'],
-                    'name' => $user['tenkh']
+                    'id'     => $user['makh'],
+                    'name'   => $user['tenkh'],
+                    'avatar' => $user['hinhanh'] ?? null
                 ];
-                // Chuyển hướng tới dashboard
+
                 header("Location: index.php?controller=user&action=dashboard");
                 exit();
             } else {
@@ -32,7 +31,6 @@ class AuthController {
             }
         }
 
-        // Load view login (không require model ở đây)
         include __DIR__ . '/../views/user/login.php';
     }
 
@@ -43,5 +41,74 @@ class AuthController {
         session_destroy();
         header("Location: index.php?controller=user&action=home");
         exit();
+    }
+
+
+    // Form thay avatar
+    public function changeAvatar() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['user'])) {
+            header("Location: index.php?controller=auth&action=login");
+            exit();
+        }
+
+        include __DIR__ . '/../views/user/change_avatar.php';
+    }
+
+    // Lưu avatar
+    public function updateAvatar() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['user'])) {
+            header("Location: index.php?controller=auth&action=login");
+            exit();
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['avatar'])) {
+
+            $file = $_FILES['avatar'];
+            $allowed = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+
+            // Validate
+            if ($file['error'] !== 0) {
+                die("Lỗi upload ảnh!");
+            }
+
+            if (!in_array($file['type'], $allowed)) {
+                die("Chỉ hỗ trợ PNG, JPG, JPEG, WEBP");
+            }
+
+            // Tạo thư mục nếu chưa có
+            $uploadDir = "uploads/avatar/";
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            // Tên file
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $avatarName = "user_" . $_SESSION['user']['id'] . "_avatar." . $ext;
+            $avatarPath = $uploadDir . $avatarName;
+
+            // Di chuyển file
+            move_uploaded_file($file['tmp_name'], $avatarPath);
+
+            // Cập nhật DB
+            $userModel = new UserModel();
+            $userModel->updateAvatar($_SESSION['user']['id'], $avatarPath);
+
+            // Cập nhật lại session
+            $_SESSION['user']['avatar'] = $avatarPath;
+
+            //mess thông báo
+            $_SESSION['success'] = "Cập nhật ảnh đại diện thành công!";
+
+            header("Location: index.php?controller=user&action=dashboard");
+            exit();
+        }
     }
 }
