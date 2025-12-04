@@ -45,16 +45,17 @@ class TransactionController
             exit;
         }
     }
-    public function monthlyStatistics() {
+    public function monthlyStatistics()
+    {
         // Lấy năm/tháng từ GET
         $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
-        $month = isset($_GET['month']) ? intval($_GET['month']) : '';
+        $month = isset($_GET['month']) && $_GET['month'] !== '' ? intval($_GET['month']) : null;
 
         // Lấy dữ liệu từ model
         $data = $this->model->getMonthlyStatistics($this->makh, $year, $month);
         $transactions = $month ? $this->model->getTransactionsByMonth($this->makh, $year, $month) : [];
 
         // Gửi sang view
-        include './views/monthly_statistics.php';
+        include __DIR__ . '/../views/monthly_statistics.php';
     }
 }

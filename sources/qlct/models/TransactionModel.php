@@ -37,49 +37,54 @@ class TransactionModel extends BaseModel
         return self::$_connection->affected_rows > 0;
     }
 
-    //thóng kê chi tiêu theo tháng
-    public function getMonthlySpending($makh, $year)
-    {
-        $rows = [];
-        for ($m = 1; $m <= 12; $m++) {
-            $rows[$m] = $this->getMonthlySpendingByMonth($makh, $year, $m);
-        }
-        return $rows;
-    }
-
-    // Lấy tổng chi tiêu của khách hàng theo tháng cụ thể
-    public function getMonthlySpendingByMonth($makh, $year, $month)
+    // Lấy tổng chi tiêu theo tháng cụ thể
+    public function getMonthlySpendingByMonth($year, $month)
     {
         $conn = self::$_connection;
         $stmt = $conn->prepare("
-            SELECT SUM(sotien) AS total 
-            FROM GIAODICH 
-            WHERE makh = ? 
-              AND YEAR(ngaygiaodich) = ? 
-              AND MONTH(ngaygiaodich) = ?
-              AND loai = 'expense'
+            SELECT SUM(sotien) AS total
+            FROM GIAODICH
+            WHERE makh=? AND loai='expense' AND YEAR(ngaygiaodich)=? AND MONTH(ngaygiaodich)=?
         ");
-        $stmt->bind_param("iii", $makh, $year, $month);
+        $stmt->bind_param("iii", $this->makh, $year, $month);
         $stmt->execute();
         $result = $stmt->get_result();
         $row = $result->fetch_assoc();
         $stmt->close();
-        return $row['total'] ?? 0;
+        return floatval($row['total'] ?? 0);
     }
-    //hàm lấy ds giao dịch theo tháng
-    public function getTransactionsByMonth($makh, $year, $month)
+
+    // Lấy danh sách các tháng có dữ liệu chi tiêu trong năm
+    public function getMonthsWithExpenses($year)
     {
         $conn = self::$_connection;
         $stmt = $conn->prepare("
-        SELECT * 
-        FROM GIAODICH
-        WHERE makh = ? 
-          AND YEAR(ngaygiaodich) = ? 
-          AND MONTH(ngaygiaodich) = ?
-          AND loai = 'expense'
-        ORDER BY ngaygiaodich ASC
-    ");
-        $stmt->bind_param("iii", $makh, $year, $month);
+            SELECT DISTINCT MONTH(ngaygiaodich) AS month
+            FROM GIAODICH
+            WHERE makh=? AND loai='expense' AND YEAR(ngaygiaodich)=?
+            ORDER BY month
+        ");
+        $stmt->bind_param("ii", $this->makh, $year);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $months = [];
+        while ($row = $result->fetch_assoc()) {
+            $months[] = intval($row['month']);
+        }
+        $stmt->close();
+        return $months;
+    }
+
+    // Lấy danh sách giao dịch theo tháng
+    public function getTransactionsByMonth($year, $month)
+    {
+        $conn = self::$_connection;
+        $stmt = $conn->prepare("
+            SELECT * FROM GIAODICH
+            WHERE makh=? AND loai='expense' AND YEAR(ngaygiaodich)=? AND MONTH(ngaygiaodich)=?
+            ORDER BY ngaygiaodich ASC
+        ");
+        $stmt->bind_param("iii", $this->makh, $year, $month);
         $stmt->execute();
         $result = $stmt->get_result();
         $rows = [];
@@ -90,52 +95,23 @@ class TransactionModel extends BaseModel
         return $rows;
     }
 
-    public function monthlyStatistics()
+    // Lấy tổng chi tiêu từng tháng trong năm
+    public function getMonthlyStatistics($year, $month = null)
     {
-        // Lấy năm/tháng từ GET
-        $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
-        $month = isset($_GET['month']) ? intval($_GET['month']) : '';
-
-        // Lấy dữ liệu từ model (gọi trực tiếp)
-        $data = $this->getMonthlyStatistics($this->makh, $year, $month);
-        $transactions = $month ? $this->getTransactionsByMonth($this->makh, $year, $month) : [];
-
-        // Gửi sang view thống kê
-        include __DIR__ . '/../views/monthly_statistics.php';
-    }
-
-
-    public function getMonthlyStatistics($makh, $year, $month = null)
-    {
-        $makh = intval($makh);
-        $year = intval($year);
         $conn = self::$_connection;
 
-        if (!empty($month)) {
-            $month = intval($month);
-            $stmt = $conn->prepare("
-            SELECT SUM(sotien) AS total
-            FROM GIAODICH
-            WHERE makh = ? 
-              AND loai = 'expense' 
-              AND YEAR(ngaygiaodich) = ? 
-              AND MONTH(ngaygiaodich) = ?
-        ");
-            $stmt->bind_param("iii", $makh, $year, $month);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $row = $result->fetch_assoc();
-            $stmt->close();
-            return [$month => floatval($row['total'] ?? 0)];
+        if ($month) {
+            $total = $this->getMonthlySpendingByMonth($year, $month);
+            return [$month => $total];
         } else {
-            // Tổng chi tiêu từng tháng
+            // Lấy tổng từng tháng có dữ liệu
             $stmt = $conn->prepare("
-            SELECT MONTH(ngaygiaodich) AS month, SUM(sotien) AS total
-            FROM GIAODICH
-            WHERE makh = ? AND loai = 'expense' AND YEAR(ngaygiaodich) = ?
-            GROUP BY MONTH(ngaygiaodich)
-        ");
-            $stmt->bind_param("ii", $makh, $year);
+                SELECT MONTH(ngaygiaodich) AS month, SUM(sotien) AS total
+                FROM GIAODICH
+                WHERE makh=? AND loai='expense' AND YEAR(ngaygiaodich)=?
+                GROUP BY MONTH(ngaygiaodich)
+            ");
+            $stmt->bind_param("ii", $this->makh, $year);
             $stmt->execute();
             $result = $stmt->get_result();
             $rows = [];
@@ -144,14 +120,33 @@ class TransactionModel extends BaseModel
             }
             $stmt->close();
 
-            // Đảm bảo tất cả các tháng 1-12 luôn có giá trị
+            // Điền 0 cho các tháng không có dữ liệu
             $allMonths = [];
-            for ($m = 1; $m <= 12; $m++) {
+            for ($m=1;$m<=12;$m++){
                 $allMonths[$m] = $rows[$m] ?? 0;
             }
             return $allMonths;
         }
     }
 
-    // Lấy chi tiết giao dịch theo tháng (nếu có)
+    // Controller hiển thị thống kê
+    public function monthlyStatisticsController()
+    {
+        $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
+        $month = isset($_GET['month']) ? intval($_GET['month']) : null;
+
+        // Lấy các tháng có dữ liệu
+        $availableMonths = $this->getMonthsWithExpenses($year);
+
+        // Nếu tháng được chọn không có dữ liệu, lấy tháng đầu có dữ liệu
+        if ($month && !in_array($month, $availableMonths)) {
+            $month = $availableMonths[0] ?? null;
+        }
+
+        // Dữ liệu
+        $data = $this->getMonthlyStatistics($year, $month);
+        $transactions = $month ? $this->getTransactionsByMonth($year, $month) : [];
+
+        include __DIR__ . '/../views/monthly_statistics.php';
+    }
 }
