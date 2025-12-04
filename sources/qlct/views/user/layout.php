@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý chi tiêu</title>
-    <link rel="stylesheet" href="public/css/user.css">
+    <link rel="stylesheet" href="/public/css/user.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 </head>
@@ -32,9 +32,14 @@
         </nav>
 
         <div class="auth-btns">
-            <a href="?controller=auth&action=login">Đăng nhập</a>
-            <a href="?controller=auth&action=register">Đăng ký</a>
+            <?php if (isset($_SESSION['user'])): ?>
+                <a href="?controller=auth&action=logout" class="btn-logout">Đăng xuất</a>
+            <?php else: ?>
+                <a href="?controller=auth&action=login" class="btn-primary">Đăng nhập</a>
+                <a href="?controller=auth&action=register" class="btn-secondary">Đăng ký</a>
+            <?php endif; ?>
         </div>
+
     </header>
 
     <div class="content">

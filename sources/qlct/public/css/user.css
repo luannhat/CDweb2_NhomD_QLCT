@@ -226,3 +226,45 @@ header {
     from { opacity:0; }
     to { opacity:1; }
 }
+
+.dashboard-hero {
+    text-align: center;
+    margin: 20px 0;
+}
+.dashboard-summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+}
+.summary-card {
+    background: #f1f5f9;
+    padding: 20px;
+    border-radius: 10px;
+    width: 200px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.dashboard-actions {
+    text-align: center;
+    margin: 20px 0;
+}
+.dashboard-actions a {
+    margin: 0 10px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+.btn-primary { background-color: #4CAF50; color: white; }
+.btn-secondary { background-color: #2196F3; color: white; }
+.btn-logout { background-color: #f44336; color: white; }
+.dashboard-charts {
+    max-width: 800px;
+    margin: 0 auto 40px;
+}
+@media (max-width: 600px) {
+    .dashboard-summary { flex-direction: column; align-items: center; }
+    .summary-card { width: 90%; }
+}

@@ -4,6 +4,30 @@ require_once 'BaseModel.php';
 
 class UserModel extends BaseModel {
 
+    protected $table = 'KHACHHANG'; // Thay 'users' bằng tên bảng thật của bạn
+
+    public function login($email, $password) {
+        $sql = "SELECT * FROM {$this->table} WHERE email = '" . self::$_connection->real_escape_string($email) . "' LIMIT 1";
+        $result = self::$_connection->query($sql);
+
+        if ($result && $result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+
+            // Nếu password đã hash
+            if (isset($user['matkhau']) && password_verify($password, $user['matkhau'])) {
+                return $user;
+            }
+
+            // Nếu password plain text (dev/test)
+            if (isset($user['matkhau']) && $password === $user['matkhau']) {
+                return $user;
+            }
+        }
+
+        return false;
+    }
+
+
     public function findUserById($id) {
         $sql = 'SELECT * FROM users WHERE id = '.$id;
         $user = $this->select($sql);
