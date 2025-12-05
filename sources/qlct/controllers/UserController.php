@@ -78,6 +78,5 @@ class UserController {
 
         include __DIR__ . '/../views/user/ngansach.php';
     }
-
     
 }

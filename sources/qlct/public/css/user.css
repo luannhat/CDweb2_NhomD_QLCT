@@ -359,3 +359,16 @@ header {
 .logout:hover {
     background: #220;
 }
+
+
+/* Hover vào mục Thống kê / Báo cáo */
+.nav-dropdown .nav-link:hover {
+    background: rgba(0, 0, 0, 0.25);  
+    color: #ffffff !important;       
+    border-radius: 5px;
+}
+
+/* Icon đổi màu cùng chữ */
+.nav-dropdown .nav-link:hover i {
+    color: #ffffff !important;
+}
