@@ -32,9 +32,15 @@ class KhoanthuController
 		$result = [
 			'khoanthus' => $khoanthus,
 			'page' => $page,
-			'totalPages' => $totalPages
+			'totalPages' => $totalPages,
+			'success' => null,
+        	'message' => null
 		];
-		include './views/khoanthu.php';
+
+		return $result; // <-- phải return dữ liệu
+
+		$this->requireLogin();
+		//include './views/khoanthu.php';
 	}
 	// Thêm khoản thu mới
 	public function add()
