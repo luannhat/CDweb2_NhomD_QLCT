@@ -16,3 +16,60 @@ bin-release/
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
 # should NOT be excluded as they contain compiler settings and other important
 # information for Eclipse / Flash Builder.
+
+# Bỏ qua thư mục MySQL runtime
+sources/data/
+sources/logs/
+sources/tmp/
+
+# MySQL database files
+*.ibd
+# InnoDB redo logs
+#ib_redo*
+# Binary logs
+binlog.*
+
+# Bỏ file socket và cache
+*.sock
+*.pid
+*.cnf
+*.log
+
+# Bỏ các thư mục Docker
+db_data/
+
+# VSCode launch configuration
+.vscode/launch.json
+
+# InnoDB redo logs
+data/#innodb_redo/
+# hoặc cụ thể hơn
+data/#ib_redo*
+
+data/#*.dblwr
+data/*.ibd
+data/*.ibt
+data/#*
+
+data/ibdata1
+data/ibtmp1
+data/undo_*
+
+# MySQL data files
+data/
+*.ibd
+*.sdi
+*.pem
+*.CSM
+*.CSV
+*.log
+
+# IDE / OS
+*.DS_Store
+
+# Composer dependencies
+vendor/
+sources/qlct/vendor/
+
+# Composer lock file (nên commit composer.lock nhưng không commit vendor)
+# composer.lock được giữ lại để đảm bảo version nhất quán
