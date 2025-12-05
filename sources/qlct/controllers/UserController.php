@@ -57,17 +57,27 @@ class UserController {
 
     public function income() {
         $this->requireLogin();
-        // xử lý hiển thị trang income
+
+        $currentPage = 'income';
+        
+        include __DIR__ . '/../views/user/khoanthu.php';
     }
 
     public function expense() {
         $this->requireLogin();
-        // xử lý hiển thị trang expense
+
+        $currentPage = 'expense';
+
+        include __DIR__ . '/../views/user/khoanchi.php';
     }
 
     public function budget() {
         $this->requireLogin();
-        // xử lý hiển thị trang budget
+
+        $currentPage = 'budget';
+
+        include __DIR__ . '/../views/user/ngansach.php';
     }
+
     
 }

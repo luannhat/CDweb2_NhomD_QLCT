@@ -19,17 +19,17 @@
             <a href="?controller=user&action=home"
                 class="<?= ($currentPage == 'home' ? 'active' : '') ?>">Trang chủ</a>
 
-            <a href="?controller=khoanthu&action=index"
-                class="<?= ($currentPage == 'khoanthu' ? 'active' : '') ?>">Khoản thu</a>
+            <a href="?controller=user&action=income"
+                class="<?= ($currentPage == 'income' ? 'active' : '') ?>">Khoản thu</a>
 
-            <a href="?controller=khoanchi&action=index"
-                class="<?= ($currentPage == 'khoanchi' ? 'active' : '') ?>">Khoản chi</a>
+            <a href="?controller=user&action=expense"
+                class="<?= ($currentPage == 'expense' ? 'active' : '') ?>">Khoản chi</a>
 
-            <a href="?controller=ngansach&action=index"
-                class="<?= ($currentPage == 'ngansach' ? 'active' : '') ?>">Ngân sách</a>
+            <a href="?controller=user&action=budget"
+                class="<?= ($currentPage == 'budget' ? 'active' : '') ?>">Ngân sách</a>
 
-            <a href="?controller=statistical&action=index"
-                class="<?= ($currentPage == 'baocao' ? 'active' : '') ?>">Thống kê / Báo cáo</a>
+            <a href="?controller=user&action=stats"
+                class="<?= ($currentPage == 'stats' ? 'active' : '') ?>">Thống kê / Báo cáo</a>
         </nav>
 
 
