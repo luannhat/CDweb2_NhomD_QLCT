@@ -27,7 +27,7 @@ $totalPages = $result['totalPages'];
 
 <div class="app">
 	<!-- Sidebar -->
-	<?php include __DIR__ . '/layouts/sidebar.php'; ?>
+	<?php include __DIR__ . '/../layouts/sidebar.php'; ?>
 
 	<!-- Main -->
 	<div class="main">

@@ -59,6 +59,14 @@ class UserController {
         $this->requireLogin();
 
         $currentPage = 'income';
+
+        // Nếu có id → load dữ liệu theo id để sửa
+        $result = null;
+        if (isset($_GET['id'])) {
+            require_once __DIR__ . '/../models/KhoanthuModel.php';
+            $model = new KhoanthuModel();
+            $result = $model->findById($_GET['id']);
+        }
         
         include __DIR__ . '/../views/user/khoanthu.php';
     }

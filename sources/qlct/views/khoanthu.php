@@ -1,8 +1,14 @@
 <?php
+session_start();
+require_once __DIR__ . '/../controllers/KhoanthuController.php';
 
-$khoanthus = $result['khoanthus'];
-$currentPage = $result['page'];
-$totalPages = $result['totalPages'];
+$controller = new KhoanthuController();
+$result = $controller->index();
+
+// Chống null
+$khoanthus = $result['khoanthus'] ?? [];
+$currentPage = $result['page'] ?? 1;
+$totalPages = $result['totalPages'] ?? 1;
 ?>
 <!DOCTYPE html>
 <html lang="vi">
