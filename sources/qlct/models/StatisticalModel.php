@@ -229,4 +229,52 @@ class StatisticalModel extends BaseModel {
 
         return array_values($weeks);
     }
+
+    /**
+     * Lấy tổng chi tiêu theo từng năm trong khoảng năm
+     * @param int $makh Mã khách hàng
+     * @param int $fromYear Năm bắt đầu
+     * @param int $toYear Năm kết thúc
+     * @return array Mảng các năm và tổng chi tiêu tương ứng
+     */
+    public function getExpenseByYearRange($makh, $fromYear, $toYear) {
+        $makh = intval($makh);
+        $fromYear = intval($fromYear);
+        $toYear = intval($toYear);
+        
+        // Đảm bảo fromYear <= toYear
+        if ($fromYear > $toYear) {
+            $temp = $fromYear;
+            $fromYear = $toYear;
+            $toYear = $temp;
+        }
+        
+        $sql = "SELECT 
+                    YEAR(ngaychitieu) AS nam,
+                    COALESCE(SUM(sotien), 0) AS tong_chi_tieu
+                FROM DSCHITIEU
+                WHERE makh = {$makh}
+                AND loai = 'expense'
+                AND YEAR(ngaychitieu) >= {$fromYear}
+                AND YEAR(ngaychitieu) <= {$toYear}
+                GROUP BY YEAR(ngaychitieu)
+                ORDER BY nam ASC";
+        
+        $result = $this->conn->query($sql);
+        $data = [];
+        
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $data[intval($row['nam'])] = floatval($row['tong_chi_tieu']);
+            }
+        }
+        
+        // Đảm bảo tất cả các năm trong khoảng đều có dữ liệu (0 nếu không có)
+        $finalData = [];
+        for ($year = $fromYear; $year <= $toYear; $year++) {
+            $finalData[$year] = isset($data[$year]) ? $data[$year] : 0;
+        }
+        
+        return $finalData;
+    }
 }

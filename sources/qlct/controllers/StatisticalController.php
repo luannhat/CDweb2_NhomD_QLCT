@@ -34,4 +34,21 @@ class StatisticalController {
 
         include './views/bieu_do_duong.php';
     }
+
+    public function compareYears() {
+        $currentYear = date('Y');
+        $fromYear = isset($_GET['from_year']) ? intval($_GET['from_year']) : ($currentYear - 5);
+        $toYear = isset($_GET['to_year']) ? intval($_GET['to_year']) : $currentYear;
+        
+        // Đảm bảo fromYear <= toYear
+        if ($fromYear > $toYear) {
+            $temp = $fromYear;
+            $fromYear = $toYear;
+            $toYear = $temp;
+        }
+        
+        $expenseData = $this->model->getExpenseByYearRange($this->makh, $fromYear, $toYear);
+        
+        include './views/so_sanh_chi_tieu_nam.php';
+    }
 }

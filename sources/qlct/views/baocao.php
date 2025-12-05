@@ -121,6 +121,9 @@ session_start();
 					<button class="chart-btn" data-chart="percentage">
 						Biểu đồ phần trăm theo danh mục
 					</button>
+					<button class="chart-btn" data-chart="compare-years">
+						So sánh chi tiêu giữa các năm
+					</button>
 				</div>
 			</div>
 		</main>
@@ -248,6 +251,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			} else if (chartType === 'percentage') {
 				// TODO: Xử lý biểu đồ phần trăm
 				console.log('Selected chart: percentage');
+			} else if (chartType === 'compare-years') {
+				// Chuyển đến trang so sánh chi tiêu giữa các năm
+				window.location.href = '../index.php?controller=statistical&action=compareYears';
 			}
 		});
 	});
