@@ -3,6 +3,7 @@ require_once __DIR__ . '/../models/KhoanthuModel.php';
 
 class KhoanthuController
 {
+	private $conn;
 	private $khoanthuModel;
 	private $makh; // ID khách hàng hiện tại (tạm thời hardcode)
 
@@ -34,6 +35,8 @@ class KhoanthuController
 			'page' => $page,
 			'totalPages' => $totalPages
 		];
+
+		$this->requireLogin();
 		include './views/khoanthu.php';
 	}
 	// Thêm khoản thu mới
@@ -92,6 +95,15 @@ class KhoanthuController
 		} catch (Exception $e) {
 			error_log("Lỗi khi lấy danh mục khoản thu: " . $e->getMessage());
 			return ['success' => false, 'message' => 'Có lỗi xảy ra khi tải danh mục'];
+		}
+	}
+
+	private function requireLogin()
+	{
+		if (!isset($_SESSION['user'])) {
+			$_SESSION['error'] = "Bạn cần đăng nhập để truy cập trang này!";
+			header("Location: index.php?controller=auth&action=login");
+			exit();
 		}
 	}
 }
