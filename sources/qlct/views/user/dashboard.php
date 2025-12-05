@@ -14,23 +14,17 @@ if (!isset($_SESSION['user'])) {
 
 $user = $_SESSION['user'];
 
-require_once 'models/KhoanThuModel.php';
-require_once 'models/KhoanChiModel.php';
+require_once 'models/KhoanthuModel.php';
+require_once 'models/KhoanchiModel.php';
 
 $makh = intval($user['id'] ?? 0); // id user là makh
 
-$khoanthuModel = new KhoanThuModel();
-$khoanchiModel = new KhoanChiModel();
-//ép kiểu tháng và năm đẻ test hiện tổng thu nhập vì tổng thu nhập đang được lấy theo tháng hiện tại
-$thang = 11;
-$nam = 2025;
-// --- Tổng thu nhập ---
-$dashboard = $khoanthuModel->getDashboardSummary($makh, $thang, $nam);
-$totalIncome = floatval($dashboard['month']['totalIncome'] ?? 0);
+$khoanthuModel = new KhoanthuModel();
+$khoanchiModel = new KhoanchiModel();
 
-// --- Tổng chi tiêu ---
-$totalExpense = floatval($khoanchiModel->getTongChiTheoThang($makh, date('m'), date('Y')));
-
+// --- Tổng thu chi tiêu ---
+$totalExpense = floatval($khoanchiModel->countTotalExpenses($makh));
+$totalIncome = floatval($khoanthuModel->countTotalIncomes($makh));
 // --- Số dư ---
 $balance = $totalIncome - $totalExpense;
 
@@ -42,12 +36,6 @@ $categoryExpenses = $khoanchiModel->getExpenseByCategory($makh);
 $categories = is_array($categories) ? $categories : [];
 $categoryExpenses = is_array($categoryExpenses) ? $categoryExpenses : [];
 
-// --- Debug (nếu cần) ---
-// echo "<pre>";
-// print_r($dashboard);
-// print_r($categories);
-// print_r($categoryExpenses);
-// echo "</pre>";
 ?>
 
 <section class="dashboard-hero">

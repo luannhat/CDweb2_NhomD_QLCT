@@ -133,17 +133,17 @@ class KhoanchiModel extends BaseModel
     }
 
     public function countTotalExpenses($makh)
-    {
-        $makh = intval($makh);
+	{
+		$conn = self::$_connection; 
 
-        $sql = "SELECT COUNT(*) AS total 
-                FROM DSCHITIEU
-                WHERE makh = $makh
-                AND loai = 'expense'";
+		$sql = "SELECT SUM(sotien) AS total FROM DSCHITIEU WHERE makh = ?";
+		$stmt = $conn->prepare($sql);
+		$stmt->bind_param("i", $makh);
+		$stmt->execute();
 
-        $result = $this->select($sql);
-        return $result[0]['total'] ?? 0;
-    }
+		$result = $stmt->get_result()->fetch_assoc();
+		return $result['total'] ?? 0;
+	}
 
 
 
