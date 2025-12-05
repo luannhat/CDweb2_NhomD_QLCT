@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý chi tiêu</title>
-    <link rel="stylesheet" href="/public/css/user.css">
+    <link rel="stylesheet" href="./public/css/user.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 </head>
@@ -28,8 +28,21 @@
             <a href="?controller=user&action=budget"
                 class="<?= ($currentPage == 'budget' ? 'active' : '') ?>">Ngân sách</a>
 
-            <a href="?controller=user&action=stats"
-                class="<?= ($currentPage == 'stats' ? 'active' : '') ?>">Thống kê / Báo cáo</a>
+            <div class="nav-dropdown">
+                <input type="checkbox" id="stats-toggle" hidden>
+
+                <label for="stats-toggle"
+                    class="nav-link <?= ($currentPage == 'stats' ? 'active' : '') ?>">
+                    Thống kê / Báo cáo <i class="fa-solid fa-caret-down"></i>
+                </label>
+
+                <div class="nav-dropdown-menu">
+                    <a href="?controller=user&action=stats&view=month">Theo tháng</a>
+                    <a href="?controller=user&action=stats&view=year">Theo năm</a>
+                    <a href="?controller=user&action=stats&view=custom">Tùy chỉnh</a>
+                </div>
+            </div>
+
         </nav>
 
 
