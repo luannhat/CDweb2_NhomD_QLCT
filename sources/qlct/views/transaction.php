@@ -1,6 +1,4 @@
-<?php
-// $giaodichs, $tenkh, $message được include từ controller
-?>
+
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -89,7 +87,6 @@
 </head>
 
 <body>
-
     <?php
     $tenkh = $tenkh ?? 'Khách hàng';
     ?>

@@ -13,7 +13,7 @@ class TransactionController
     // Hiển thị danh sách giao dịch
     public function index()
     {
-        $makh = $_SESSION['makh'] ?? 1;
+        $makh = $_SESSION['user']['id'];
         $giaodichs = $this->model->getAllTransaction($makh);
         $tenkh = $this->model->getCustomerName($makh) ?? 'Khách hàng';
 
@@ -21,8 +21,13 @@ class TransactionController
         $message = $_SESSION['message'] ?? null;
         unset($_SESSION['message']);
 
-        // Truyền biến sang view
+        ob_start();
         include __DIR__ . '/../views/transaction.php';
+        $content = ob_get_clean();
+
+        $currentPage = 'transaction';
+
+        include __DIR__ . '/../views/user/layout.php';
     }
 
     // Xử lý cập nhật ghi chú

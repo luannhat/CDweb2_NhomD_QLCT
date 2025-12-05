@@ -24,6 +24,8 @@ class AuthController {
                     'avatar' => $user['hinhanh'] ?? null
                 ];
 
+                $_SESSION['makh'] = $user['makh'];
+
                 header("Location: index.php?controller=user&action=dashboard");
                 exit();
             } else {
