@@ -73,8 +73,14 @@ class UserController {
 
     public function expense() {
         $this->requireLogin();
+    
+        require_once __DIR__ . '/KhoanchiController.php';
+        $khoanchiController = new KhoanchiController();
+        $result = $khoanchiController->index();
 
-        $currentPage = 'expense';
+        $khoanchis = $result['khoanchis'] ?? [];
+        $page = $result['page'] ?? 1;
+        $totalPages = $result['totalPages'] ?? 1;
 
         include __DIR__ . '/../views/user/khoanchi.php';
     }

@@ -31,13 +31,13 @@ class KhoanchiController
         // Lấy danh sách khoản chi
         $khoanchis = $this->model->getPagedExpenses($makh, $limit, $offset);
 
+        // Trả dữ liệu, không include view
         return [
             'khoanchis' => $khoanchis,
             'page' => $page,
             'totalPages' => $totalPages,
             'totalRecords' => $totalRecords
         ];
-        include './views/khoanchi.php';
     }
 
     public function add()
@@ -187,22 +187,24 @@ class KhoanchiController
     }
 }
 
-if (isset($_GET['action']) || isset($_POST['action'])) {
-    header('Content-Type: application/json');
-    $controller = new KhoanchiController();
-    $action = $_GET['action'] ?? $_POST['action'];
-    switch ($action) {
-        case 'deleteMultiple':
-            $result = $controller->deleteMultiple();
-            echo json_encode($result);
-            exit;
-        case 'deleteSingle':
-            $result = $controller->delete();
-            echo json_encode($result);
-            exit;
-        default:
-            echo json_encode(['success' => false, 'message' => 'Action không hợp lệ']);
-            exit;
+if (__FILE__ === realpath($_SERVER['SCRIPT_FILENAME'])) {
+    if (isset($_GET['action']) || isset($_POST['action'])) {
+        header('Content-Type: application/json');
+        $controller = new KhoanchiController();
+        $action = $_GET['action'] ?? $_POST['action'];
+        switch ($action) {
+            case 'deleteMultiple':
+                $result = $controller->deleteMultiple();
+                echo json_encode($result);
+                exit;
+            case 'deleteSingle':
+                $result = $controller->delete();
+                echo json_encode($result);
+                exit;
+            default:
+                echo json_encode(['success' => false, 'message' => 'Action không hợp lệ']);
+                exit;
+        }
     }
 }
 
