@@ -1,6 +1,5 @@
 <?php
 
-session_start();
 require_once __DIR__ . '/../models/BaseModel.php';
 require_once __DIR__ . '/../models/ExpenseModel.php';
 $expenseModel = new ExpenseModel();

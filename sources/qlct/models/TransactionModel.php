@@ -3,6 +3,7 @@ require_once __DIR__ . '/../models/BaseModel.php';
 
 class TransactionModel extends BaseModel
 {
+    private $conn;
     private $model;
     private $makh;
     public function __construct()
@@ -122,7 +123,7 @@ class TransactionModel extends BaseModel
 
             // Điền 0 cho các tháng không có dữ liệu
             $allMonths = [];
-            for ($m=1;$m<=12;$m++){
+            for ($m = 1; $m <= 12; $m++) {
                 $allMonths[$m] = $rows[$m] ?? 0;
             }
             return $allMonths;
@@ -148,5 +149,36 @@ class TransactionModel extends BaseModel
         $transactions = $month ? $this->getTransactionsByMonth($year, $month) : [];
 
         include __DIR__ . '/../views/monthly_statistics.php';
+    }
+
+    // Thêm giao dịch mới
+    // Thêm giao dịch mới
+    public function addTransactions($makh, $machitieu, $noidung, $sotien, $loai, $ngaygiaodich, $ghichu, $anhhoadon)
+    {
+        try {
+            $conn = self::$_connection;
+
+            $sql = "INSERT INTO GIAODICH 
+                (makh, machitieu, noidung, sotien, loai, ngaygiaodich, ghichu, anhhoadon)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param(
+                "iisdssss",
+                $makh,
+                $machitieu,
+                $noidung,
+                $sotien,
+                $loai,
+                $ngaygiaodich,
+                $ghichu,
+                $anhhoadon
+            );
+
+            return $stmt->execute();
+        } catch (Exception $e) {
+            echo "Lỗi thêm giao dịch: " . $e->getMessage();
+            return false;
+        }
     }
 }
