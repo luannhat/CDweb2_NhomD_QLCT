@@ -153,24 +153,24 @@ class KhoanthuController
 
 	// Hiển thị form thêm khoản thu
 	public function create()
-{
-	require_once __DIR__ . '/../models/KhoanthuModel.php';
+	{
+		require_once __DIR__ . '/../models/KhoanthuModel.php';
 
-	$model = new KhoanthuModel();
-	$categories = $model->getAllCategoriesDistinct();
+		$model = new KhoanthuModel();
+		$categories = $model->getAllCategoriesDistinct();
 
-	$currentPage = 'income';
+		$currentPage = 'income';
 
-	ob_start();
-	include __DIR__ . '/../views/user/them_khoanthu.php';
-	$content = ob_get_clean();
+		ob_start();
+		include __DIR__ . '/../views/user/them_khoanthu.php';
+		$content = ob_get_clean();
 
-	$cssFiles = [
-		'/public/css/khoanchi.css',
-		'/public/css/themkhoanchi.css'
-	];
+		$cssFiles = [
+			'/public/css/khoanchi.css',
+			'/public/css/themkhoanchi.css'
+		];
 
-	include __DIR__ . '/../views/user/layout.php';
-}
+		include __DIR__ . '/../views/user/layout.php';
+	}
 
 }

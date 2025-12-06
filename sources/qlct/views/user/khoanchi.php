@@ -1,5 +1,13 @@
 <?php
 require_once __DIR__ . '/../../controllers/KhoanchiController.php';
+$controller = new KhoanchiController();
+$result = $controller->index();
+
+// Để highlight menu Khoản thu
+$currentPage = 'expense';
+
+// BẮT ĐẦU GOM CONTENT
+ob_start();
 ?>
 
 <!DOCTYPE html>
@@ -20,9 +28,7 @@ require_once __DIR__ . '/../../controllers/KhoanchiController.php';
 </head>
 <body>
 
-<div class="app">
-	<!-- Sidebar -->
-	<?php include __DIR__ . '/../layouts/sidebar.php'; ?>
+<div class="app" style = "grid-template-columns: none;">
 
 	<!-- Main -->
 	<div class="main">
@@ -78,8 +84,9 @@ require_once __DIR__ . '/../../controllers/KhoanchiController.php';
 			<?php endif; ?>
 
 			<div class="controls">
-				<button class="btn primary" id="addBtn" onclick="window.location.href='them_khoanchi.php'">
-					Thêm khoản chi tiêu
+				<button class="btn primary"
+						onclick="location.href='index.php?controller=khoanchi&action=create'">
+					Thêm khoản chi
 				</button>
 				<button class="btn danger" id="deleteBtn" disabled>Xóa</button>
 			</div>
@@ -324,3 +331,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
+<?php
+// KẾT THÚC CONTENT
+$content = ob_get_clean();
+
+// CSS riêng của trang này
+$cssFiles = [
+    '/public/css/khoanchi.css?v=' . time()
+];
+
+// GỌI LAYOUT
+include __DIR__ . '/layout.php';
+
