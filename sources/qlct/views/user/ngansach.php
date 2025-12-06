@@ -1,7 +1,5 @@
 <?php
-session_start();
-
-require_once __DIR__ . '/../controllers/NgansachController.php';
+require_once __DIR__ . '/../../controllers/NgansachController.php';
 
 $id = $_SESSION['id'] ?? '';
 $displayName = $_SESSION['name'] ?? ($_SESSION['username'] ?? '');
@@ -50,7 +48,7 @@ $defaultYear = (int)date('Y');
 </head>
 <body>
 <div class="app">
-    <?php include __DIR__ . '/layouts/sidebar.php'; ?>
+    <?php include __DIR__ . '/../layouts/sidebar.php'; ?>
 
     <div class="main">
         <header class="header">

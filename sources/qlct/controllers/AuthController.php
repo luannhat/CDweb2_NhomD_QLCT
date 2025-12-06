@@ -4,35 +4,52 @@ require_once __DIR__ . '/../models/UserModel.php';
 class AuthController {
 
     public function login() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        $message = "";
-        $userModel = new UserModel();
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email = trim($_POST['email']);
-            $password = trim($_POST['password']);
-
-            $user = $userModel->login($email, $password);
-
-            if ($user) {
-                $_SESSION['user'] = [
-                    'id'     => $user['makh'],
-                    'name'   => $user['tenkh'],
-                    'avatar' => $user['hinhanh'] ?? null
-                ];
-
-                header("Location: index.php?controller=user&action=dashboard");
-                exit();
-            } else {
-                $message = "Email hoặc mật khẩu không đúng!";
-            }
-        }
-
-        include __DIR__ . '/../views/user/login.php';
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
     }
+
+    $message = "";
+    $userModel = new UserModel();
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $email = trim($_POST['email']);
+        $password = trim($_POST['password']);
+
+        $user = $userModel->login($email, $password);
+
+        if ($user) {
+
+            // Lưu session đầy đủ
+            $_SESSION['user'] = [
+                'id'     => $user['makh'],
+                'name'   => $user['tenkh'],
+                'avatar' => $user['hinhanh'] ?? null,
+                'email'  => $user['email'],
+                'quyen'  => $user['quyen'] ?? 'user'   // nếu DB chưa có cột quyen thì mặc định user
+            ];
+
+            $_SESSION['makh'] = $user['makh'];
+
+            // ⛔ Nếu là admin → chuyển vào trang admin
+            if ($_SESSION['user']['quyen'] === 'admin' || 
+                $_SESSION['user']['email'] === 'admin@gmail.com') 
+            {
+                header("Location: index.php?controller=admin&action=home");
+                exit();
+            }
+
+            // ✔ User bình thường → vào dashboard
+            header("Location: index.php?controller=user&action=dashboard");
+            exit();
+        } 
+        else {
+            $message = "Email hoặc mật khẩu không đúng!";
+        }
+    }
+
+    include __DIR__ . '/../views/user/login.php';
+}
+
 
     public function logout() {
         if (session_status() === PHP_SESSION_NONE) {

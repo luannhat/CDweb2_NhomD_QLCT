@@ -359,3 +359,78 @@ header {
 .logout:hover {
     background: #220;
 }
+
+
+/* --- Dropdown Stats --- */
+
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Label hoạt động như button */
+.nav-dropdown .nav-link {
+    cursor: pointer;
+    padding: 10px 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #f5f0f0 !important;
+    text-decoration: none;
+}
+
+/* Không bị underline khi active */
+.nav-dropdown .nav-link.active {
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Menu con */
+.nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 42px;
+    left: 0;
+    min-width: 180px;
+    background: white;
+    border-radius: 6px;
+    padding: 8px 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    z-index: 200;
+}
+
+/* Item trong dropdown */
+.nav-dropdown-menu a {
+    display: block;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+}
+
+.nav-dropdown-menu a:hover {
+    background: #f0f0f0;
+}
+
+/* Toggle mở menu khi click */
+#stats-toggle:checked ~ .nav-dropdown-menu {
+    display: block;
+}
+
+/* Icon */
+.nav-dropdown .fa-caret-down {
+    font-size: 12px;
+}
+
+/* Áp dụng style giống <a> cho nav-link */
+a.nav-link {
+    display: inline-block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #f5f4f4;
+}
+
+/* Đảm bảo nav-dropdown nằm trên cùng dòng với các <a> */
+nav .nav-dropdown {
+    display: inline-block;
+    vertical-align: middle;
+}

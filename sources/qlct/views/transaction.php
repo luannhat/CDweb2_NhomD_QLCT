@@ -1,6 +1,3 @@
-<?php
-// $giaodichs, $tenkh, $message được include từ controller
-?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -85,15 +82,34 @@
             margin-bottom: 20px;
             color: green;
         }
+
+        .add-btn {
+            display: inline-block;
+            padding: 10px 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .add-btn:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 
 <body>
-
     <?php
     $tenkh = $tenkh ?? 'Khách hàng';
     ?>
     <h1>Giao dịch của <?= htmlspecialchars($tenkh, ENT_QUOTES, 'UTF-8') ?></h1>
+
+    <div>
+        <a href="index.php?controller=transaction&action=add" class="add-btn">Thêm giao dịch</a>
+    </div>
 
 
     <div class="table-container">
