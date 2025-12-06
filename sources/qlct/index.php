@@ -53,3 +53,7 @@ if (!method_exists($controller, $actionName)) {
 // Gọi action tương ứng
 $controller->$actionName();
 
+if ($controller === 'admin') {
+    require_once 'controllers/AdminController.php';
+    $controllerObj = new AdminController();
+}

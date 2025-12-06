@@ -68,15 +68,20 @@ class KhoanthuModel extends BaseModel
 		return $rows;
 	}
 
+	//lấy tổng thu nhập
 	public function countTotalIncomes($makh)
 	{
-		$conn = self::$_connection;
-		$makh = intval($makh);
-		$sql = "SELECT COUNT(*) AS total FROM DSTHUNHAP WHERE makh = {$makh}";
-		$result = $conn->query($sql);
-		$row = $result->fetch_assoc();
-		return $row['total'] ?? 0;
+		$conn = self::$_connection; // ✔ nếu kết nối là static trong BaseModel
+
+		$sql = "SELECT SUM(sotien) AS total FROM DSTHUNHAP WHERE makh = ?";
+		$stmt = $conn->prepare($sql);
+		$stmt->bind_param("i", $makh);
+		$stmt->execute();
+
+		$result = $stmt->get_result()->fetch_assoc();
+		return $result['total'] ?? 0;
 	}
+
 
 
 	// Lấy danh sách khoản thu của khách hàng

@@ -14,7 +14,7 @@ $model = new ExpenseModel();
 $message = '';
 $messageType = '';
 
-// ============ XỬ LÝ LƯU NGÂN SÁCH ============
+// XỬ LÝ LƯU NGÂN SÁCH 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save') {
     $thang = (int)($_POST['thang'] ?? date('n'));
     $nam = (int)($_POST['nam'] ?? date('Y'));
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 $show_thang = (int)($_GET['thang'] ?? $_POST['thang'] ?? date('n'));
 $show_nam = (int)($_GET['nam'] ?? $_POST['nam'] ?? date('Y'));
 
-// ============ LẤY DỮ LIỆU NGÂN SÁCH ============
+//LẤY DỮ LIỆU NGÂN SÁCH 
 $ns = $model->getBudgetBreakdown($makh, $show_thang, $show_nam);
 $ngansach_val = 0;
 $an_uong_v = 0;

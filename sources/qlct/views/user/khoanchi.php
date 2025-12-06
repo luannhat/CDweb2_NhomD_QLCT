@@ -22,7 +22,7 @@ require_once __DIR__ . '/../../controllers/KhoanchiController.php';
 
 <div class="app">
 	<!-- Sidebar -->
-	<?php include __DIR__ . '/layouts/sidebar.php'; ?>
+	<?php include __DIR__ . '/../layouts/sidebar.php'; ?>
 
 	<!-- Main -->
 	<div class="main">
@@ -96,7 +96,7 @@ require_once __DIR__ . '/../../controllers/KhoanchiController.php';
 					</thead>
 					<tbody id="tbody">
 						<?php
-						require_once __DIR__ . '/../controllers/KhoanchiController.php';
+						require_once __DIR__ . '/../../controllers/KhoanchiController.php';
 						$controller = new KhoanchiController();
 						$data = $controller->index(); // trả về ['khoanchis', 'page', 'totalPages']
 						
