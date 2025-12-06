@@ -195,6 +195,28 @@ class KhoanchiController
             ? ['success' => true, 'data' => $data]
             : ['success' => false, 'message' => 'Không tìm thấy khoản chi'];
     }
+
+    public function create()
+    {
+        require_once __DIR__ . '/../models/KhoanchiModel.php';
+
+		$model = new KhoanchiModel();
+		$categories = $model->getCategories($makh);
+
+		$currentPage = 'expense';
+
+		ob_start();
+		include __DIR__ . '/../views/user/them_khoanchi.php';
+		$content = ob_get_clean();
+
+		$cssFiles = [
+			'/public/css/khoanchi.css',
+			'/public/css/themkhoanchi.css'
+		];
+
+		include __DIR__ . '/../views/user/layout.php';
+    }
+
 }
 
 if (__FILE__ === realpath($_SERVER['SCRIPT_FILENAME'])) {

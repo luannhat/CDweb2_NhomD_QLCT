@@ -1,6 +1,8 @@
 <?php
 ob_start();
 
+$currentPage = 'home';
+
 // Bắt đầu session nếu chưa active
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
