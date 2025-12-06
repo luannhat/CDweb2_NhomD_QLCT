@@ -1,6 +1,5 @@
 <?php
-session_start();
-require_once __DIR__ . '/../models/StatisticalModel.php';
+require_once __DIR__ . '/../../models/StatisticalModel.php';
 
 $model = new StatisticalModel();
 $makh = $_SESSION['id'] ?? 1;
@@ -47,7 +46,7 @@ foreach ($data as $index => $row) {
 
 <div class="app">
 	<!-- Sidebar -->
-	<?php include __DIR__ . '/layouts/sidebar.php'; ?>
+	<?php include __DIR__ . '/../layouts/sidebar.php'; ?>
 
 	<!-- Main -->
 	<div class="main">
