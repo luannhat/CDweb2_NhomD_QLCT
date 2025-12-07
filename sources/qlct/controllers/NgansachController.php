@@ -51,7 +51,8 @@ class NgansachController
         $rawAmount = str_replace(['.', ',', ' '], '', $_POST['budget_amount'] ?? '');
         $amount = floatval($rawAmount);
 
-        if ($week < 1 || $week > 5 || $month < 1 || $month > 12 || $year < 2000 || $year > 2100) {
+        // Chỉ có 4 tuần trong tháng: tuần 1 (1-7), tuần 2 (8-14), tuần 3 (15-21), tuần 4 (22-cuối tháng)
+        if ($week < 1 || $week > 4 || $month < 1 || $month > 12 || $year < 2000 || $year > 2100) {
             $_SESSION['message'] = 'Vui lòng chọn tuần, tháng, năm hợp lệ.';
             header('Location: ngansach.php?mode=week');
             exit;

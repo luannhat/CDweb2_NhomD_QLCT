@@ -42,16 +42,16 @@ class DanhmucController
     public function delete()
     {
         // Lấy mã danh mục từ GET
-        $machitieu = $_GET['machitieu'] ?? 0;
-        $machitieu = intval($machitieu);
+        $madmchitieu = $_GET['madmchitieu'] ?? 0;
+        $madmchitieu = intval($madmchitieu);
 
-        if ($machitieu <= 0) {
+        if ($madmchitieu <= 0) {
             echo "⚠️ Mã danh mục không hợp lệ!";
             exit;
         }
 
         // Gọi model để xóa
-        $result = $this->model->deleteCatagories($machitieu);
+        $result = $this->model->deleteCatagories($madmchitieu);
 
         if ($result['success']) {
             // Xóa thành công → quay về trang danh sách

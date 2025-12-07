@@ -4,12 +4,12 @@ require_once __DIR__ . '/BaseModel.php';
 class KhoanchiModel extends BaseModel
 {
     // Lấy tất cả khoản thu từ bảng tổng hợp DSTHUNHAP (không phân trang)
-	public function getAllFromDSCHITIEU($makh)
-	{
-		 $conn = self::$_connection;
-		$makh = intval($makh);
+    public function getAllFromDSCHITIEU($makh)
+    {
+        $conn = self::$_connection;
+        $makh = intval($makh);
 
-		$sql = "SELECT 
+        $sql = "SELECT 
 					ds.machitieu,
 					ds.ngaychitieu,
 					ds.noidung,
@@ -20,25 +20,25 @@ class KhoanchiModel extends BaseModel
 				WHERE ds.makh = {$makh}
 				ORDER BY ds.ngaychitieu DESC";
 
-		$result = $conn->query($sql);
-		$rows = [];
-		if ($result && $result->num_rows > 0) {
-			while ($row = $result->fetch_assoc()) {
-				$rows[] = $row;
-			}
-		}
-		return $rows;
-		
-		}
+        $result = $conn->query($sql);
+        $rows = [];
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $rows[] = $row;
+            }
+        }
+        return $rows;
+    }
 
-	public function getKhoanchiById($machitieu){
-		$conn = self::$_connection;
-		$machitieu = intval($machitieu);
-		$sql = "SELECT * FROM DSCHITIEU WHERE machitieu = {$machitieu}";
-		$result = $conn->query($sql);
+    public function getKhoanchiById($machitieu)
+    {
+        $conn = self::$_connection;
+        $machitieu = intval($machitieu);
+        $sql = "SELECT * FROM DSCHITIEU WHERE machitieu = {$machitieu}";
+        $result = $conn->query($sql);
 
-		return $result->fetch_assoc();
-	}
+        return $result->fetch_assoc();
+    }
 
     public function getPagedExpenses($makh, $limit = 5, $offset = 0, $search = '')
     {
@@ -70,13 +70,13 @@ class KhoanchiModel extends BaseModel
     }
 
 
-	// Lấy khoản chi với phân trang
-	public function getPagedIncomes($makh, $limit = 5, $offset = 0)
-	{
-		$conn = self::$_connection;
-		$makh = intval($makh);
+    // Lấy khoản chi với phân trang
+    public function getPagedIncomes($makh, $limit = 5, $offset = 0)
+    {
+        $conn = self::$_connection;
+        $makh = intval($makh);
 
-		$sql = "SELECT 
+        $sql = "SELECT 
 					ds.machitieu,
 					ds.ngaychitieu,
 					ds.noidung,
@@ -88,25 +88,25 @@ class KhoanchiModel extends BaseModel
 				ORDER BY ds.ngaychitieu DESC
 				LIMIT {$limit} OFFSET {$offset}";
 
-		$result = $conn->query($sql);
-		$rows = [];
-		if ($result && $result->num_rows > 0) {
-			while ($row = $result->fetch_assoc()) {
-				$rows[] = $row;
-			}
-		}
-		return $rows;
-	}
+        $result = $conn->query($sql);
+        $rows = [];
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $rows[] = $row;
+            }
+        }
+        return $rows;
+    }
 
-	public function countTotalIncomes($makh)
-	{
-		$conn = self::$_connection;
-		$makh = intval($makh);
-		$sql = "SELECT COUNT(*) AS total FROM DSCHITIEU WHERE makh = {$makh}";
-		$result = $conn->query($sql);
-		$row = $result->fetch_assoc();
-		return $row['total'] ?? 0;
-	}
+    public function countTotalIncomes($makh)
+    {
+        $conn = self::$_connection;
+        $makh = intval($makh);
+        $sql = "SELECT COUNT(*) AS total FROM DSCHITIEU WHERE makh = {$makh}";
+        $result = $conn->query($sql);
+        $row = $result->fetch_assoc();
+        return $row['total'] ?? 0;
+    }
 
     /**
      * Đếm tổng số khoản chi (có tìm kiếm)
@@ -134,15 +134,15 @@ class KhoanchiModel extends BaseModel
 
     public function countTotalExpenses($makh)
     {
-        $makh = intval($makh);
+        $conn = self::$_connection;
 
-        $sql = "SELECT COUNT(*) AS total 
-                FROM DSCHITIEU
-                WHERE makh = $makh
-                AND loai = 'expense'";
+        $sql = "SELECT SUM(sotien) AS total FROM DSCHITIEU WHERE makh = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $makh);
+        $stmt->execute();
 
-        $result = $this->select($sql);
-        return $result[0]['total'] ?? 0;
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result['total'] ?? 0;
     }
 
 
@@ -150,27 +150,36 @@ class KhoanchiModel extends BaseModel
     /**
      * Lấy chi tiết một khoản chi theo ID
      */
-    public function getExpenseById($machitieu)
+    public function getExpenseById($machitieu, $makh)
     {
         $conn = self::$_connection;
-        $machitieu = intval($machitieu);
 
         $sql = "SELECT 
-                    g.machitieu,
-                    g.madmchitieu,
-                    dm.tendanhmuc AS loai,
-                    g.ngaychitieu,
-                    g.noidung,
-                    g.sotien,
-                    g.created_at
-                FROM DSCHITIEU g
-                INNER JOIN DMCHITIEU dm ON g.madmchitieu = dm.madmchitieu
-                WHERE g.machitieu = {$machitieu}
-                AND g.loai = 'expense'";
+                g.machitieu,
+                g.makh, 
+                g.madmchitieu,
+                dm.tendanhmuc,
+                g.ngaychitieu,
+                g.loai,     
+                g.noidung,
+                g.sotien,
+                g.created_at
+            FROM DSCHITIEU g
+            INNER JOIN DMCHITIEU dm 
+                ON g.madmchitieu = dm.madmchitieu
+            WHERE g.machitieu = ?
+              AND g.makh = ?";
 
-        $result = $this->select($sql);
-        return $result[0] ?? null;
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ii", $machitieu, $makh);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        return $result->fetch_assoc() ?: null;
     }
+
+
+
 
 
     /**
@@ -194,36 +203,33 @@ class KhoanchiModel extends BaseModel
         return $this->insert($sql);
     }
 
-    /**
-     * Cập nhật khoản chi
-     */
-    /*public function updateExpense($magd, $makh, $machitieu, $noidung, $sotien, $ngaygiaodich, $ghichu = '', $anhhoadon = '')
+    public function updateExpense($machitieu, $makh, $noidung, $sotien, $ngaygiaodich, $madm)
     {
         $conn = self::$_connection;
-        $magd = intval($magd);
-        $makh = intval($makh);
+
         $machitieu = intval($machitieu);
+        $makh = intval($makh);
         $sotien = floatval($sotien);
 
         $noidung = $this->escape($noidung);
-        $ghichu = $this->escape($ghichu);
-        $anhhoadon = $this->escape($anhhoadon);
+        $ngaygiaodich = $this->escape($ngaygiaodich);
+        $madm = intval($madm);
 
-        $sql = "UPDATE GIAODICH 
-                SET 
-                    machitieu = {$machitieu},
-                    noidung = '{$noidung}',
-                    sotien = {$sotien},
-                    ngaygiaodich = '{$ngaygiaodich}',
-                    ghichu = '{$ghichu}',
-                    anhhoadon = '{$anhhoadon}',
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE magd = {$magd}
-                AND makh = {$makh}
-                AND loai = 'expense'";
+        $sql = "UPDATE DSCHITIEU
+            SET 
+                madmchitieu = {$madm}, 
+                noidung = '{$noidung}',
+                sotien = {$sotien},
+                ngaychitieu = '{$ngaygiaodich}',
+                updated_at = CURRENT_TIMESTAMP
+            WHERE machitieu = {$machitieu}
+              AND makh = {$makh}
+              AND loai = 'expense'";
 
         return $this->update($sql);
-    }*/
+    }
+
+
 
     /**
      * Xóa khoản chi đơn
@@ -309,7 +315,7 @@ class KhoanchiModel extends BaseModel
      */
     private function escape($string)
     {
-        return self::$_connection 
+        return self::$_connection
             ? self::$_connection->real_escape_string($string)
             : addslashes($string);
     }
@@ -319,11 +325,11 @@ class KhoanchiModel extends BaseModel
         $makh = intval($makh);
         $thang = intval($thang);
         $nam = intval($nam);
-        
+
         if ($makh <= 0) {
             return 0;
         }
-        
+
         $sql = "SELECT SUM(sotien) AS tong
                 FROM DSCHITIEU
                 WHERE makh = {$makh}
@@ -337,5 +343,78 @@ class KhoanchiModel extends BaseModel
         }
         $row = $result->fetch_assoc();
         return $row['tong'] ?? 0;
+    }
+
+    // Lấy danh sách danh mục chi tiêu
+    public function getCategories($makh)
+    {
+        $makh = intval($makh);
+        $sql = "SELECT DISTINCT madmchitieu  FROM DSCHITIEU WHERE makh = {$makh}";
+        $result = self::$_connection->query($sql);
+        $categories = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $categories[] = $row['madmchitieu'];
+            }
+        }
+        return $categories;
+    }
+
+    // Lấy tổng chi theo từng danh mục
+    public function getExpenseByCategory($makh)
+    {
+        $makh = intval($makh);
+        $sql = "SELECT madmchitieu, SUM(sotien) AS tong
+                FROM DSCHITIEU
+                WHERE makh = {$makh}
+                GROUP BY madmchitieu";
+        $result = self::$_connection->query($sql);
+        $expenses = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $expenses[] = (float)$row['tong'];
+            }
+        }
+        return $expenses;
+    }
+
+    public function getMakhFromDanhMuc($madmchitieu)
+    {
+        $conn = self::$_connection;
+
+        $sql = "SELECT makh 
+            FROM DMCHITIEU 
+            WHERE madmchitieu = ?";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $madmchitieu);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+
+        return $row['makh'] ?? null;
+    }
+
+    //lấy danh muc theo mã kh
+    public function getDanhMucByMakh($makh)
+    {
+        $conn = self::$_connection;
+        $makh = intval($makh);
+
+        $sql = "SELECT madmchitieu, tendanhmuc
+            FROM DMCHITIEU
+            WHERE makh = {$makh}
+            ORDER BY tendanhmuc ASC";
+
+        $result = $conn->query($sql);
+
+        $rows = [];
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $rows[] = $row;
+            }
+        }
+        return $rows;
     }
 }

@@ -1,5 +1,12 @@
 <?php
 session_start();
+
+// Nếu không có controller/action trong URL, trỏ thẳng tới home.php
+if (!isset($_GET['controller']) && !isset($_GET['action'])) {
+    require_once __DIR__ . '/views/user/home.php';
+    exit;
+}
+
 // Cấu hình tự động nạp class
 spl_autoload_register(function ($className) {
     $paths = ['controllers', 'models', 'configs'];
@@ -13,7 +20,7 @@ spl_autoload_register(function ($className) {
 });
 
 // Lấy controller và action từ URL
-$controllerName = $_GET['controller'] ?? 'statistical';  // controller mặc định
+$controllerName = $_GET['controller'] ?? 'home';  // controller mặc định
 $actionName = $_GET['action'] ?? 'index';                 // action mặc định
 
 // Chuyển controllerName về dạng PascalCase, thêm hậu tố "Controller"
@@ -45,3 +52,8 @@ if (!method_exists($controller, $actionName)) {
 
 // Gọi action tương ứng
 $controller->$actionName();
+
+if ($controller === 'admin') {
+    require_once 'controllers/AdminController.php';
+    $controllerObj = new AdminController();
+}

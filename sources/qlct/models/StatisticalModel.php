@@ -1,10 +1,12 @@
 <?php
-require_once __DIR__ . '/../configs/database.php';
+require_once __DIR__ . '/../models/BaseModel.php';
 
-class StatisticalModel {
+class StatisticalModel extends BaseModel
+{
     private $conn;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
         if ($this->conn->connect_errno) {
             die("Lỗi kết nối MySQL: " . $this->conn->connect_error);
@@ -13,59 +15,71 @@ class StatisticalModel {
     }
 
     // Lấy tất cả danh mục + tổng chi tiêu
-    public function getAllExpenseByCategory() {
-        $sql = "SELECT d.tendanhmuc AS tendanhmuc, COALESCE(SUM(c.sotien),0) AS tongtien
-        FROM DMCHITIEU d
-        LEFT JOIN DSCHITIEU c ON d.madmchitieu = c.machitieu AND c.loai = 'expense'
-        GROUP BY d.madmchitieu, d.tendanhmuc";
-        $result = $this->conn->query($sql);
-        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    public function getAllExpenseByCategory($makh)
+    {
+        $stmt = $this->_connection->prepare("
+            SELECT machitieu, SUM(sotien) AS total
+            FROM GIAODICH
+            WHERE makh = ?
+            GROUP BY machitieu
+        ");
+        $stmt->bind_param("i", $makh);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+    // Lấy thống kê chi tiêu theo năm và danh mục
+    public function getExpenseByCategoryAndYear($makh, $year)
+    {
+        $stmt = $this->conn
+            ->prepare("
+            SELECT machitieu, SUM(sotien) AS total
+            FROM GIAODICH
+            WHERE makh = ? AND YEAR(ngaygiaodich) = ?
+            GROUP BY machitieu
+        ");
+        $stmt->bind_param("ii", $makh, $year);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Lấy thống kê chi tiêu theo năm và danh mục
-    public function getExpenseByCategoryAndYear($makh, $year) {
-        $makh = intval($makh);
-        $year = intval($year);
-        
-        $sql = "SELECT 
-                    dm.tendanhmuc AS tendanhmuc, 
-                    COALESCE(SUM(ds.sotien), 0) AS tongtien
-                FROM DMCHITIEU dm
-                LEFT JOIN DSCHITIEU ds ON dm.madmchitieu = ds.madmchitieu 
-                    AND ds.loai = 'expense' 
-                    AND ds.makh = {$makh}
-                    AND YEAR(ds.ngaychitieu) = {$year}
-                WHERE dm.makh = {$makh} AND dm.loai = 'expense'
-                GROUP BY dm.madmchitieu, dm.tendanhmuc
-                HAVING tongtien > 0
-                ORDER BY tongtien DESC";
-        
-        $result = $this->conn->query($sql);
-        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-    }
 
     // Lấy tổng chi tiêu cả năm
-    public function getTotalExpenseByYear($makh, $year) {
-        $makh = intval($makh);
-        $year = intval($year);
-        
-        $sql = "SELECT COALESCE(SUM(sotien), 0) AS tongtien
-                FROM DSCHITIEU
-                WHERE makh = {$makh}
-                AND loai = 'expense'
-                AND YEAR(ngaychitieu) = {$year}";
-        
-        $result = $this->conn->query($sql);
-        $row = $result ? $result->fetch_assoc() : null;
-        return $row ? floatval($row['tongtien']) : 0;
+    public function getTotalExpenseByYear($makh, $year)
+    {
+        $stmt = $this->conn
+            ->prepare("
+            SELECT SUM(sotien) AS total
+            FROM GIAODICH
+            WHERE makh = ? AND YEAR(ngaygiaodich) = ?
+        ");
+        $stmt->bind_param("ii", $makh, $year);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        return $row['total'] ?? 0;
+    }
+
+    public function getMonthsWithTransactions($makh, $year)
+    {
+        $stmt = $this->conn
+            ->prepare("
+            SELECT DISTINCT MONTH(ngaygiaodich) AS month
+            FROM GIAODICH
+            WHERE makh = ? AND YEAR(ngaygiaodich) = ?
+            ORDER BY month ASC
+        ");
+        $stmt->bind_param("ii", $makh, $year);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        return array_column($result, 'month');
     }
 
     // Lấy dữ liệu thu nhập và chi tiêu theo khoảng thời gian, nhóm theo tháng
-    public function getIncomeExpenseByDateRange($makh, $fromDate, $toDate) {
+    public function getIncomeExpenseByDateRange($makh, $fromDate, $toDate)
+    {
         $makh = intval($makh);
         $fromDate = $this->conn->real_escape_string($fromDate);
         $toDate = $this->conn->real_escape_string($toDate);
-        
+
         $sql = "SELECT 
                     DATE_FORMAT(ngaythunhap, '%Y-%m') AS thang,
                     COALESCE(SUM(sotien), 0) AS thu_nhap
@@ -75,7 +89,7 @@ class StatisticalModel {
                 AND ngaythunhap <= '{$toDate}'
                 GROUP BY DATE_FORMAT(ngaythunhap, '%Y-%m')
                 ORDER BY thang ASC";
-        
+
         $incomeResult = $this->conn->query($sql);
         $incomeData = [];
         if ($incomeResult) {
@@ -83,7 +97,7 @@ class StatisticalModel {
                 $incomeData[$row['thang']] = floatval($row['thu_nhap']);
             }
         }
-        
+
         $sql = "SELECT 
                     DATE_FORMAT(ngaychitieu, '%Y-%m') AS thang,
                     COALESCE(SUM(sotien), 0) AS chi_tieu
@@ -94,7 +108,7 @@ class StatisticalModel {
                 AND ngaychitieu <= '{$toDate}'
                 GROUP BY DATE_FORMAT(ngaychitieu, '%Y-%m')
                 ORDER BY thang ASC";
-        
+
         $expenseResult = $this->conn->query($sql);
         $expenseData = [];
         if ($expenseResult) {
@@ -102,11 +116,11 @@ class StatisticalModel {
                 $expenseData[$row['thang']] = floatval($row['chi_tieu']);
             }
         }
-        
+
         // Tạo mảng kết hợp tất cả các tháng
         $allMonths = array_unique(array_merge(array_keys($incomeData), array_keys($expenseData)));
         sort($allMonths);
-        
+
         $result = [];
         foreach ($allMonths as $month) {
             $result[] = [
@@ -115,37 +129,38 @@ class StatisticalModel {
                 'chi_tieu' => $expenseData[$month] ?? 0
             ];
         }
-        
+
         return $result;
     }
 
     // Lấy tổng thu nhập và chi tiêu trong khoảng thời gian
-    public function getTotalIncomeExpenseByDateRange($makh, $fromDate, $toDate) {
+    public function getTotalIncomeExpenseByDateRange($makh, $fromDate, $toDate)
+    {
         $makh = intval($makh);
         $fromDate = $this->conn->real_escape_string($fromDate);
         $toDate = $this->conn->real_escape_string($toDate);
-        
+
         $sql = "SELECT COALESCE(SUM(sotien), 0) AS tong_thu_nhap
                 FROM DSTHUNHAP
                 WHERE makh = {$makh}
                 AND ngaythunhap >= '{$fromDate}'
                 AND ngaythunhap <= '{$toDate}'";
-        
+
         $result = $this->conn->query($sql);
         $row = $result ? $result->fetch_assoc() : null;
         $totalIncome = $row ? floatval($row['tong_thu_nhap']) : 0;
-        
+
         $sql = "SELECT COALESCE(SUM(sotien), 0) AS tong_chi_tieu
                 FROM DSCHITIEU
                 WHERE makh = {$makh}
                 AND loai = 'expense'
                 AND ngaychitieu >= '{$fromDate}'
                 AND ngaychitieu <= '{$toDate}'";
-        
+
         $result = $this->conn->query($sql);
         $row = $result ? $result->fetch_assoc() : null;
         $totalExpense = $row ? floatval($row['tong_chi_tieu']) : 0;
-        
+
         return [
             'tong_thu_nhap' => $totalIncome,
             'tong_chi_tieu' => $totalExpense,
@@ -157,7 +172,8 @@ class StatisticalModel {
      * Lấy dữ liệu thu nhập/chi tiêu theo từng tuần (4 tuần) trong 1 tháng cụ thể.
      * Tuần được chia theo các mốc 1-7, 8-14, 15-21, 22-cuối tháng.
      */
-    public function getWeeklyIncomeExpenseByMonth($makh, $year, $month) {
+    public function getWeeklyIncomeExpenseByMonth($makh, $year, $month)
+    {
         $makh = intval($makh);
         $year = intval($year);
         $month = intval($month);
@@ -228,5 +244,36 @@ class StatisticalModel {
         }
 
         return array_values($weeks);
+    }
+
+    public function getTransactionsByMonth($makh, $year, $month)
+    {
+        $stmt = $this->conn->prepare("
+            SELECT * 
+            FROM GIAODICH
+            WHERE makh = ? AND YEAR(ngaygiaodich) = ? AND MONTH(ngaygiaodich) = ?
+            ORDER BY ngaygiaodich ASC
+        ");
+        $stmt->bind_param("iii", $makh, $year, $month);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+    public function getMonthlyTotals($makh, $year)
+    {
+        $stmt = $this->conn->prepare("
+            SELECT MONTH(ngaygiaodich) AS month, SUM(sotien) AS total
+            FROM GIAODICH
+            WHERE makh = ? AND YEAR(ngaygiaodich) = ?
+            GROUP BY MONTH(ngaygiaodich)
+        ");
+        $stmt->bind_param("ii", $makh, $year);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        $totals = [];
+        foreach ($result as $row) {
+            $totals[$row['month']] = $row['total'];
+        }
+        return $totals;
     }
 }

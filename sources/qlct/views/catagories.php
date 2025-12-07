@@ -207,8 +207,8 @@
                             // Hiển thị dữ liệu ra bảng
                             if (!empty($danhmucs)) {
                                 foreach ($danhmucs as $row) {   
-                                    echo "<tr data-machitieu='{$row['machitieu']}'>";
-                                    echo "<td>" . htmlspecialchars($row['machitieu']) . "</td>";
+                                    echo "<tr data-madmchitieu='{$row['madmchitieu']}'>";
+                                    echo "<td>" . htmlspecialchars($row['madmchitieu']) . "</td>";
                                     echo "<td>" . htmlspecialchars($row['tendanhmuc']) . "</td>";
                                     echo "<td>" . htmlspecialchars($row['loai']) . "</td>";
                                     echo "</tr>";
@@ -273,8 +273,8 @@ modalCancel.addEventListener('click', function() {
 
 // Xác nhận xóa
 modalConfirm.addEventListener('click', function() {
-    const machitieu = selectedRow.dataset.machitieu;
-    window.location.href = `../controllers/CatagoryController.php?action=delete&machitieu=${machitieu}`;
+    const madmchitieu = selectedRow.dataset.madmchitieu;
+    window.location.href = `../controllers/CatagoryController.php?action=delete&madmchitieu=${madmchitieu}`;
 });
 
 </script>
