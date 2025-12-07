@@ -40,7 +40,7 @@ class UserController
             // Theo năm
             $data = $this->model->getExpenseByCategoryAndYear($this->makh, $year);
             $totalExpense = $this->model->getTotalExpenseByYear($this->makh, $year);
-            include __DIR__ . '/../views/thongke_nam.php';
+            include __DIR__ . '/../views/user/thongke_nam.php';
         }
     }
 

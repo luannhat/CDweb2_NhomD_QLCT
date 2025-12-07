@@ -1,6 +1,8 @@
 <?php
 ob_start();
 
+$currentPage = 'home';
+
 // Bắt đầu session nếu chưa active
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -66,10 +68,15 @@ $categoryExpenses = is_array($categoryExpenses) ? $categoryExpenses : [];
 <section class="dashboard-charts">
     <h2>Biểu đồ chi tiêu</h2>
     <canvas id="expenseChart" width="400" height="200"></canvas>
+    <div style="margin-top: 10px;">
+        <a href="views/user/catagories.php" class="btn-primary">Xem mục danh mục</a>
+    </div>
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    
+
 const ctx = document.getElementById('expenseChart').getContext('2d');
 const expenseChart = new Chart(ctx, {
     type: 'bar',

@@ -11,7 +11,18 @@ $basePath = $isInViews ? '../' : '';
     </div>
 
     <nav class="menu" aria-label="Main menu">
-        <a href="<?= $basePath ?>index.php" class="<?= basename($_SERVER['PHP_SELF']) == 'index.php' || basename($_SERVER['PHP_SELF']) == 'home.php' ? 'active' : '' ?>">Trang chủ</a>
+        <?php
+$homeLink = "index.php?controller=user&action=dashboard";
+
+if (isset($_SESSION['user']['quyen']) && $_SESSION['user']['quyen'] === 'admin') {
+    $homeLink = "index.php?controller=admin&action=home";
+}
+?>
+<a href="<?= $basePath . $homeLink ?>"
+   class="<?= basename($_SERVER['PHP_SELF']) == 'index.php' || basename($_SERVER['PHP_SELF']) == 'home.php' ? 'active' : '' ?>">
+   Trang chủ
+</a>
+
         <a href="<?= $basePath ?>views/khoanthu.php" class="<?= basename($_SERVER['PHP_SELF']) == 'khoanthu.php' ? 'active' : '' ?>">Khoản thu</a>
         <a href="<?= $basePath ?>views/khoanchi.php" class="<?= basename($_SERVER['PHP_SELF']) == 'khoanchi.php' ? 'active' : '' ?>">Khoản chi</a>
         <a href="<?= $basePath ?>views/catagories.php" class="<?= basename($_SERVER['PHP_SELF']) == 'danhmuc.php' || basename($_SERVER['PHP_SELF']) == 'catagories.php' ? 'active' : '' ?>">Danh mục</a>

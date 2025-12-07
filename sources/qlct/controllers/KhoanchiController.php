@@ -9,13 +9,17 @@ class KhoanchiController
     public function __construct()
     {
         $this->model = new KhoanchiModel();
-        $this->makh = $_SESSION['id'] ?? 1;
+        $this->makh = $_SESSION['makh'] ?? null;
+
+        if (!$this->makh) {
+            die("Bạn chưa đăng nhập!");
+        }
     }
 
     public function index()
     {
 
-        $makh = $_SESSION['id'] ?? 1;
+        $makh = $this->makh;
 
         $limit = 5;
         $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
@@ -25,8 +29,8 @@ class KhoanchiController
         // Đếm số khoản chi
         $totalRecords = $this->model->countTotalExpenses($makh);
         $totalPages = ($totalRecords > 0)
-        ? ceil($totalRecords / $limit)
-        : 1;
+            ? ceil($totalRecords / $limit)
+            : 1;
 
         // Lấy danh sách khoản chi
         $khoanchis = $this->model->getPagedExpenses($makh, $limit, $offset);
@@ -105,34 +109,40 @@ class KhoanchiController
             : ['success' => false, 'message' => 'Không thể thêm khoản chi'];
     }
 
-    /*public function update()
+    public function update($machitieu, $postData)
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return ['success' => false, 'message' => 'Phương thức không hợp lệ'];
+        // Lấy khoản chi hiện tại
+        $current = $this->model->getExpenseById($machitieu, $this->makh);
+
+        if (!$current) {
+            die("Khoản chi không tồn tại!");
         }
 
-        $machitieu = intval($_POST['machitieu'] ?? 0);
-        $madmchitieu = intval($_POST['madmchitieu'] ?? 0);
-        $noidung = trim($_POST['noidung'] ?? '');
-        $sotien = floatval($_POST['sotien'] ?? 0);
-        $ngaychitieu = $_POST['ngaychitieu'] ?? '';
+        // Lấy đúng makh từ DB – đây mới là chủ thực sự của khoản chi
+        $makh = $current['makh'];
 
-        if ($machitieu <= 0 || !$madmchitieu || !$noidung || !$ngaychitieu || $sotien <= 0) {
-            return ['success' => false, 'message' => 'Dữ liệu không hợp lệ'];
+        // Lấy dữ liệu từ form
+        $noidung = $postData['noidung'] ?? '';
+        $sotien = $postData['sotien'] ?? 0;
+        $ngay = $postData['ngaygiaodich'] ?? '';
+        $madm = $postData['madmchitieu'] ?? $current['madmchitieu'];
+
+        // Update
+        $success = $this->model->updateExpense($machitieu, $makh, $noidung, $sotien, $ngay, $madm);
+
+        if ($success) {
+            $_SESSION['success'] = "Sửa khoản chi thành công!";
+            header("Location: /index.php?controller=khoanchi&action=index");
+            exit;
+        } else {
+            $_SESSION['error'] = "Sửa thất bại!";
+            header("Location: edit_expense.php?machitieu=$machitieu");
+            exit;
         }
+    }
 
-        $ok = $this->model->updateExpense(
-            $machitieu,
-            $madmchitieu,
-            $noidung,
-            $ngaychitieu,
-            $sotien
-        );
 
-        return $ok
-            ? ['success' => true, 'message' => 'Cập nhật thành công']
-            : ['success' => false, 'message' => 'Không thể cập nhật'];
-    }*/
+
 
     public function delete()
     {
@@ -179,11 +189,32 @@ class KhoanchiController
             return ['success' => false, 'message' => 'ID không hợp lệ'];
         }
 
-        $data = $this->model->getExpenseById($machitieu);
+        $data = $this->model->getExpenseById($machitieu, $this->makh);
 
         return $data
             ? ['success' => true, 'data' => $data]
             : ['success' => false, 'message' => 'Không tìm thấy khoản chi'];
+    }
+
+    public function create()
+    {
+        require_once __DIR__ . '/../models/KhoanchiModel.php';
+
+        $model = new KhoanchiModel();
+        $categories = $model->getCategories($makh);
+
+        $currentPage = 'expense';
+
+        ob_start();
+        include __DIR__ . '/../views/user/them_khoanchi.php';
+        $content = ob_get_clean();
+
+        $cssFiles = [
+            '/public/css/khoanchi.css',
+            '/public/css/themkhoanchi.css'
+        ];
+
+        include __DIR__ . '/../views/user/layout.php';
     }
 }
 
@@ -207,4 +238,3 @@ if (__FILE__ === realpath($_SERVER['SCRIPT_FILENAME'])) {
         }
     }
 }
-
