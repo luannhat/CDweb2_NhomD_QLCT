@@ -65,4 +65,49 @@ class StatisticalController
 
         include './views/bieu_do_duong.php';
     }
+
+    public function weeklyStatistics()
+    {
+        $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
+        $month = isset($_GET['month']) ? intval($_GET['month']) : intval(date('m'));
+
+        $weeklyData = $this->model->getWeeklyIncomeExpenseByMonth($this->makh, $year, $month);
+        
+        // Tính tổng chi tiêu theo tuần
+        $totalByWeek = [];
+        $overallTotal = 0;
+        foreach ($weeklyData as $week) {
+            $total = $week['chi_tieu'];
+            $totalByWeek[] = [
+                'week' => $week['label'],
+                'total' => $total,
+                'income' => $week['thu_nhap'],
+                'expense' => $week['chi_tieu']
+            ];
+            $overallTotal += $total;
+        }
+
+        $availableMonths = $this->model->getMonthsWithTransactions($this->makh, $year);
+
+        include './views/thongke_chi_tieu_tuan.php';
+    }
+
+    public function weeklyDetail()
+    {
+        $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
+        $month = isset($_GET['month']) ? intval($_GET['month']) : intval(date('m'));
+        $week = isset($_GET['week']) ? intval($_GET['week']) : 1;
+
+        // Lấy dữ liệu chi tiết của tuần
+        $expenses = $this->model->getWeeklyExpenseDetails($this->makh, $year, $month, $week);
+        
+        // Tính tổng chi tiêu tuần
+        $totalWeekExpense = array_sum(array_column($expenses, 'sotien'));
+
+        // Lấy thông tin danh mục
+        $weeklyData = $this->model->getWeeklyIncomeExpenseByMonth($this->makh, $year, $month);
+        $weekInfo = $weeklyData[$week - 1] ?? ['label' => 'Tuần ' . $week];
+
+        include './views/thongke_chi_tieu_tuan_detail.php';
+    }
 }
