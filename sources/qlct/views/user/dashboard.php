@@ -69,7 +69,7 @@ $categoryExpenses = is_array($categoryExpenses) ? $categoryExpenses : [];
     <h2>Biểu đồ chi tiêu</h2>
     <canvas id="expenseChart" width="400" height="200"></canvas>
     <div style="margin-top: 10px;">
-        <a href="views/user/catagories.php" class="btn-primary">Xem mục danh mục</a>
+        <a href="/index.php?controller=catagory&action=index" class="btn-primary">Xem mục danh mục</a>
     </div>
 </section>
 
