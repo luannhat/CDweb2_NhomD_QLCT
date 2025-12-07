@@ -32,6 +32,10 @@ $defaultYear = (int)date('Y');
 
 $cssVersion = @filemtime(__DIR__ . '/../public/css/ngansach.css') ?: time();
 
+
+// Để highlight menu Khoản thu
+$currentPage = 'budget';
+
 ob_start();
 ?>
 
@@ -113,7 +117,7 @@ ob_start();
             </section>
 
         <?php else: ?>
-            <form class="filters" method="get" action="ngansach.php">
+            <form class="filters" method="get" action="/views/user/ngansach.php">
                 <input type="hidden" name="mode" value="month">
                 <label class="filter-field">
                     Tuần
@@ -266,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             var targetMode = button.getAttribute('data-target-mode');
             if (!targetMode) return;
-            window.location.href = 'views/ngansach.php?mode=' + targetMode;
+            window.location.href = '/views/user/ngansach.php?mode=' + targetMode;
         });
     });
 
@@ -307,6 +311,6 @@ document.addEventListener('DOMContentLoaded', function() {
 $content = ob_get_clean();
 $title = $mode === 'week' ? 'Lập ngân sách theo tuần' : 'Ngân sách';
 $cssFiles = [
-    "../public/css/ngansach.css?v=" . ($cssVersion ?? time())
+    "/public/css/ngansach.css?v=" . ($cssVersion ?? time())
 ];
 include __DIR__ . '/layout.php';
