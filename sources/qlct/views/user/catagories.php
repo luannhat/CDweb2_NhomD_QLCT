@@ -1,5 +1,4 @@
 <?php
-session_start();
 ob_start();
 // Kiểm tra đăng nhập user
 if (!isset($_SESSION['makh'])) {
