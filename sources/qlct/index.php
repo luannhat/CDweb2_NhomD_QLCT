@@ -74,7 +74,7 @@ switch ($controllerName) {
         break;
 
     case 'catagory':
-        include __DIR__ . '/views/user/catagory.php';
+        include __DIR__ . '/views/user/catagories.php';
         break;
 
     default:
