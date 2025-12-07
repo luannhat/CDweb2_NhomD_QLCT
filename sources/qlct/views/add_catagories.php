@@ -1,3 +1,19 @@
+<?php
+session_start();
+
+// Kiểm tra login
+if (!isset($_SESSION['makh'])) {
+    header("Location: login.php");
+    exit;
+}
+
+require_once __DIR__ . '/../controllers/CatagoryController.php';
+
+$controller = new DanhmucController();
+$danhmucs = $controller->index();
+?>
+
+
 <!doctype html>
 <html lang="vi">
 
@@ -69,23 +85,31 @@
 
 <body>
     <div class="app">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">
-                <div class="burger" aria-hidden="true"></div>
-                <strong style="color:#222">Menu</strong>
-            </div>
-
-            <nav class="menu" aria-label="Main menu">
-                <a href="index.php">Trang chủ</a>
-                <a href="khoanthu.php">Khoản thu</a>
-                <a href="khoanchi.php" class="active">Khoản chi</a>
-                <a href="catagories.php">Danh mục</a>
-                <a href="ngansach.php">Ngân sách</a>
-                <a href="baocao.php">Báo cáo</a>
-                <a href="caidat.php">Cài đặt</a>
-            </nav>
-        </aside>
+        <div class="header-right">
+					<div class="account" id="accountDropdown">
+						<?php
+						$id = $_SESSION['id'] ?? '';
+						$displayName = $_SESSION['name'] ?? ($_SESSION['username'] ?? '');
+						?>
+						<button class="account-btn <?php echo $id ? '' : 'just-icon'; ?>" aria-haspopup="true" aria-expanded="false" title="<?php echo $id ? htmlspecialchars($displayName) : 'Tài khoản'; ?>">
+							<img class="avatar-img" src="../public/images/user_profile.png" alt="User" />
+							<?php if ($id): ?>
+								<span class="account-name"><?php echo htmlspecialchars($displayName ?: 'Người dùng'); ?></span>
+							<?php endif; ?>
+							<span class="caret">▾</span>
+						</button>
+						<div class="dropdown-menu" role="menu" aria-hidden="true">
+							<?php if ($id): ?>
+								<a class="dropdown-item" href="view_user.php?id=<?php echo $id; ?>">Trang cá nhân</a>
+								<div class="dropdown-sep"></div>
+								<a class="dropdown-item" href="logout.php">Đăng xuất</a>
+							<?php else: ?>
+								<a class="dropdown-item" href="login.php">Đăng nhập</a>
+								<div class="dropdown-sep"></div>
+								<a class="dropdown-item" href="register.php">Đăng ký</a>
+							<?php endif; ?>
+						</div>
+					</div>
         <!-- Main -->
         <div class="form-container">
             <h2>Thêm danh mục</h2>

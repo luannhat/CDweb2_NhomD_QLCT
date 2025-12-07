@@ -179,8 +179,8 @@ document.addEventListener('DOMContentLoaded', function() {
 				// TODO: Xử lý thống kê theo tháng
 				window.location.href = 'index.php?controller=statistical&action=monthlyStatistics';
 			} else if (period === 'week') {
-				// TODO: Xử lý thống kê theo tuần
-				console.log('Selected period: week');
+				// Chuyển tới trang thống kê tuần
+				window.location.href = 'thongke_chi_tieu_tuan_main.php?action=weeklyStatistics';
 			} else if (period === 'day') {
 				// TODO: Xử lý thống kê theo ngày
 				console.log('Selected period: day');

@@ -1,3 +1,14 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['makh'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$makh = $_SESSION['makh'];
+?>
+
 <!doctype html>
 <html lang="vi">
 
@@ -148,7 +159,7 @@
             <nav class="menu" aria-label="Main menu">
                 <a href="index.php">Trang chủ</a>
                 <a href="khoanthu.php">Khoản thu</a>
-                <a href="khoanchi.php" >Khoản chi</a>
+                <a href="khoanchi.php">Khoản chi</a>
                 <a href="catagories.php">Danh mục</a>
                 <a href="ngansach.php">Ngân sách</a>
                 <a href="baocao.php">Báo cáo</a>
@@ -166,14 +177,6 @@
                         <input id="q" name="q" placeholder="Tìm kiếm..." value="<?php echo htmlspecialchars($_GET['q'] ?? ''); ?>" />
                         <button id="search-btn" type="submit">Tìm kiếm</button>
                     </form>
-                </div>
-
-                <div class="header-right">
-                    <div class="avatar" title="Văn A">
-                        <div class="circle">VA</div>
-                        <div style="font-weight:600;color:#0b6b3f">Văn A</div>
-                    </div>
-                    <div class="bell" title="Thông báo">🔔</div>
                 </div>
             </header>
 
@@ -206,9 +209,10 @@
 
                             // Hiển thị dữ liệu ra bảng
                             if (!empty($danhmucs)) {
-                                foreach ($danhmucs as $row) {   
-                                    echo "<tr data-madmchitieu='{$row['madmchitieu']}'>";
-                                    echo "<td>" . htmlspecialchars($row['madmchitieu']) . "</td>";
+                                foreach ($danhmucs as $row) {
+                                    echo "<tr data-madmchitieu='" . htmlspecialchars($row['id']) . "'>";
+                                    echo "<tr data-id='{$row['id']}'>";
+                                    echo "<td>" . htmlspecialchars($row['id']) . "</td>";
                                     echo "<td>" . htmlspecialchars($row['tendanhmuc']) . "</td>";
                                     echo "<td>" . htmlspecialchars($row['loai']) . "</td>";
                                     echo "</tr>";
@@ -220,61 +224,60 @@
                         </tbody>
 
 
-<div id="confirmModal" class="modal-overlay" style="display:none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <div class="modal-icon"></div>
-            <h3 class="modal-title">Xác nhận xóa</h3>
-        </div>
-        <div class="modal-body">
-            <p class="modal-message">Bạn có chắc chắn muốn xóa danh mục này?</p>
-        </div>
-        <div class="modal-footer">
-            <button class="modal-btn modal-btn-cancel" id="modalCancel">Hủy</button>
-            <button class="modal-btn modal-btn-confirm" id="modalConfirm">Xóa</button>
-        </div>
-    </div>
-</div>
-<script>
-    const table = document.getElementById('expenseTable');
-let selectedRow = null;
+                        <div id="confirmModal" class="modal-overlay" style="display:none;">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <div class="modal-icon"></div>
+                                    <h3 class="modal-title">Xác nhận xóa</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="modal-message">Bạn có chắc chắn muốn xóa danh mục này?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="modal-btn modal-btn-cancel" id="modalCancel">Hủy</button>
+                                    <button class="modal-btn modal-btn-confirm" id="modalConfirm">Xóa</button>
+                                </div>
+                            </div>
+                        </div>
+                        <script>
+                            const table = document.getElementById('expenseTable');
+                            let selectedRow = null;
 
-// Chọn dòng
-table.addEventListener('click', function(e) {
-    const tr = e.target.closest('tr');
-    if (!tr || tr.querySelector('th')) return;
+                            // Chọn dòng
+                            table.addEventListener('click', function(e) {
+                                const tr = e.target.closest('tr');
+                                if (!tr || tr.querySelector('th')) return;
 
-    // Bỏ chọn dòng cũ
-    if (selectedRow) selectedRow.classList.remove('selected');
+                                // Bỏ chọn dòng cũ
+                                if (selectedRow) selectedRow.classList.remove('selected');
 
-    // Chọn dòng mới
-    selectedRow = tr;
-    selectedRow.classList.add('selected');
-});
+                                // Chọn dòng mới
+                                selectedRow = tr;
+                                selectedRow.classList.add('selected');
+                            });
 
-// Hiển thị modal khi click nút Xóa
-const deleteBtn = document.getElementById('delete-btn');
-const modal = document.getElementById('confirmModal');
-const modalCancel = document.getElementById('modalCancel');
-const modalConfirm = document.getElementById('modalConfirm');
+                            // Hiển thị modal khi click nút Xóa
+                            const deleteBtn = document.getElementById('delete-btn');
+                            const modal = document.getElementById('confirmModal');
+                            const modalCancel = document.getElementById('modalCancel');
+                            const modalConfirm = document.getElementById('modalConfirm');
 
-deleteBtn.addEventListener('click', function() {
-    if (!selectedRow) {
-        alert('⚠️ Vui lòng chọn danh mục muốn xóa!');
-        return;
-    }
-    modal.style.display = 'flex';
-});
+                            deleteBtn.addEventListener('click', function() {
+                                if (!selectedRow) {
+                                    alert('⚠️ Vui lòng chọn danh mục muốn xóa!');
+                                    return;
+                                }
+                                modal.style.display = 'flex';
+                            });
 
-// Hủy modal
-modalCancel.addEventListener('click', function() {
-    modal.style.display = 'none';
-});
+                            // Hủy modal
+                            modalCancel.addEventListener('click', function() {
+                                modal.style.display = 'none';
+                            });
 
-// Xác nhận xóa
-modalConfirm.addEventListener('click', function() {
-    const madmchitieu = selectedRow.dataset.madmchitieu;
-    window.location.href = `../controllers/CatagoryController.php?action=delete&madmchitieu=${madmchitieu}`;
-});
-
-</script>
+                            // Xác nhận xóa
+                            modalConfirm.addEventListener('click', function() {
+                                const madmchitieu = selectedRow.dataset.madmchitieu;
+                                window.location.href = `../controllers/CatagoryController.php?action=delete&madmchitieu=${madmchitieu}`;
+                            });
+                        </script>
