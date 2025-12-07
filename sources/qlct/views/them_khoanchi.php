@@ -22,7 +22,7 @@
                 <a href="index.php">Trang chủ</a>
                 <a href="khoanthu.php">Khoản thu</a>
                 <a href="khoanchi.php" class="active">Khoản chi</a>
-                <a href="danhmuc.php">Danh mục</a>
+                <a href="catagories.php">Danh mục</a>
                 <a href="ngansach.php">Ngân sách</a>
                 <a href="baocao.php">Báo cáo</a>
                 <a href="caidat.php">Cài đặt</a>

@@ -1,5 +1,7 @@
 <?php
-// Biến từ controller
+ob_start();
+?>
+<?php
 $year = $year ?? date('Y');
 $month = $month ?? null;
 $data = $data ?? [];
@@ -7,12 +9,12 @@ $transactions = $transactions ?? [];
 $availableMonths = $availableMonths ?? [];
 ?>
 
-<h1>Thống kê chi tiêu</h1>
+<h1>Thống kê chi tiêu theo tháng</h1>
 
-<!-- Form chọn năm/tháng -->
 <form method="GET" action="index.php">
-    <input type="hidden" name="controller" value="transaction">
-    <input type="hidden" name="action" value="monthlyStatisticsController">
+    <input type="hidden" name="controller" value="user">
+    <input type="hidden" name="action" value="stats">
+    <input type="hidden" name="view" value="month">
 
     <label for="year">Chọn năm:</label>
     <select name="year" id="year">
@@ -24,20 +26,19 @@ $availableMonths = $availableMonths ?? [];
     <label for="month">Chọn tháng:</label>
     <select name="month" id="month">
         <option value="">--Tất cả tháng--</option>
-        <?php foreach ($availableMonths as $m): ?>
+        <?php for ($m = 1; $m <= 12; $m++): ?>
             <option value="<?= $m ?>" <?= ($month == $m) ? 'selected' : '' ?>><?= $m ?></option>
-        <?php endforeach; ?>
+        <?php endfor; ?>
     </select>
+
 
     <button type="submit">Xem thống kê</button>
 </form>
-
 <?php if (!empty($data)): ?>
     <h2>Năm <?= htmlspecialchars($year) ?> <?= $month ? "- Tháng $month" : "" ?></h2>
-    <div style="display:flex; flex-wrap:wrap; gap:30px; justify-content:center; align-items:flex-start;">
 
-        <!-- Bảng thống kê -->
-        <div class="table-container" style="flex:1; min-width:400px; overflow-x:auto;">
+    <div class="stats-wrapper">
+        <div class="table-container">
             <table>
                 <tr>
                     <?php if ($month): ?>
@@ -77,16 +78,15 @@ $availableMonths = $availableMonths ?? [];
             </table>
         </div>
 
-        <!-- PieChart -->
-        <div style="flex:0 0 500px; max-width:500px;">
+        <div class="chart-container">
             <canvas id="pieChart"></canvas>
         </div>
     </div>
 <?php else: ?>
-    <p class="no-data">Không có dữ liệu chi tiêu cho năm/tháng này</p>
+    <p>Không có dữ liệu chi tiêu cho năm/tháng này</p>
 <?php endif; ?>
 
-<!-- Chart.js -->
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <?php
 $labels = [];
@@ -105,12 +105,11 @@ if ($month) {
 ?>
 <script>
     const ctx = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctx, {
+    new Chart(ctx, {
         type: 'pie',
         data: {
             labels: <?= json_encode($labels) ?>,
             datasets: [{
-                label: 'Chi tiêu (đ)',
                 data: <?= json_encode($values) ?>,
                 backgroundColor: [
                     '#4a90e2', '#50e3c2', '#f5a623', '#e94e77', '#9013fe', '#7ed321',
@@ -137,7 +136,6 @@ if ($month) {
         }
     });
 </script>
-
 <style>
     body {
         font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -230,4 +228,27 @@ if ($month) {
         font-style: italic;
         margin-top: 20px;
     }
+
+    .stats-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .table-container {
+        flex: 1;
+        min-width: 400px;
+        overflow-x: auto;
+    }
+
+    .chart-container {
+        flex: 0 0 500px;
+        max-width: 500px;
+    }
 </style>
+<?php
+$content = ob_get_clean();
+include __DIR__ . '/user/layout.php';
+?>

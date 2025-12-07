@@ -13,7 +13,7 @@ class TransactionController
     // Hiển thị danh sách giao dịch
     public function index()
     {
-        $makh = $_SESSION['makh'] ?? 1;
+        $makh = $_SESSION['user']['id'];
         $giaodichs = $this->model->getAllTransaction($makh);
         $tenkh = $this->model->getCustomerName($makh) ?? 'Khách hàng';
 
@@ -21,8 +21,67 @@ class TransactionController
         $message = $_SESSION['message'] ?? null;
         unset($_SESSION['message']);
 
-        // Truyền biến sang view
+        ob_start();
         include __DIR__ . '/../views/transaction.php';
+        $content = ob_get_clean();
+
+        $currentPage = 'transaction';
+
+        include __DIR__ . '/../views/user/layout.php';
+    }
+
+    public function add()
+    {
+        $makh = $_SESSION['user']['makh'];
+        $expenseModell = new KhoanchiModel();
+        $danhMucList = $expenseModell->getAllFromDSCHITIEU($makh);
+        include __DIR__ . '/../views/add_transaction.php';
+    }
+
+
+    public function store()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $makh        = $_SESSION['user']['makh'];
+            $machitieu   = $_POST['machitieu'];
+            $noidung     = $_POST['noidung'];
+            $sotien      = $_POST['sotien'];
+            $loai        = $_POST['loai'];
+            $ngaygiaodich = $_POST['ngaygiaodich'];
+            $ghichu      = $_POST['ghichu'] ?? null;
+
+            // Xử lý upload ảnh
+            $anhhoadon = null;
+            if (!empty($_FILES['anhhoadon']['name'])) {
+                $filename = time() . "_" . basename($_FILES['anhhoadon']['name']);
+                $path = "uploads/" . $filename;
+
+                move_uploaded_file($_FILES['anhhoadon']['tmp_name'], $path);
+                $anhhoadon = $filename;
+            }
+
+            $model = new TransactionModel();
+            $ok = $model->addTransactions(
+                $makh,
+                $machitieu,
+                $noidung,
+                $sotien,
+                $loai,
+                $ngaygiaodich,
+                $ghichu,
+                $anhhoadon
+            );
+
+            if ($ok) {
+                $_SESSION['success'] = "Thêm giao dịch thành công!";
+            } else {
+                $_SESSION['error'] = "Không thể thêm giao dịch!";
+            }
+
+            header("Location: index.php?controller=transaction&action=index");
+            exit;
+        }
     }
 
     // Xử lý cập nhật ghi chú

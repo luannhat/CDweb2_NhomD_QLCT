@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				window.location.href = 'thongke_nam.php';
 			} else if (period === 'month') {
 				// TODO: Xử lý thống kê theo tháng
-				console.log('Selected period: month');
+				window.location.href = '.php';
 			} else if (period === 'week') {
 				// TODO: Xử lý thống kê theo tuần
 				console.log('Selected period: week');

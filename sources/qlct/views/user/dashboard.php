@@ -1,6 +1,8 @@
 <?php
 ob_start();
 
+$currentPage = 'home';
+
 // Bắt đầu session nếu chưa active
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -59,7 +61,7 @@ $categoryExpenses = is_array($categoryExpenses) ? $categoryExpenses : [];
 </section>
 
 <section class="dashboard-actions">
-    <a href="?controller=transaction&action=add" class="btn-primary">Thêm giao dịch</a>
+    <a href="?controller=transaction&action=index" class="btn-primary">Giao dịch</a>
     <a href="?controller=report&action=view" class="btn-secondary">Xem báo cáo</a>
 </section>
 
