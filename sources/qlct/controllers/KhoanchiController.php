@@ -128,11 +128,11 @@ class KhoanchiController
         $madm = $postData['madmchitieu'] ?? $current['madmchitieu'];
 
         // Update
-        return $this->model->updateExpense($machitieu, $makh, $noidung, $sotien, $ngay, $madm);
+        $success = $this->model->updateExpense($machitieu, $makh, $noidung, $sotien, $ngay, $madm);
 
         if ($success) {
             $_SESSION['success'] = "Sửa khoản chi thành công!";
-            header("Location: khoanchi.php");
+            header("Location: /index.php?controller=khoanchi&action=index");
             exit;
         } else {
             $_SESSION['error'] = "Sửa thất bại!";
@@ -200,23 +200,22 @@ class KhoanchiController
     {
         require_once __DIR__ . '/../models/KhoanchiModel.php';
 
-		$model = new KhoanchiModel();
-		$categories = $model->getCategories($makh);
+        $model = new KhoanchiModel();
+        $categories = $model->getCategories($makh);
 
-		$currentPage = 'expense';
+        $currentPage = 'expense';
 
-		ob_start();
-		include __DIR__ . '/../views/user/them_khoanchi.php';
-		$content = ob_get_clean();
+        ob_start();
+        include __DIR__ . '/../views/user/them_khoanchi.php';
+        $content = ob_get_clean();
 
-		$cssFiles = [
-			'/public/css/khoanchi.css',
-			'/public/css/themkhoanchi.css'
-		];
+        $cssFiles = [
+            '/public/css/khoanchi.css',
+            '/public/css/themkhoanchi.css'
+        ];
 
-		include __DIR__ . '/../views/user/layout.php';
+        include __DIR__ . '/../views/user/layout.php';
     }
-
 }
 
 if (__FILE__ === realpath($_SERVER['SCRIPT_FILENAME'])) {
