@@ -21,213 +21,99 @@ foreach ($data as $index => $row) {
         'color' => $colors[$index % count($colors)]
     ];
 }
+
+ob_start(); // ✅ BẮT BUFFER
 ?>
 
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Thống kê chi tiêu trong năm - Quản lý chi tiêu</title>
-	<link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
-	<link rel="alternate icon" href="../public/favicon.svg">
+<header class="header">
+    <h1>Thống kê chi tiêu trong năm</h1>
 
-	<!-- Font Awesome 6 -->
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <div class="search" role="search">
+        <form method="get" action="baocao.php">
+            <input id="q" name="q" placeholder="Tìm kiếm..."
+                   value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+            <button id="searchBtn" type="submit">Tìm kiếm</button>
+        </form>
+    </div>
+</header>
 
-	<!-- Chart.js -->
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<main class="content">
 
-	<!-- CSS riêng của trang -->
-	<?php $cssVersion = @filemtime(__DIR__ . '/../public/css/khoanchi.css') ?: time(); ?>
-	<link rel="stylesheet" href="../public/css/khoanchi.css?v=<?php echo $cssVersion; ?>" />
-</head>
-<body>
+    <?php if (!empty($_SESSION['message'])): ?>
+        <div class="inline-alert">
+            <?= $_SESSION['message']; unset($_SESSION['message']); ?>
+        </div>
+    <?php endif; ?>
 
-<div class="app">
-	<!-- Sidebar -->
-	<?php include __DIR__ . '/../layouts/sidebar.php'; ?>
+    <!-- Form chọn năm -->
+    <div class="year-selector">
+        <form method="GET" action="index.php" class="year-form">
 
-	<!-- Main -->
-	<div class="main">
-		<header class="header">
-			<h1>Thống kê chi tiêu trong năm</h1>
+			<input type="hidden" name="controller" value="user">
+			<input type="hidden" name="action" value="stats">
+			<input type="hidden" name="view" value="year">
 
-			<div class="search" role="search">
-				<form method="get" action="baocao.php">
-					<input id="q" name="q" placeholder="Tìm kiếm..." 
-					       value="<?php echo htmlspecialchars($_GET['q'] ?? ''); ?>" />
-					<button id="searchBtn" type="submit">Tìm kiếm</button>
-				</form>
-			</div>
+            <label for="year">Chọn năm:</label>
+            <select name="year" id="year">
+                <?php
+                $currentYear = date('Y');
+                for ($y = $currentYear - 5; $y <= $currentYear + 1; $y++):
+                ?>
+                    <option value="<?= $y ?>" <?= ($year == $y) ? 'selected' : '' ?>>
+                        <?= $y ?>
+                    </option>
+                <?php endfor; ?>
+            </select>
+            <button class="btn primary">Xem thống kê</button>
+        </form>
+    </div>
 
-			<div class="header-right">
-				<div class="account" id="accountDropdown">
-					<?php 
-						$id = $_SESSION['id'] ?? '';
-						$displayName = $_SESSION['name'] ?? ($_SESSION['username'] ?? '');
-					?>
-					<button class="account-btn <?php echo $id ? '' : 'just-icon'; ?>" aria-haspopup="true" aria-expanded="false" title="<?php echo $id ? htmlspecialchars($displayName) : 'Tài khoản'; ?>">
-						<img class="avatar-img" src="../public/images/user_profile.png" alt="User" />
-						<?php if ($id): ?>
-							<span class="account-name"><?php echo htmlspecialchars($displayName ?: 'Người dùng'); ?></span>
-						<?php endif; ?>
-						<span class="caret">▾</span>
-					</button>
-					<div class="dropdown-menu" role="menu" aria-hidden="true">
-						<?php if ($id): ?>
-							<a class="dropdown-item" href="view_user.php?id=<?php echo $id; ?>">Trang cá nhân</a>
-							<div class="dropdown-sep"></div>
-							<a class="dropdown-item" href="logout.php">Đăng xuất</a>
-						<?php else: ?>
-							<a class="dropdown-item" href="login.php">Đăng nhập</a>
-							<div class="dropdown-sep"></div>
-							<a class="dropdown-item" href="register.php">Đăng ký</a>
-						<?php endif; ?>
-					</div>
-				</div>
-				
-				<div class="bell" title="Thông báo"><i class="fa-solid fa-bell"></i></div>
-			</div>
-		</header>
+    <?php if (!empty($chartData)): ?>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="pieChart"></canvas>
+            </div>
+            <div class="chart-legend">
+                <?php foreach ($chartData as $item): ?>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: <?= $item['color'] ?>"></div>
+                        <span><?= htmlspecialchars($item['name']) ?></span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php else: ?>
+        <p>Không có dữ liệu năm <?= $year ?></p>
+    <?php endif; ?>
 
-		<main class="content">
-			<?php if (!empty($_SESSION['message'])): ?>
-				<div class="inline-alert" role="alert">
-					<?php
-					echo $_SESSION['message'];
-					unset($_SESSION['message']);
-					?>
-				</div>
-			<?php endif; ?>
+    <?php if ($totalExpense > 0): ?>
+        <div class="total-expense">
+            Tổng chi tiêu: <strong><?= number_format($totalExpense, 0, ',', '.') ?> VNĐ</strong>
+        </div>
+    <?php endif; ?>
 
-			<!-- Form chọn năm -->
-			<div class="year-selector">
-				<form method="GET" action="thongke_nam.php" class="year-form">
-					<label for="year">Chọn năm:</label>
-					<select name="year" id="year">
-						<?php 
-						$currentYear = date('Y');
-						for ($y = $currentYear - 5; $y <= $currentYear + 1; $y++): 
-						?>
-							<option value="<?php echo $y; ?>" <?php echo ($year == $y) ? 'selected' : ''; ?>>
-								<?php echo $y; ?>
-							</option>
-						<?php endfor; ?>
-					</select>
-					<button type="submit" class="btn primary">Xem thống kê</button>
-				</form>
-			</div>
-
-			<!-- Biểu đồ và legend -->
-			<?php if (!empty($chartData)): ?>
-			<div class="chart-container">
-				<div class="chart-wrapper">
-					<canvas id="pieChart"></canvas>
-				</div>
-				<div class="chart-legend">
-					<?php foreach ($chartData as $item): ?>
-						<div class="legend-item">
-							<div class="legend-color" style="background-color: <?php echo $item['color']; ?>;"></div>
-							<span class="legend-text"><?php echo htmlspecialchars($item['name']); ?></span>
-						</div>
-					<?php endforeach; ?>
-				</div>
-			</div>
-			<?php else: ?>
-				<div class="no-data">
-					<p>Không có dữ liệu chi tiêu cho năm <?php echo $year; ?></p>
-				</div>
-			<?php endif; ?>
-
-			<!-- Tổng chi tiêu cả năm -->
-			<?php if ($totalExpense > 0): ?>
-			<div class="total-expense">
-				<p>Tổng chỉ tiêu cả năm: <strong><?php echo number_format($totalExpense, 0, ',', '.'); ?> VNĐ</strong></p>
-			</div>
-			<?php endif; ?>
-		</main>
-	</div>
-</div>
+</main>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var account = document.getElementById('accountDropdown');
-	if (account) {
-		var btn = account.querySelector('.account-btn');
-		var menu = account.querySelector('.dropdown-menu');
-
-		function closeMenu() {
-			menu.style.display = 'none';
-			btn.setAttribute('aria-expanded', 'false');
-			menu.setAttribute('aria-hidden', 'true');
-		}
-
-		function toggleMenu() {
-			var isOpen = menu.style.display === 'block';
-			if (isOpen) closeMenu();
-			else {
-				menu.style.display = 'block';
-				btn.setAttribute('aria-expanded', 'true');
-				menu.setAttribute('aria-hidden', 'false');
-			}
-		}
-
-		btn.addEventListener('click', function(e) {
-			e.stopPropagation();
-			toggleMenu();
-		});
-
-		document.addEventListener('click', function(e) {
-			if (!account.contains(e.target)) {
-				closeMenu();
-			}
-		});
-	}
-
-	// Vẽ pie chart
-	<?php if (!empty($chartData)): ?>
-	const ctx = document.getElementById('pieChart');
-	if (ctx) {
-		const chartData = <?php echo json_encode($chartData); ?>;
-		
-		new Chart(ctx, {
-			type: 'pie',
-			data: {
-				labels: chartData.map(item => item.name),
-				datasets: [{
-					data: chartData.map(item => item.value),
-					backgroundColor: chartData.map(item => item.color),
-					borderWidth: 2,
-					borderColor: '#fff'
-				}]
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: true,
-				plugins: {
-					legend: {
-						display: false
-					},
-					tooltip: {
-						callbacks: {
-							label: function(context) {
-								const label = context.label || '';
-								const value = context.parsed || 0;
-								const total = context.dataset.data.reduce((a, b) => a + b, 0);
-								const percent = ((value / total) * 100).toFixed(2);
-								return label + ': ' + new Intl.NumberFormat('vi-VN').format(value) + ' VNĐ (' + percent + '%)';
-							}
-						}
-					}
-				}
-			}
-		});
-	}
-	<?php endif; ?>
+<?php if (!empty($chartData)): ?>
+new Chart(document.getElementById('pieChart'), {
+    type: 'pie',
+    data: {
+        labels: <?= json_encode(array_column($chartData, 'name')) ?>,
+        datasets: [{
+            data: <?= json_encode(array_column($chartData, 'value')) ?>,
+            backgroundColor: <?= json_encode(array_column($chartData, 'color')) ?>,
+        }]
+    },
+    options: { plugins: { legend: { display: false } } }
 });
+<?php endif; ?>
 </script>
 
-</body>
-</html>
+<?php
+$content = ob_get_clean();
 
+$pageTitle = 'Thống kê chi tiêu trong năm';
+$cssFiles = ['/public/css/khoanchi.css'];
+
+require_once __DIR__ . '/layout.php';
