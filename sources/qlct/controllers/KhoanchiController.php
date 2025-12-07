@@ -128,11 +128,11 @@ class KhoanchiController
         $madm = $postData['madmchitieu'] ?? $current['madmchitieu'];
 
         // Update
-        return $this->model->updateExpense($machitieu, $makh, $noidung, $sotien, $ngay, $madm);
+        $success = $this->model->updateExpense($machitieu, $makh, $noidung, $sotien, $ngay, $madm);
 
         if ($success) {
             $_SESSION['success'] = "Sửa khoản chi thành công!";
-            header("Location: khoanchi.php");
+            header("Location: /index.php?controller=khoanchi&action=index");
             exit;
         } else {
             $_SESSION['error'] = "Sửa thất bại!";
@@ -194,6 +194,27 @@ class KhoanchiController
         return $data
             ? ['success' => true, 'data' => $data]
             : ['success' => false, 'message' => 'Không tìm thấy khoản chi'];
+    }
+
+    public function create()
+    {
+        require_once __DIR__ . '/../models/KhoanchiModel.php';
+
+        $model = new KhoanchiModel();
+        $categories = $model->getCategories($makh);
+
+        $currentPage = 'expense';
+
+        ob_start();
+        include __DIR__ . '/../views/user/them_khoanchi.php';
+        $content = ob_get_clean();
+
+        $cssFiles = [
+            '/public/css/khoanchi.css',
+            '/public/css/themkhoanchi.css'
+        ];
+
+        include __DIR__ . '/../views/user/layout.php';
     }
 }
 
