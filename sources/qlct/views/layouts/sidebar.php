@@ -28,9 +28,9 @@ if (isset($_SESSION['user']['quyen']) && $_SESSION['user']['quyen'] === 'admin')
         <a href="<?= $basePath ?>views/catagories.php" class="<?= basename($_SERVER['PHP_SELF']) == 'danhmuc.php' || basename($_SERVER['PHP_SELF']) == 'catagories.php' ? 'active' : '' ?>">Danh mục</a>
         <a href="<?= $basePath ?>views/ngansach.php" class="<?= basename($_SERVER['PHP_SELF']) == 'ngansach.php' ? 'active' : '' ?>">Ngân sách</a>
         <?php
-            $reportPages = ['baocao.php', 'bieu_do_duong.php', 'bieu_do_cot.php'];
+            $reportPages = ['baocao.php', 'bieu_do_duong.php', 'bieu_do_cot.php', 'thongke_chi_tieu_tuan.php'];
             $isReportActive = in_array(basename($_SERVER['PHP_SELF']), $reportPages, true)
-                || (isset($_GET['controller']) && $_GET['controller'] == 'statistical' && isset($_GET['action']) && $_GET['action'] == 'annualStatistics');
+                || (isset($_GET['controller']) && $_GET['controller'] == 'statistical' && in_array($_GET['action'] ?? '', ['annualStatistics', 'weeklyStatistics', 'weeklyDetail']));
         ?>
         <a href="<?= $basePath ?>views/baocao.php" class="<?= $isReportActive ? 'active' : '' ?>">Báo cáo</a>
         <a href="<?= $basePath ?>views/profile.php" class="<?= basename($_SERVER['PHP_SELF']) == 'caidat.php' || basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'active' : '' ?>">Cài đặt</a>

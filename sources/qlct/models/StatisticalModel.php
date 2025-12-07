@@ -276,4 +276,43 @@ class StatisticalModel extends BaseModel
         }
         return $totals;
     }
+
+    /**
+     * Lấy chi tiết các giao dịch chi tiêu trong một tuần cụ thể
+     */
+    public function getWeeklyExpenseDetails($makh, $year, $month, $week)
+    {
+        $makh = intval($makh);
+        $year = intval($year);
+        $month = intval($month);
+        $week = intval($week);
+
+        // Xác định ngày bắt đầu và kết thúc của tuần
+        $dayStart = ($week - 1) * 7 + 1;
+        $dayEnd = $dayStart + 6;
+
+        if ($week == 4) {
+            $dayEnd = 31; // Tuần 4 có thể đến hết tháng
+        }
+
+        $sql = "
+            SELECT 
+                machitieu,
+                sotien,
+                ngaychitieu,
+                ghichu,
+                machitieu as category_id
+            FROM DSCHITIEU
+            WHERE makh = {$makh}
+                AND loai = 'expense'
+                AND YEAR(ngaychitieu) = {$year}
+                AND MONTH(ngaychitieu) = {$month}
+                AND DAY(ngaychitieu) >= {$dayStart}
+                AND DAY(ngaychitieu) <= {$dayEnd}
+            ORDER BY ngaychitieu DESC
+        ";
+
+        $result = $this->conn->query($sql);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
 }

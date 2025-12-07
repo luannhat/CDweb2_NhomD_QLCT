@@ -1,157 +1,59 @@
+<?php
+// ===== VIEW THUẦN – KHÔNG LOGIC, KHÔNG SIDEBAR =====
+?>
 
-<!doctype html>
-<html lang="vi">
+<header class="header">
+	<h1>Thêm khoản thu</h1>
+</header>
 
-<head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width,initial-scale=1" />
-	<title>Thêm khoản thu</title>
-	<link rel="stylesheet" href="../public/css/khoanchi.css" />
-	<link rel="stylesheet" href="../public/css/themkhoanchi.css" />
-</head>
+<main class="content">
+	<div class="form-container">
 
-<body>
-	<div class="app">
-		<!-- Sidebar -->
-		<aside class="sidebar">
-			<div class="logo">
-				<div class="burger" aria-hidden="true"></div>
-				<strong style="color:#222">Menu</strong>
+		<?php if (!empty($_SESSION['message'])): ?>
+			<div class="alert <?= $_SESSION['success'] ? 'alert-success' : 'alert-error' ?>">
+				<?= $_SESSION['message'] ?>
+			</div>
+			<?php unset($_SESSION['message'], $_SESSION['success']); ?>
+		<?php endif; ?>
+
+		<form method="POST" action="index.php?controller=khoanthu&action=add">
+
+			<div class="form-row">
+				<label for="noidung">Nội dung <span class="required">*</span></label>
+				<input type="text" id="noidung" name="noidung" required
+					   value="<?= htmlspecialchars($_POST['noidung'] ?? '') ?>">
 			</div>
 
-			<nav class="menu" aria-label="Main menu">
-				<a href="index.php">Trang chủ</a>
-				<a href="khoanthu.php" class="active">Khoản thu</a>
-				<a href="khoanchi.php">Khoản chi</a>
-				<a href="danhmuc.php">Danh mục</a>
-				<a href="ngansach.php">Ngân sách</a>
-				<a href="baocao.php">Báo cáo</a>
-				<a href="caidat.php">Cài đặt</a>
-			</nav>
-		</aside>
+			<div class="form-row">
+				<label for="sotien">Số tiền <span class="required">*</span></label>
+				<input type="number" id="sotien" name="sotien" required min="1"
+					   value="<?= htmlspecialchars($_POST['sotien'] ?? '') ?>">
+			</div>
 
-		<!-- Main -->
-		<div class="main">
-			<header class="header">
-				<h1>Thêm khoản thu</h1>
-			</header>
+			<div class="form-row">
+				<label for="ngaygiaodich">Ngày <span class="required">*</span></label>
+				<input type="date" id="ngaygiaodich" name="ngaygiaodich"
+					   value="<?= htmlspecialchars($_POST['ngaygiaodich'] ?? date('Y-m-d')) ?>">
+			</div>
 
-			<main class="content">
-				<div class="form-container">
-					<?php
-					// Xử lý form submit
-					if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-						require_once __DIR__ . '/../controllers/KhoanthuController.php';
-						$controller = new KhoanthuController();
-						$result = $controller->add();
+			<div class="form-row">
+				<label for="madmthunhap">Loại <span class="required">*</span></label>
+				<select id="madmthunhap" name="madmthunhap" required>
+					<option value="">-- Chọn nguồn thu --</option>
+					<?php foreach ($categories as $category): ?>
+						<option value="<?= $category['madmthunhap'] ?>"
+							<?= (($_POST['madmthunhap'] ?? '') == $category['madmthunhap']) ? 'selected' : '' ?>>
+							<?= htmlspecialchars($category['tendanhmuc']) ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</div>
 
-						if ($result['success']) {
-							echo '<div class="alert alert-success">' . $result['message'] . '</div>';
-							// Redirect về trang danh sách sau 2 giây
-							echo '<script>setTimeout(() => window.location.href = "khoanthu.php", 2000);</script>';
-						} else {
-							echo '<div class="alert alert-error">' . $result['message'] . '</div>';
-						}
-					}
-					?>
+			<div class="btn-group">
+				<a href="index.php?controller=khoanthu" class="btn btn-secondary">Hủy</a>
+				<button type="submit" class="btn btn-primary">Lưu</button>
+			</div>
 
-					<form method="POST" action="">
-						<div class="form-row">
-							<label for="noidung">Nội dung: <span class="required">*</span></label>
-							<input type="text" id="noidung" name="noidung" required 
-							       value="<?php echo htmlspecialchars($_POST['noidung'] ?? ''); ?>"
-							       placeholder="Nhập tên khoản thu">
-						</div>
-
-						<div class="form-row">
-							<label for="sotien">Số tiền: <span class="required">*</span></label>
-							<input type="number" id="sotien" name="sotien" required min="1" step="1"
-							       value="<?php echo htmlspecialchars($_POST['sotien'] ?? ''); ?>"
-							       placeholder="Nhập số tiền">
-						</div>
-
-						<div class="form-row">
-							<label for="ngaythunhap">Ngày: <span class="required">*</span></label>
-							<input type="date" id="ngaygiaodich" name="ngaygiaodich" required
-							       value="<?php echo htmlspecialchars($_POST['ngaygiaodich'] ?? date('Y-m-d')); ?>">
-						</div>
-
-						<div class="form-row">
-							<label for="matdmhunhap">Loại: <span class="required">*</span></label>
-							<select id="madmthunhap" name="madmthunhap" required>
-								<option value="">-- Chọn nguồn thu --</option>
-								<?php
-								// Lấy danh sách danh mục khoản thu
-								try {
-									require_once __DIR__ . '/../models/KhoanthuModel.php';
-									$khoanthuModel = new KhoanthuModel();
-									$categories = $khoanthuModel->getAllCategoriesDistinct();
-
-									 foreach ($categories as $category) {
-        								$selected = (isset($_POST['madmthunhap']) && $_POST['madmthunhap'] == $category['madmthunhap']) ? 'selected' : '';
-        								echo "<option value='{$category['madmthunhap']}' {$selected}>{$category['tendanhmuc']}</option>";
-    								}
-								} catch (Exception $e) {
-									echo '';
-								}
-								?>
-							</select>
-						</div>
-
-						<div class="btn-group">
-							<a href="khoanthu.php" class="btn btn-secondary">Hủy</a>
-							<button type="submit" class="btn btn-primary">Lưu</button>
-						</div>
-					</form>
-				</div>
-			</main>
-		</div>
+		</form>
 	</div>
-
-	<script>
-		// Format số tiền khi nhập
-		document.getElementById('sotien').addEventListener('input', function(e) {
-			let value = e.target.value.replace(/\D/g, '');
-			if (value) {
-				e.target.value = parseInt(value);
-			}
-		});
-
-		// Validate form
-		document.querySelector('form').addEventListener('submit', function(e) {
-			const noidung = document.getElementById('noidung').value.trim();
-			const mathunhap = document.getElementById('mathunhap').value;
-			const sotien = document.getElementById('sotien').value;
-			const ngaygiaodich = document.getElementById('ngaygiaodich').value;
-
-			if (!noidung) {
-				alert('Vui lòng nhập tên khoản thu');
-				e.preventDefault();
-				return;
-			}
-
-			if (!tendanhmuc) {
-				alert('Vui lòng chọn nguồn thu');
-				e.preventDefault();
-				return;
-			}
-
-			if (!sotien || parseInt(sotien) <= 0) {
-				alert('Vui lòng nhập số tiền hợp lệ');
-				e.preventDefault();
-				return;
-			}
-
-			if (!ngaygiaodich) {
-				alert('Vui lòng chọn ngày');
-				e.preventDefault();
-				return;
-			}
-		});
-	</script>
-</body>
-
-</html>
-
-
-
+</main>

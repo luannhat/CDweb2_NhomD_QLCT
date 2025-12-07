@@ -1,3 +1,9 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -5,8 +11,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý chi tiêu</title>
-    <link rel="stylesheet" href="./public/css/user.css">
+    <link rel="stylesheet" href="/public/css/user.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <?php if (!empty($cssFiles)): ?>
+        <?php foreach ($cssFiles as $css): ?>
+            <link rel="stylesheet" href="<?= $css ?>">
+        <?php endforeach; ?>
+    <?php endif; ?>
 
 </head>
 
@@ -16,16 +27,16 @@
         <div class="logo">QuanLyChiTieu</div>
 
         <nav>
-            <a href="?controller=user&action=home"
+            <a href="/index.php?controller=user&action=home"
                 class="<?= ($currentPage == 'home' ? 'active' : '') ?>">Trang chủ</a>
 
-            <a href="?controller=user&action=income"
+            <a href="/index.php?controller=user&action=income"
                 class="<?= ($currentPage == 'income' ? 'active' : '') ?>">Khoản thu</a>
 
-            <a href="?controller=user&action=expense"
+            <a href="/index.php?controller=user&action=expense"
                 class="<?= ($currentPage == 'expense' ? 'active' : '') ?>">Khoản chi</a>
 
-            <a href="?controller=user&action=budget"
+            <a href="/index.php?controller=user&action=budget"
                 class="<?= ($currentPage == 'budget' ? 'active' : '') ?>">Ngân sách</a>
 
             <div class="nav-dropdown">
@@ -37,9 +48,9 @@
                 </label>
 
                 <div class="nav-dropdown-menu">
-                    <a href="?controller=user&action=stats&view=month">Theo tháng</a>
-                    <a href="?controller=user&action=stats&view=year">Theo năm</a>
-                    <a href="?controller=user&action=stats&view=custom">Tùy chỉnh</a>
+                    <a href="/index.php?controller=user&action=stats&view=month">Theo tháng</a>
+                    <a href="/index.php?controller=user&action=stats&view=year">Theo năm</a>
+                    <a href="/index.php?controller=user&action=stats&view=custom">Tùy chỉnh</a>
                 </div>
             </div>
 

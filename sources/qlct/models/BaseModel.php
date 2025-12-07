@@ -25,19 +25,19 @@ abstract class BaseModel
     }
 
     public function login($email, $password) {
-    $sql = "SELECT * FROM KHACHHANG WHERE email = '" . self::$_connection->real_escape_string($email) . "' LIMIT 1";
-    $result = self::$_connection->query($sql);
+        $sql = "SELECT * FROM KHACHHANG WHERE email = '" . self::$_connection->real_escape_string($email) . "' LIMIT 1";
+        $result = self::$_connection->query($sql);
 
-    if ($result && $result->num_rows > 0) {
-        $user = $result->fetch_assoc();
-        // Nếu password được hash bằng password_hash()
-        if (password_verify($password, $user['password'])) {
-            return $user;
+        if ($result && $result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            // Nếu password được hash bằng password_hash()
+            if (password_verify($password, $user['password'])) {
+                return $user;
+            }
         }
-    }
 
-    return false;
-}
+        return false;
+    }
 
 
     protected function query($sql)
